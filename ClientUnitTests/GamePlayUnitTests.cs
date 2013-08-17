@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 namespace ClientUnitTests
 {
     [TestClass]
-    public class GameBoardTests
+    public class GamePlayUnitTests
     {
         private GameBoard _gameBoard = GameBoard.GetInstance();
 

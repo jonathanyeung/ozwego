@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace WorkerRole
@@ -19,52 +18,24 @@ namespace WorkerRole
         }
 
 
-        private void SendMessage(string recipient, PacketType packetType, Dictionary<string, string> arguments)
+        public void SendMessage(Client recipient, PacketType packetType, Dictionary<string, string> arguments)
         {
             SendMessageInternal(recipient, packetType, CreateUrlQueryString(arguments));
         }
 
 
-        public void SendMessage(string recipient, PacketType packetType, string arguments)
+        public void SendMessage(Client recipient, PacketType packetType, string arguments)
         {
-            var msgFields = new Dictionary<string, string> {{"message", arguments}, {"recipients", recipient}};
-            var messageToSend = CreateUrlQueryString(msgFields);
+            var messageToSend = "";
+            var msgFields = new Dictionary<string, string> {{"message", arguments}};
+            messageToSend = CreateUrlQueryString(msgFields);
 
             SendMessageInternal(recipient, packetType, messageToSend);
         }
 
 
-        /// <summary>
-        /// Sends a message to the client if the client exists in the client list of this instance.
-        /// </summary>
-        /// <param name="recipient"></param>
-        /// <param name="packetType"></param>
-        /// <param name="messageToSend"></param>
-        private static void SendMessageInternal(string recipient, PacketType packetType, string messageToSend)
+        private static void SendMessageInternal(Client recipient, PacketType packetType, string messageToSend)
         {
-            Client recipientClient = null;
-
-            var recipientInfo = WorkerRole.ClientManager.GetClientInformation(recipient);
-
-            if (recipientInfo == null)
-            {
-                return;
-            }
-            else if (recipientInfo.ServerInstanceId == WorkerRole.instanceID)
-            {
-                recipientClient = WorkerRole.ClientManager.GetLocalClient(recipient);
-            }
-            else
-            {
-                recipientClient = WorkerRole.InternalClients.FirstOrDefault
-                        (c => c.ServerInstanceID == recipientInfo.ServerInstanceId);
-            }
-
-
-            //
-            // Format the message
-            //
-
             var messageSize = (uint) (1 + Encoding.UTF8.GetByteCount(messageToSend));
 
             byte[] bytes = BitConverter.GetBytes(messageSize);
@@ -74,21 +45,20 @@ namespace WorkerRole
                 Array.Reverse(bytes);
             }
 
-            var offset = 0;
+            int offset = 0;
             var messageBuffer = new byte[sizeof (uint) + sizeof (PacketType) + messageToSend.Length];
             bytes.CopyTo(messageBuffer, offset);
 
             offset += sizeof (uint);
+
             messageBuffer[offset] = (byte) packetType;
+
             offset += sizeof (PacketType);
 
             byte[] newBytes = Encoding.UTF8.GetBytes(messageToSend);
             newBytes.CopyTo(messageBuffer, offset);
 
-            if (recipientClient != null)
-            {
-                recipientClient.Send(messageBuffer);
-            }
+            recipient.Send(messageBuffer);
         }
 
 
@@ -101,25 +71,25 @@ namespace WorkerRole
         /// <param name="arguments"></param>
         /// <param name="sender">Client that is sending this message, set to null if this is not a
         /// user-initiated message</param>
-        public void BroadcastMessage(List<string> recipients, PacketType packetType, string arguments, string sender)
+        public void BroadcastMessage(List<Client> recipients, PacketType packetType, string arguments, Client sender)
         {
-            foreach (string recipient in recipients)
+            foreach (Client c in recipients)
             {
-                if (recipient != sender)
+                if (c != sender)
                 {
-                    SendMessage(recipient, packetType, arguments);
+                    SendMessage(c, packetType, arguments);
                 }
             }
         }
 
 
-        public void BroadcastMessage(List<string> recipients, PacketType packetType, Dictionary<string, string> arguments, string sender)
+        public void BroadcastMessage(List<Client> recipients, PacketType packetType, Dictionary<string, string> arguments, Client sender)
         {
-            foreach (string recipient in recipients)
+            foreach (Client c in recipients)
             {
-                if (recipient != sender)
+                if (c != sender)
                 {
-                    SendMessage(recipient, packetType, arguments);
+                    SendMessage(c, packetType, arguments);
                 }
             }
         }
@@ -131,11 +101,11 @@ namespace WorkerRole
         /// <param name="recipients"></param>
         /// <param name="packetType"></param>
         /// <param name="arguments"></param>
-        public void BroadcastMessage(List<string> recipients, PacketType packetType, string arguments)
+        public void BroadcastMessage(List<Client> recipients, PacketType packetType, string arguments)
         {
-            foreach (string recipient in recipients)
+            foreach (Client c in recipients)
             {
-                SendMessage(recipient, packetType, arguments);
+                SendMessage(c, packetType, arguments);
             }
         }
 
@@ -147,23 +117,7 @@ namespace WorkerRole
         /// </summary>
         /// <param name="recipients"></param>
         /// <returns></returns>
-        //public string GetRecipientListFormattedString(List<Client> recipients)
-        //{
-        //    const char delimiter = ',';
-
-        //    string returnString = "";
-
-        //    foreach (var client in recipients)
-        //    {
-        //        returnString += client.Information.UserName;
-        //        returnString += delimiter;
-        //    }
-
-        //    return returnString.TrimEnd(delimiter);
-        //}
-
-        //ToDo: Consolidate overloaded methods.
-        public string GetRecipientListFormattedString(List<string> recipients)
+        public string GetRecipientListFormattedString(List<Client> recipients)
         {
             const char delimiter = ',';
 
@@ -171,7 +125,7 @@ namespace WorkerRole
 
             foreach (var client in recipients)
             {
-                returnString += recipients;
+                returnString += client.UserName;
                 returnString += delimiter;
             }
 

@@ -37,14 +37,6 @@
     <ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Cache\Cache.csproj">
-      <Name>Cache</Name>
-      <Project>{ff04db3b-b993-4d43-bdb3-5a3fa0c8af5b}</Project>
-      <Private>True</Private>
-      <RoleType>Worker</RoleType>
-      <RoleName>Cache</RoleName>
-      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
-    </ProjectReference>
     <ProjectReference Include="..\WorkerRole\WorkerRole.csproj">
       <Name>WorkerRole</Name>
       <Project>{387bdb7b-eb18-4c46-873b-11d00db4f875}</Project>
@@ -55,16 +47,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="CacheContent\" />
     <Folder Include="Profiles" />
   </ItemGroup>
   <ItemGroup>
     <PublishProfile Include="Profiles\ozwegoStaging.azurePubxml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="CacheContent\diagnostics.wadcfg">
-      <SubType>Content</SubType>
-    </Content>
   </ItemGroup>
   <!-- Import the target files for this project template -->
   <PropertyGroup>

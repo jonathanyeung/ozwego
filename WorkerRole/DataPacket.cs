@@ -39,16 +39,8 @@
         ServerChat      = 109,
         ServerBuddyList = 110,      // User just signed in, send the global buddy list.
         ServerRoomList  = 111,      // User just joined a room, send the room members list.
-        ServerInitiateGame = 112,   // On receiving this, the client is supposed to move to the Game UI, but the actual game has NOT started yet.
-        ServerMaxValue  = 113,
-
-
-        //
-        // Server to Server
-        //
-
-        ForceDisconnect = 200
-
+        ServerInitiateGame = 112, // On receiving this, the client is supposed to move to the Game UI, but the actual game has NOT started yet.
+        ServerMaxValue  = 113
     }
 
     class DataPacket

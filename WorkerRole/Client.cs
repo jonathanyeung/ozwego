@@ -4,13 +4,6 @@ using System.Net.Sockets;
 
 namespace WorkerRole
 {
-    public class ClientInformation
-    {
-        public string RoomHost;
-        public string UserName;
-        public Guid ServerInstanceId;
-    }
-
     delegate void OnMessageReceivedHandler(Client client, byte[] msgBytes);
 
     /// <summary>
@@ -18,13 +11,23 @@ namespace WorkerRole
     /// </summary>
     public class Client
     {
+
         private readonly Socket _socket = null;
         private readonly int _socketId;
+        public Room Room;
 
         public Client(Socket client)
         {
             _socket = client;
+
+            //
+            // Create a new room for the new connecting client.
+            //
+            
+            Room = WorkerRole.RoomManager.CreateNewRoom(this);
         }
+
+        public string UserName;
 
 
         ~Client()
@@ -62,10 +65,9 @@ namespace WorkerRole
             }
         }
 
-
         #region Public Methods
 
-        public virtual void Disconnect()
+        public void Disconnect()
         {
             try
             {
@@ -80,6 +82,7 @@ namespace WorkerRole
             }
             finally
             {
+                WorkerRole.ClientManager.RemoveClient(this);
                 _socket.Close();
             }
         }
@@ -104,18 +107,6 @@ namespace WorkerRole
         }
 
         #endregion
-
-
-        /// <summary>
-        /// Virtual method to take action on the message once it is parsed out.  Different
-        /// action is needed based on whether the message is internal or external, hence 
-        /// the override.
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="msgBytes"></param>
-        protected virtual void HandleMessage(ref Client client, byte[] msgBytes)
-        {}
-
 
         /// <summary>
         /// This method asynchronously waits for incoming messages on the TCP socket. It
@@ -147,12 +138,12 @@ namespace WorkerRole
 
 
                 //
-                // Now, this loop parses out the actual message.
+                // Now, this loop is to parse out the actual message.
                 //
 
                 MessageReceiverLoop(incomingMessageSizeArray, 0, totalCount, (clientSocket, msgBytes) =>
                 {
-                    HandleMessage(ref clientSocket, msgBytes);
+                    WorkerRole.IncomingMessageHandler.HandleMessage(ref clientSocket, msgBytes);
                     ReceiveAsync();
                 });
             });
@@ -212,7 +203,7 @@ namespace WorkerRole
                         // Callback once data is received through the socket.
                         //
 
-                        //ToDo: Determine if this code needs to be re-enabled
+                        //ToDo: Determine if we need to re-enable this code.
                         // Possible that our socket instance has changed between BeginReceive and EndReceive.
                         //int? thisSocketID = aResult.AsyncState as int?;
                         //if (!thisSocketID.HasValue || thisSocketID.Value != _socketID)
@@ -280,7 +271,15 @@ namespace WorkerRole
                 Trace.WriteLine(string.Format("TCPReceiveLoop: Caught exception!! '{0}'\n{1}", e.Message, e.StackTrace));
                 return false;
             }
+
             return true;
         }
+
+
+        //private void OnDisconnected()
+        //{
+        //    // ToDo: Here we need to broadcast that this user has signed out.
+        //    _socket.Close();
+        //}
     }
 }

@@ -15,9 +15,7 @@ namespace WorkerRole
         // Singleton
         private static IncomingMessageHandler _instance;
 
-        private IncomingMessageHandler()
-        {
-        }
+        private IncomingMessageHandler() { }
 
 
         public static IncomingMessageHandler GetIncomingMessageHandler()
@@ -31,10 +29,9 @@ namespace WorkerRole
         /// </summary>
         /// <param name="client">
         /// the client connection that sent the message</param>
-        /// <param name="endpointType">The TCP endpoint type of the source of this message</param>
         /// <param name="msgBytes">
         /// the message buffer</param>
-        public void HandleMessage(ref Client client, EndpointType endpointType, byte[] msgBytes)
+        public void HandleMessage(ref Client client, byte[] msgBytes)
         {
             int messageLength = msgBytes.Length;
             string rawMessage = "";
@@ -49,7 +46,6 @@ namespace WorkerRole
                 Array.Copy(msgBytes, 1, tempArray, 0, msgBytes.Length - 1);
                 rawMessage = Encoding.UTF8.GetString(tempArray);
             }
-
 
             //
             // Extract the string fields from the www form url.
@@ -67,15 +63,17 @@ namespace WorkerRole
             string message;
             if (!messageFields.TryGetValue("message", out message))
             {
-                Trace.WriteLine(
-                    " IncomingMessageHandler.HandleMessage Error: 'message' field was not found in incoming message");
+                //ToDo: Error Handling.
+                Trace.WriteLine("'message' field was not found in incoming message");
+                //throw new ArgumentException("'message' field was not found in incoming message");
             }
 
             string sender;
             if (!messageFields.TryGetValue("sender", out sender))
             {
-                Trace.WriteLine(
-                    " IncomingMessageHandler.HandleMessage Error: 'message' field was not found in incoming message");
+                //ToDo: Error Handling.
+                Trace.WriteLine("'message' field was not found in incoming message");
+                //throw new ArgumentException("'sender' field was not found in incoming message");
             }
 
 
@@ -91,86 +89,15 @@ namespace WorkerRole
             // Extract the packet type.
             //
 
-            var packetType = (PacketType) msgBytes[0];
+            var packetType = (PacketType)msgBytes[0];
 
             if (packetType >= PacketType.ClientMaxValue)
             {
-                Trace.WriteLine(string.Format(" IncomingMessageHandler.HandleMessage " +
-                                              "Error: Invalid packet type from client PacketType = {0}", packetType));
+                //ToDo: Error Handling.
+                //throw new ArgumentException(
+                //        string.Format("[IncomingMessageHandler.HandleMessage] - " +
+                //        "Invalid packet type from client PacketType = {0}", packetType));
             }
-
-            switch (endpointType)
-            {
-                case EndpointType.External:
-                    PerformActionsForExternalClientMessage(
-                            client as ExternalClient,
-                            packetType,
-                            sender,
-                            message,
-                            msgRecipients);
-                    break;
-
-                case EndpointType.Internal:
-                    PerformActionsForInternalClientMessage(
-                            client as InternalClient,
-                            packetType,
-                            sender,
-                            message,
-                            msgRecipients);
-                    break;
-            }
-        }
-
-
-        private void PerformActionsForInternalClientMessage(
-            InternalClient client,
-            PacketType packetType,
-            string sender,
-            string message,
-            string msgRecipients)
-        {
-            switch (packetType)
-            {
-                case PacketType.UserLoggedOut:
-                case PacketType.UserLoggedIn:
-                case PacketType.UserJoinedRoom:
-                case PacketType.UserLeftRoom:
-                case PacketType.HostTransfer:
-                case PacketType.ServerPeel:
-                case PacketType.ServerDump:
-                case PacketType.ServerGameStart:
-                case PacketType.ServerGameOver:
-                case PacketType.ServerChat:
-                case PacketType.ServerInitiateGame:
-                    //ToDo: Check to make sure this "message" is what should be sent here...
-                    WorkerRole.MessageSender.SendMessage(msgRecipients, packetType, message);
-                    break;
-
-                case PacketType.ForceDisconnect:
-                    ExternalClient clientToDisconnect = WorkerRole.ClientManager.GetLocalClient(message);
-
-                    if (client != null)
-                    {
-                        clientToDisconnect.Disconnect();
-                    }
-                    break;
-
-                default:
-                    Trace.WriteLine(string.Format(" IncomingMessageHandler.HandleMessage " +
-                              "Error: Invalid packet type from external client. PacketType = {0}", packetType));
-                    break;
-            }
-        }
-
-
-        private void PerformActionsForExternalClientMessage(
-            ExternalClient client,
-            PacketType packetType,
-            string sender,
-            string message,
-            string msgRecipients)
-        {
-            var roomMembers = WorkerRole.RoomManager.GetRoomMembers(client.Information.RoomHost);
 
             switch (packetType)
             {
@@ -178,34 +105,18 @@ namespace WorkerRole
                     //
                     // Sign out anyone who is using the same user name.
                     //
-                    //ToDo: Verify this is correct: sender was message.
-                    var duplicateClient = WorkerRole.ClientManager.GetGlobalClientList()
-                                                    .FirstOrDefault((c) => c == sender);
+
+                    var duplicateClient = WorkerRole.ClientManager.GetClientList()
+                        .FirstOrDefault((c) => c.UserName == message);
 
                     if (duplicateClient != null)
                     {
-                        var clientInfo = WorkerRole.ClientManager.GetClientInformation(duplicateClient);
-
-                        if (clientInfo.ServerInstanceId == WorkerRole.instanceID)
-                        {
-                            WorkerRole.ClientManager.GetLocalClient(clientInfo.UserName).Disconnect();
-                        }
-                        else
-                        {
-                            WorkerRole.MessageSender.SendMessage(clientInfo.UserName, PacketType.ForceDisconnect, clientInfo.UserName);
-                        }
+                        duplicateClient.Disconnect();
                     }
 
-                    //ToDo: Verify this is correct: sender was message.
-                    client.Information.UserName = sender;
+                    client.UserName = message;
+
                     WorkerRole.ClientManager.AddClient(client);
-
-
-                    //
-                    // Create a new room for the new connecting client.
-                    //
-                    client.Information.RoomHost = client.Information.UserName;
-                    WorkerRole.RoomManager.CreateNewRoom(client);
 
 
                     //
@@ -213,11 +124,10 @@ namespace WorkerRole
                     //
 
                     string recipients =
-                        WorkerRole.MessageSender.GetRecipientListFormattedString(
-                            WorkerRole.ClientManager.GetGlobalClientList());
+                        WorkerRole.MessageSender.GetRecipientListFormattedString(WorkerRole.ClientManager.GetClientList());
 
                     WorkerRole.MessageSender.SendMessage(
-                        client.Information.UserName,
+                        client,
                         PacketType.ServerBuddyList,
                         recipients);
 
@@ -228,91 +138,73 @@ namespace WorkerRole
                     break;
 
                 case PacketType.JoinRoom:
-                    var clientToJoin = WorkerRole.ClientManager.GetGlobalClientList().FirstOrDefault(
-                        myClient => myClient == message);
-
-                    var roomHost = WorkerRole.RoomManager.GetRoomHost(clientToJoin);
+                    Client clientToJoin = WorkerRole.ClientManager.GetClientList().FirstOrDefault(
+                        myClient => myClient.UserName == message);
 
                     if (clientToJoin != null)
                     {
-                        WorkerRole.RoomManager.AddMemberToRoom(roomHost, ref client);
+                        WorkerRole.RoomManager.AddMemberToRoom(clientToJoin.Room.Host, ref client);
                     }
 
                     break;
-
+                    
                 case PacketType.LeaveRoom:
-                    WorkerRole.RoomManager.RemoveMemberfromRoom(client.Information.RoomHost, client);
+                    WorkerRole.RoomManager.RemoveMemberfromRoom(client.Room.Host, client);
                     break;
-
+                    
                 case PacketType.InitiateGame:
+
                     //
                     // Only allow the room host to initiate a game.
                     //
 
-                    if (client.Information.RoomHost == client.Information.UserName)
+                    if (client.Room.Host.UserName == client.UserName)
                     {
                         WorkerRole.MessageSender.BroadcastMessage(
-                            roomMembers,
+                            client.Room.Members,
                             PacketType.ServerInitiateGame,
-                            new Dictionary<string, string> {{"sender", client.Information.UserName}},
-                            client.Information.UserName);
+                            "",
+                            client);
                     }
                     break;
-
+                    
 
                 case PacketType.StartGame:
+
                     //
                     // Only allow the room host to start the game.
                     //
 
-                    if (client.Information.RoomHost == client.Information.UserName)
+                    if (client.Room.Host.UserName == client.UserName)
                     {
-                        WorkerRole.MessageSender.BroadcastMessage(
-                            roomMembers,
-                            PacketType.ServerGameStart,
-                            new Dictionary<string, string> {{"sender", client.Information.UserName}},
-                            client.Information.UserName);
+                        WorkerRole.MessageSender.BroadcastMessage(client.Room.Members, PacketType.ServerGameStart, "");
                     }
                     break;
 
                 case PacketType.ClientDump:
-                    WorkerRole.MessageSender.BroadcastMessage(
-                        roomMembers,
-                        PacketType.ServerDump,
-                        new Dictionary<string, string> {{"sender", client.Information.UserName}},
-                        client.Information.UserName);
+                    WorkerRole.MessageSender.BroadcastMessage(client.Room.Members, PacketType.ServerDump, "", client);
                     break;
 
                 case PacketType.ClientPeel:
-                    WorkerRole.MessageSender.BroadcastMessage(
-                        roomMembers,
-                        PacketType.ServerPeel,
-                        new Dictionary<string, string> {{"sender", client.Information.UserName}},
-                        client.Information.UserName);
+                    WorkerRole.MessageSender.BroadcastMessage(client.Room.Members, PacketType.ServerPeel, "", client);
                     break;
-
+                    
                 case PacketType.ClientVictory:
-                    WorkerRole.MessageSender.BroadcastMessage(
-                        roomMembers,
-                        PacketType.ServerGameOver,
-                        new Dictionary<string, string> {{"sender", client.Information.UserName}},
-                        client.Information.UserName);
+                    WorkerRole.MessageSender.BroadcastMessage(client.Room.Members, PacketType.ServerGameOver, "");
                     break;
 
                 case PacketType.ClientChat:
                     var arguments = new Dictionary<string, string> {{"sender", sender}, {"message", message}};
-
-                    WorkerRole.MessageSender.BroadcastMessage(
-                        roomMembers,
-                        PacketType.ServerChat,
-                        arguments,
-                        client.Information.UserName);
+                    WorkerRole.MessageSender.BroadcastMessage(client.Room.Members, PacketType.ServerChat, arguments, client);
                     break;
 
                 default:
-                    Trace.WriteLine(string.Format(" IncomingMessageHandler.HandleMessage " +
-                                                  "Error: Invalid packet type from external client PacketType = {0}", packetType));
+                    //ToDo: Error Handling.
+                    //throw new ArgumentException(
+                    //    string.Format("[IncomingMessageHandler.HandleMessage] - " +
+                    //    "Invalid packet type from client PacketType = {0}", packetType));
                     break;
+
             }
         }
     }

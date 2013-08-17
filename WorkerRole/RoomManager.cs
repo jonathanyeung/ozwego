@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Microsoft.ApplicationServer.Caching;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace WorkerRole
 {
@@ -10,7 +8,16 @@ namespace WorkerRole
     /// </summary>
     public class RoomManager
     {
+        private readonly List<Room> _roomList;
+
         private static RoomManager _instance;
+
+
+        private RoomManager()
+        {
+            _roomList = new List<Room>();
+        }
+
 
         public static RoomManager GetRoomManager()
         {
@@ -18,215 +25,112 @@ namespace WorkerRole
         }
 
 
-        public void CreateNewRoom(ExternalClient host)
+        public Room CreateNewRoom(Client host)
         {
-            CacheManager.DataCache.Put(host.Information.UserName, new List<string>());
+            var newRoom = new Room(host);
+            _roomList.Add(newRoom);
+            return newRoom;
         }
 
 
-        public List<string> GetRoomMembers(string host)
+        public List<Client> GetRoomMembers(Client host)
         {
-            return CacheManager.DataCache.Get(host) as List<string>;
-        }
+            var roomMembers = new List<Client>();
 
-
-        /// <summary>
-        /// Gets the room host that the specified player is a member of.
-        /// </summary>
-        /// <param name="username"></param>
-        /// <returns></returns>
-        public string GetRoomHost(string username)
-        {
-            var userInfo = WorkerRole.ClientManager.GetClientInformation(username);
-            return userInfo != null ? userInfo.RoomHost : "";
-        }
-
-
-        public void AddMemberToRoom(string roomHost, ref ExternalClient memberToAdd)
-        {
-            //
-            // First, remove the member from his previous room.
-            //
-
-            RemoveMemberfromRoom(roomHost, memberToAdd);
-
-
-            //
-            // Now add the member to the new room.
-            //
-
-            var roomMembers = new List<string>();
-
-            while (true)
+            foreach (var room in _roomList.Where(room => room.Host == host))
             {
-                try
-                {
-                    DataCacheLockHandle lockHandle;
-
-                    //ToDo: Check this 1 second timeout and pick one that makes sense.
-                    roomMembers = CacheManager.DataCache.GetAndLock(
-                            roomHost, TimeSpan.FromSeconds(1), out lockHandle) as List<string>;
-
-                    if (roomMembers != null)
-                    {
-                        roomMembers.Add(memberToAdd.Information.UserName);
-                    }
-
-                    CacheManager.DataCache.PutAndUnlock(roomHost, roomMembers, lockHandle);
-                    break;
-                }
-                catch (DataCacheException e)
-                {
-                    //
-                    // Only continue the loop if the exception is that the object is locked.
-                    //
-
-                    if (e.ErrorCode != DataCacheErrorCode.ObjectLocked)
-                    {
-                        Trace.WriteLine(string.Format("Error during data cache retrieval! '{0}'\n{1}", e.Message,
-                                                      e.StackTrace));
-                        break;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Trace.WriteLine(string.Format("Error during data cache retrieval! '{0}'\n{1}", e.Message,
-                              e.StackTrace));
-                    break;
-                }
+                roomMembers = room.Members;
+                break;
             }
-
-            if (roomMembers.Count == 0)
-            {
-                return;
-            }
+            return roomMembers;
+        }
 
 
-            //
-            // Now send a message to the person who has joined containing the list of room
-            // members.
-            //
-
-            string recipients = WorkerRole.MessageSender.GetRecipientListFormattedString(
-                roomMembers);
-
-            WorkerRole.MessageSender.SendMessage(
-                memberToAdd.Information.UserName,
-                PacketType.ServerRoomList,
-                recipients);
-
-
-            //
-            // Now tell the joining person who the room host is.
-            //
-
-            WorkerRole.MessageSender.SendMessage(
-                memberToAdd.Information.UserName,
-                PacketType.HostTransfer,
-                roomHost);
-
-
-            //
-            // Now send a message to all of the existing room members that someone is joining.
-            //
-
-            WorkerRole.MessageSender.BroadcastMessage(
-                    roomMembers,
-                    PacketType.JoinRoom,
-                    memberToAdd.Information.UserName,
-                    memberToAdd.Information.UserName);
-
-            }
-
-
-        public void RemoveMemberfromRoom(string roomHost, ExternalClient memberToRemove)
+        public void AddMemberToRoom(Client roomHost, ref Client memberToAdd)
         {
+            var room = _roomList.FirstOrDefault(myRoom => myRoom.Host == roomHost);
 
-            while (true)
+            if (room != null)
             {
-                try
-                {
-                    DataCacheLockHandle lockHandle;
+                //
+                // First, remove the member from his previous room.
+                //
 
-                    //ToDo: Check this 1 second timeout and pick one that makes sense.
-                    var roomMembers = CacheManager.DataCache.GetAndLock(
-                            roomHost, TimeSpan.FromSeconds(1), out lockHandle) as List<string>;
+                RemoveMemberfromRoom(memberToAdd.Room.Host, memberToAdd);
 
-                    if (roomMembers != null)
-                    {
-                        //
-                        // If there are no more people in the room:
-                        // Else if the host is quitting:
-                        // Else it's just a non-host member is quitting.
-                        //
 
-                        if (roomMembers.Count == 0)
-                        {
-                            //ToDo: Potential bug: can I remove before unlocking?
-                            CacheManager.DataCache.Remove(roomHost);
-                        }
-                        else if (roomHost == memberToRemove.Information.UserName)
-                        {
-                            var newHost = ChangeToRandomNewHost(roomMembers);
+                //
+                // Now add the member to the new room.
+                //
 
-                            //ToDo: Potential bug: can I remove before unlocking?
-                            CacheManager.DataCache.Remove(roomHost);
-                            CacheManager.DataCache.Add(newHost, roomMembers);
+                room.Members.Add(memberToAdd);
+                memberToAdd.Room = room;
 
-                            WorkerRole.MessageSender.BroadcastMessage(
-                                    roomMembers,
-                                    PacketType.HostTransfer,
-                                    newHost);
-                        }
-                        else
-                        {
-                            WorkerRole.MessageSender.BroadcastMessage(
-                                    roomMembers,
-                                    PacketType.UserLeftRoom,
-                                    memberToRemove.Information.UserName,
-                                    memberToRemove.Information.UserName);
+                //
+                // Send a message to all the existing members in the room indicating who has joined.
+                //
 
-                            CacheManager.DataCache.PutAndUnlock(roomHost, roomMembers, lockHandle);
-                        }
-                    }
+                WorkerRole.MessageSender.BroadcastMessage(
+                    room.Members, 
+                    PacketType.UserJoinedRoom, 
+                    memberToAdd.UserName,
+                    memberToAdd);
 
-                    break;
-                }
-                catch (DataCacheException e)
-                {
-                    //
-                    // Only continue the loop if the exception is that the object is locked.
-                    //
 
-                    if (e.ErrorCode != DataCacheErrorCode.ObjectLocked)
-                    {
-                        Trace.WriteLine(string.Format("Error during data cache retrieval! '{0}'\n{1}", e.Message,
-                                                      e.StackTrace));
-                        break;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Trace.WriteLine(string.Format("Error during data cache retrieval! '{0}'\n{1}", e.Message,
-                              e.StackTrace));
-                    break;
-                }
+                //
+                // Now send a message to the person who has joined containing the list of room
+                // members.
+                //
+
+                string recipients = WorkerRole.MessageSender.GetRecipientListFormattedString(
+                    room.Members);
+
+                WorkerRole.MessageSender.SendMessage(
+                    memberToAdd,
+                    PacketType.ServerRoomList,
+                    recipients);
+
+
+                //
+                // Now tell the joining person who the room host is.
+                //
+
+                WorkerRole.MessageSender.SendMessage(
+                    memberToAdd,
+                    PacketType.HostTransfer,
+                    room.Host.UserName);
             }
         }
 
 
-        private string ChangeToRandomNewHost(List<string> members)
+        public void RemoveMemberfromRoom(Client roomHost, Client memberToRemove)
         {
-            string host = "";
-            var random = new Random();
+            var room = _roomList.FirstOrDefault(myRoom => myRoom.Host == roomHost);
 
-            if (members.Count > 0)
+            if (room != null)
             {
-                int index = random.Next(0, members.Count - 1);
-                host = members[index];
-            }
+                room.Members.Remove(memberToRemove);
 
-            return host;
+                if (roomHost == memberToRemove)
+                {
+                    room.ChangeToRandomNewHost();
+                }
+
+                if (0 == room.Members.Count)
+                {
+                    _roomList.Remove(room);
+                }
+
+                else
+                {
+                    WorkerRole.MessageSender.BroadcastMessage(
+                        room.Members,
+                        PacketType.UserLeftRoom,
+                        memberToRemove.UserName,
+                        memberToRemove);
+                }
+            }
         }
+
     }
 }

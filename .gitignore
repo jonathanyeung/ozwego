@@ -49,7 +49,6 @@ x64/
 build/
 [Bb]in/
 [Oo]bj/
-*packages\Microsoft*
 
 
 # MSTest test Results

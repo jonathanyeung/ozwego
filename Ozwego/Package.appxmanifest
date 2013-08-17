@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
+  <Identity Name="538MobiusStudios.Ozwego" Publisher="CN=F9493291-87B8-406A-8A39-24B918572F99" Version="1.0.0.0" />
+  <Properties>
+    <DisplayName>Ozwego</DisplayName>
+    <PublisherDisplayName>Mobius Studios</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+  <Prerequisites>
+    <OSMinVersion>6.2.1</OSMinVersion>
+    <OSMaxVersionTested>6.2.1</OSMaxVersionTested>
+  </Prerequisites>
+  <Resources>
+    <Resource Language="x-generate" />
+  </Resources>
+  <Applications>
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="Ozwego.App">
+      <VisualElements DisplayName="Ozwego" Logo="Assets\Logo.png" SmallLogo="Assets\SmallLogo.png" Description="Ozwego" ForegroundText="light" BackgroundColor="#464646">
+        <DefaultTile ShowName="allLogos" />
+        <SplashScreen Image="Assets\OzwegoSplashScreen.png" BackgroundColor="darkSlateBlue" />
+      </VisualElements>
+      <Extensions>
+        <Extension Category="windows.fileTypeAssociation">
+          <FileTypeAssociation Name="data">
+            <EditFlags AlwaysUnsafe="true" />
+            <SupportedFileTypes>
+              <FileType>.data</FileType>
+            </SupportedFileTypes>
+          </FileTypeAssociation>
+        </Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <Capability Name="documentsLibrary" />
+    <Capability Name="privateNetworkClientServer" />
+    <Capability Name="internetClientServer" />
+    <Capability Name="internetClient" />
+  </Capabilities>
+</Package>

@@ -16,19 +16,20 @@ namespace WorkerRole
             Trace.WriteLine("TCP: Starting TcpListener...");
 
             const int port = 4029;
-            //const int port = 10100;
-            IPAddress addr = IPAddress.Loopback;
-            //IPAddress addr = NetworkUtils.GetActiveIPv4Address();
-            //var addr = new IPAddress(new byte[] {192, 168, 1, 2});
+
+            //IPAddress addr = IPAddress.Loopback;
+
+            var addr = new IPAddress(new byte[] { 192, 168, 1, 2 });
 
             try
             {
-                var listener = new TcpListener(
-                    RoleEnvironment.CurrentRoleInstance.InstanceEndpoints["Endpoint1"].IPEndpoint);
+                //var listener = new TcpListener(
+                //    RoleEnvironment.CurrentRoleInstance.InstanceEndpoints["Endpoint1"].IPEndpoint);
 
-                listener.ExclusiveAddressUse = false; 
+                //listener.ExclusiveAddressUse = false;
 
-                //var listener = new TcpListener(addr, port);
+                var listener = new TcpListener(addr, port);
+
                 listener.Start();
                 Trace.WriteLine(string.Format("TCP: Listening on {0}:{1}...", addr, port));
 

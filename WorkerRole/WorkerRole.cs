@@ -3,9 +3,11 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using Microsoft.WindowsAzure.ServiceRuntime;
+using WorkerRole.Datacore;
 
 namespace WorkerRole
 {
+
     public class WorkerRole : RoleEntryPoint
     {
         private Thread _listenerThread;
@@ -14,6 +16,7 @@ namespace WorkerRole
         public static ClientManager ClientManager;
         public static IncomingMessageHandler IncomingMessageHandler;
         public static MessageSender MessageSender;
+        public static Database Database;
 
         public override void Run()
         {
@@ -44,6 +47,7 @@ namespace WorkerRole
             ClientManager = ClientManager.GetClientManager();
             IncomingMessageHandler = IncomingMessageHandler.GetIncomingMessageHandler();
             MessageSender = MessageSender.GetMessageSender();
+            Database = Database.GetInstance();
 
 
             StartListenerThread();

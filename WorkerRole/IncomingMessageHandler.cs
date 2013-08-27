@@ -63,17 +63,13 @@ namespace WorkerRole
             string message;
             if (!messageFields.TryGetValue("message", out message))
             {
-                //ToDo: Error Handling.
                 Trace.WriteLine("'message' field was not found in incoming message");
-                //throw new ArgumentException("'message' field was not found in incoming message");
             }
 
             string sender;
             if (!messageFields.TryGetValue("sender", out sender))
             {
-                //ToDo: Error Handling.
-                Trace.WriteLine("'message' field was not found in incoming message");
-                //throw new ArgumentException("'sender' field was not found in incoming message");
+                Trace.WriteLine("'sender' field was not found in incoming message");
             }
 
 
@@ -121,6 +117,7 @@ namespace WorkerRole
 
                     //
                     // Since the user is just logging in, send them a copy of the global buddy list.
+                    // ToDo: Change this to just the friends list.
                     //
 
                     string recipients =
@@ -130,6 +127,18 @@ namespace WorkerRole
                         client,
                         PacketType.ServerBuddyList,
                         recipients);
+
+                    //
+                    // Send pending friend requests to user.
+                    // ToDo: Re-enable for after demo.
+                    //var pendingRequests = WorkerRole.Database.GetPendingFriendRequests(client.UserName);
+
+                    //if (pendingRequests.Count > 0)
+                    //{
+                    //    //ToDo:
+                    //    // Format requests into a sendable list.
+                    //    //WorkerRole.MessageSender.SendMessage(client, PacketType.ServerSendFriendRequests, );
+                    //}
 
                     break;
 
@@ -196,6 +205,42 @@ namespace WorkerRole
                 case PacketType.ClientChat:
                     var arguments = new Dictionary<string, string> {{"sender", sender}, {"message", message}};
                     WorkerRole.MessageSender.BroadcastMessage(client.Room.Members, PacketType.ServerChat, arguments, client);
+                    break;
+
+                case PacketType.ClientAcceptFriendRequest:
+                    WorkerRole.Database.AcceptFriendRequest(message, sender);
+                    //ToDo:
+                    // send notification to original sender;
+                    //if (message user is online)
+                    //    send notification to message user.
+                    throw new NotImplementedException();
+                    // 
+                    break;
+
+                case PacketType.ClientRejectFriendRequest:
+                    WorkerRole.Database.RejectFriendRequest(message, sender);
+                    break;
+
+                case PacketType.ClientSendFriendRequest:
+                    WorkerRole.Database.SendFriendRequest(sender, message);
+                    //ToDo:
+                    //if (message user is online)
+                    //    send notification to message user.
+                    throw new NotImplementedException();
+                    break;
+
+                case PacketType.ClientRemoveFriend:
+                    WorkerRole.Database.RemoveFriendship(sender, message);
+                    //ToDo: Send notifications.
+                    throw new NotImplementedException();
+                    break;
+
+                case PacketType.ClientStartingMatchmaking:
+                    throw new NotImplementedException();
+                    break;
+
+                case PacketType.ClientStoppingMatchmaking:
+                    throw new NotImplementedException();
                     break;
 
                 default:

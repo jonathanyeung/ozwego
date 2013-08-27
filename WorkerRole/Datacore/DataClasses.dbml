@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="ozwego-db" Class="DataClassesDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="AppSettings" ConnectionString="Data Source=blkp55bbj6.database.windows.net;Initial Catalog=ozwego-db;User ID=jonathanyeung" SettingsObjectName="WorkerRole.Properties.Settings" SettingsPropertyName="ozwego_dbConnectionString1" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.friendship" Member="friendships">
+    <Type Name="friendship">
+      <Column Name="user1" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="user2" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="creation_time" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="user_friendship" Member="user" ThisKey="user1" OtherKey="ID" Type="user" IsForeignKey="true" />
+      <Association Name="user_friendship1" Member="user3" ThisKey="user2" OtherKey="ID" Type="user" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.[user]" Member="users">
+    <Type Name="user">
+      <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="email" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="alias" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="creation_time" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="last_seen_time" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="user_friendship" Member="friendships" ThisKey="ID" OtherKey="user1" Type="friendship" />
+      <Association Name="user_friendship1" Member="friendships1" ThisKey="ID" OtherKey="user2" Type="friendship" />
+      <Association Name="user_friendRequest" Member="friendRequests" ThisKey="ID" OtherKey="from_user" Type="friendRequest" />
+      <Association Name="user_friendRequest1" Member="friendRequests1" ThisKey="ID" OtherKey="to_user" Type="friendRequest" />
+    </Type>
+  </Table>
+  <Table Name="dbo.friendRequest" Member="friendRequests">
+    <Type Name="friendRequest">
+      <Column Name="from_user" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="to_user" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="creation_time" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="user_friendRequest" Member="user" ThisKey="from_user" OtherKey="ID" Type="user" IsForeignKey="true" />
+      <Association Name="user_friendRequest1" Member="user1" ThisKey="to_user" OtherKey="ID" Type="user" IsForeignKey="true" />
+    </Type>
+  </Table>
+</Database>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using WorkerRole.Datacore;
 
 
 namespace WorkerRole
@@ -89,11 +90,12 @@ namespace WorkerRole
 
             if (packetType >= PacketType.ClientMaxValue)
             {
-                //ToDo: Error Handling.
-                //throw new ArgumentException(
-                //        string.Format("[IncomingMessageHandler.HandleMessage] - " +
-                //        "Invalid packet type from client PacketType = {0}", packetType));
+                Trace.WriteLine(string.Format("[IncomingMessageHandler.HandleMessage] - " + 
+                        "Invalid packet type from client PacketType = {0}", packetType));
             }
+
+            List<user> matchingUsers;
+            string formattedString;
 
             switch (packetType)
             {
@@ -114,31 +116,86 @@ namespace WorkerRole
 
                     WorkerRole.ClientManager.AddClient(client);
 
+                    //
+                    // Look for the user in the database.  If the user does not exist, add 
+                    // 'em to the DB
+                    //
+
+                    var user = WorkerRole.Database.GetUserByEmail(client.UserName);
+
+                    if (user == null)
+                    {
+                        // ToDo: In the line below, add an alias instead of replicating the email address.
+                        WorkerRole.Database.AddNewUser(client.UserName, client.UserName);
+                    }
+
+                    user = WorkerRole.Database.GetUserByEmail(client.UserName);
+
 
                     //
-                    // Since the user is just logging in, send them a copy of the global buddy list.
-                    // ToDo: Change this to just the friends list.
+                    // Send the user a copy of his/her stats.
                     //
 
-                    string recipients =
-                        WorkerRole.MessageSender.GetRecipientListFormattedString(WorkerRole.ClientManager.GetClientList());
+                    var userStatsString = CreateUrlStringFromUserList(new List<user> { user });
 
                     WorkerRole.MessageSender.SendMessage(
                         client,
-                        PacketType.ServerBuddyList,
-                        recipients);
+                        PacketType.ServerUserStats,
+                        userStatsString);
+
+
+                    //
+                    // Send the user a list of all of their friends.
+                    //
+
+                    var friendList = WorkerRole.Database.GetFriends(client.UserName);
+
+                    if (null != friendList)
+                    {
+                        var friendListString = CreateUrlStringFromUserList(friendList);
+
+                        WorkerRole.MessageSender.SendMessage(
+                            client,
+                            PacketType.ServerFriendList,
+                            friendListString);
+
+
+                        //
+                        // Send the user a list of all of their friends who are online.
+                        //
+
+                        var OnlineFriends = new List<Client>();
+
+                        foreach (user frd in friendList)
+                        {
+                            OnlineFriends.Add(WorkerRole.ClientManager.GetClientFromEmailAddress(frd.email));
+                        }
+
+                        string onlineClients =
+                            WorkerRole.MessageSender.GetRecipientListFormattedString(OnlineFriends);
+
+                        WorkerRole.MessageSender.SendMessage(
+                            client,
+                            PacketType.ServerOnlineFriendList,
+                            onlineClients);
+                    }
+
 
                     //
                     // Send pending friend requests to user.
-                    // ToDo: Re-enable for after demo.
-                    //var pendingRequests = WorkerRole.Database.GetPendingFriendRequests(client.UserName);
+                    //
 
-                    //if (pendingRequests.Count > 0)
-                    //{
-                    //    //ToDo:
-                    //    // Format requests into a sendable list.
-                    //    //WorkerRole.MessageSender.SendMessage(client, PacketType.ServerSendFriendRequests, );
-                    //}
+                    var pendingRequests = WorkerRole.Database.GetPendingFriendRequests(client.UserName);
+
+                    if (null != pendingRequests)
+                    {
+                        var pendingRequestsString = CreateUrlStringFromUserList(pendingRequests);
+
+                        WorkerRole.MessageSender.SendMessage(
+                            client,
+                            PacketType.ServerFriendRequests,
+                            pendingRequestsString);
+                    }
 
                     break;
 
@@ -209,12 +266,23 @@ namespace WorkerRole
 
                 case PacketType.ClientAcceptFriendRequest:
                     WorkerRole.Database.AcceptFriendRequest(message, sender);
-                    //ToDo:
-                    // send notification to original sender;
-                    //if (message user is online)
-                    //    send notification to message user.
-                    throw new NotImplementedException();
-                    // 
+
+
+                    //
+                    // If the person whose friend request was accepted is online, send them a
+                    // notification so that the friends can begin playing immediately.
+                    //
+
+                    Client curClient = WorkerRole.ClientManager.GetClientFromEmailAddress(message);
+
+                    if (curClient != null)
+                    {
+                        matchingUsers = WorkerRole.Database.GetMatchingUsersByEmail(sender);
+                        formattedString = CreateUrlStringFromUserList(matchingUsers);
+
+                        WorkerRole.MessageSender.SendMessage(curClient, PacketType.ServerFriendRequestAccepted, formattedString);
+                        WorkerRole.MessageSender.SendMessage(curClient, PacketType.UserLoggedIn, sender);
+                    }
                     break;
 
                 case PacketType.ClientRejectFriendRequest:
@@ -223,16 +291,38 @@ namespace WorkerRole
 
                 case PacketType.ClientSendFriendRequest:
                     WorkerRole.Database.SendFriendRequest(sender, message);
-                    //ToDo:
-                    //if (message user is online)
-                    //    send notification to message user.
-                    throw new NotImplementedException();
+
+                    curClient = WorkerRole.ClientManager.GetClientFromEmailAddress(message);
+
+                    if (curClient != null)
+                    {
+                        matchingUsers = WorkerRole.Database.GetMatchingUsersByEmail(sender);
+                        formattedString = CreateUrlStringFromUserList(matchingUsers);
+
+                        WorkerRole.MessageSender.SendMessage(curClient, PacketType.ServerFriendRequests, formattedString);
+                    }
                     break;
 
                 case PacketType.ClientRemoveFriend:
                     WorkerRole.Database.RemoveFriendship(sender, message);
-                    //ToDo: Send notifications.
-                    throw new NotImplementedException();
+
+                    curClient = WorkerRole.ClientManager.GetClientFromEmailAddress(message);
+
+                    if (curClient != null)
+                    {
+                        matchingUsers = WorkerRole.Database.GetMatchingUsersByEmail(sender);
+                        formattedString = CreateUrlStringFromUserList(matchingUsers);
+
+                        WorkerRole.MessageSender.SendMessage(curClient, PacketType.ServerRemoveFriend, formattedString);
+                    }
+                    break;
+
+                case PacketType.ClientFindBuddyFromGlobalList:
+                    matchingUsers = WorkerRole.Database.GetMatchingUsersByEmail(message);
+
+                    formattedString = CreateUrlStringFromUserList(matchingUsers);
+
+                    WorkerRole.MessageSender.SendMessage(client, PacketType.ServerFriendSearchResults, formattedString);
                     break;
 
                 case PacketType.ClientStartingMatchmaking:
@@ -251,6 +341,37 @@ namespace WorkerRole
                     break;
 
             }
+
+
+
+        }
+
+
+        /// <summary>
+        /// Helper method that creates a sendable URL string from a given list of user data types.
+        /// This method takes the fields of each user class and stringifies them together, and then
+        /// combines all of the user strings together.
+        /// </summary>
+        /// <param name="users"></param>
+        /// <returns></returns>
+        public static string CreateUrlStringFromUserList(List<user> users)
+        {
+            var newFormattedString = "";
+
+            foreach (var user in users)
+            {
+                var dic = new Dictionary<string, string> 
+                        {
+                            {"email", user.email },
+                            {"creationTime", user.creation_time.ToString() },
+                            {"alias", user.alias }
+                        };
+
+                newFormattedString += MessageSender.CreateUrlQueryString(dic, '|');
+                newFormattedString += ',';
+            }
+
+            return newFormattedString.TrimEnd(',');
         }
     }
 }

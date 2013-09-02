@@ -51,19 +51,17 @@
         ServerGameOver  = 108,
         ServerChat      = 109,
 
-        ServerBuddyList = 110,      // User just signed in, send the global buddy list.
-        ServerRoomList  = 111,      // User just joined a room, send the room members list.
-        ServerInitiateGame = 112, // On receiving this, the client is supposed to move to the Game UI, but the actual game has NOT started yet.
+        ServerOnlineFriendList = 110,       // User just signed in, send the list of friends currently online.
+        ServerRoomList  = 111,              // User just joined a room, send the room members list.
+        ServerInitiateGame = 112,           // On receiving this, the client is supposed to move to the Game UI, but the actual game has NOT started yet.
 
-        ServerSendFriendList = 113,
-        ServerSendFriendRequests = 114,
-        ServerSendFriendRequestAccepted = 115,
-        ServerSendFriendSearchResults = 116,
+        ServerFriendList = 113,             // This contains the complete list of friends, both online and offline.
+        ServerFriendRequests = 114,
+        ServerFriendRequestAccepted = 115,
+        ServerFriendSearchResults = 116,
+        ServerUserStats = 117,
+        ServerRemoveFriend = 118,
 
-        ServerMaxValue  = 117
-    }
-
-    class DataPacket
-    {
+        ServerMaxValue  = 119
     }
 }

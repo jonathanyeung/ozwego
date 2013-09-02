@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WorkerRole.Datacore;
 
 namespace WorkerRole
 {
@@ -34,25 +35,89 @@ namespace WorkerRole
             return _globalClientList;
         }
 
+
+        public Client GetClientFromEmailAddress(string email)
+        {
+            Client curClient = null;
+            foreach (Client c in _globalClientList)
+            {
+                if (c.UserName == email)
+                {
+                    curClient = c;
+                    break;
+                }
+            }
+
+            return curClient;
+        }
+
+
         public void AddClient(Client client)
         {
             _globalClientList.Add(client);
 
+            var user = WorkerRole.Database.GetUserByEmail(client.UserName);
+            var userString = IncomingMessageHandler.CreateUrlStringFromUserList(new List<user> { user });
+
+
+            //
+            // Send the user a list of all of their friends who are online.
+            //
+
+            var friends = WorkerRole.Database.GetFriends(client.UserName);
+            var onlineFriends = new List<Client>();
+
+            foreach (user frd in friends)
+            {
+                var c = GetClientFromEmailAddress(frd.email);
+                if (null != c)
+                {
+                    onlineFriends.Add(c);
+                }
+            }
+
+            string onlineClients =
+                WorkerRole.MessageSender.GetRecipientListFormattedString(onlineFriends);
+
             WorkerRole.MessageSender.BroadcastMessage(
-                _globalClientList,
+                onlineFriends,
                 PacketType.UserLoggedIn,
-                client.UserName,
+                userString,
                 client);
         }
+
 
         public void RemoveClient(Client client)
         {
             _globalClientList.Remove(client);
 
+            var user = WorkerRole.Database.GetUserByEmail(client.UserName);
+            var userString = IncomingMessageHandler.CreateUrlStringFromUserList(new List<user> { user });
+
+
+            //
+            // Send the user a list of all of their friends who are online.
+            //
+
+            var friends = WorkerRole.Database.GetFriends(client.UserName);
+            var onlineFriends = new List<Client>();
+
+            foreach (user frd in friends)
+            {
+                var c = GetClientFromEmailAddress(frd.email);
+                if (null != c)
+                {
+                    onlineFriends.Add(c);
+                }
+            }
+
+            string onlineClients =
+                WorkerRole.MessageSender.GetRecipientListFormattedString(onlineFriends);
+
             WorkerRole.MessageSender.BroadcastMessage(
-                _globalClientList,
+                onlineFriends,
                 PacketType.UserLoggedOut,
-                client.UserName,
+                userString,
                 client);
         }
     }

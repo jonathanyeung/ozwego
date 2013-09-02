@@ -8,11 +8,11 @@ namespace WorkerRole.Datacore
 {
     public class Database
     {
-        private const string connectionString = "Server=tcp:blkp55bbj6.database.windows.net,1433;Database=ozwego-db;user ID=jonathanyeung@blkp55bbj6;Password=Jy121242121!;Trusted_Connection=False;Encrypt=True;Connection Timeout=30;";
+        private const string ConnectionString = "Server=tcp:blkp55bbj6.database.windows.net,1433;Database=ozwego-db;user ID=jonathanyeung@blkp55bbj6;Password=Jy121242121!;Trusted_Connection=False;Encrypt=True;Connection Timeout=30;";
         private SqlConnection _connection;
-        private DataClassesDataContext _db;
+        private OzwegoDataClassesDataContext _db;
 
-        private static Database _instance = null;
+        private static Database _instance;
 
         public static Database GetInstance()
         {
@@ -21,9 +21,10 @@ namespace WorkerRole.Datacore
 
         private Database()
         {
-            _connection = new SqlConnection(connectionString);
-            _db = new DataClassesDataContext(_connection);
+            _connection = new SqlConnection(ConnectionString);
+            _db = new OzwegoDataClassesDataContext(_connection);
         }
+
 
         ~Database()
         {
@@ -68,7 +69,7 @@ namespace WorkerRole.Datacore
                 where u.email == email
                 select u;
 
-            return userQuery.First();
+            return userQuery.FirstOrDefault();
         }
 
 
@@ -90,13 +91,13 @@ namespace WorkerRole.Datacore
                 where u.alias == alias
                 select u;
 
-            return userQuery.First();
+            return userQuery.FirstOrDefault();
         }
 
 
         public void AddNewUser(string newEmail, string newAlias)
         {
-            var newUser = new user()
+            var newUser = new user
                 {
                     email = newEmail,
                     alias = newAlias,
@@ -104,7 +105,6 @@ namespace WorkerRole.Datacore
                     last_seen_time = DateTime.UtcNow
                 };
 
-            //ToDo: Figure out how to set a unique ID here! P0!!!
             _db.users.InsertOnSubmit(newUser);
 
             try
@@ -123,8 +123,6 @@ namespace WorkerRole.Datacore
         /// <summary>
         /// Test Hook Method for Unit Tests.  Not to be used IRL.
         /// </summary>
-        /// <param name="newEmail"></param>
-        /// <param name="newAlias"></param>
         public void RemoveUser(string emailAddr)
         {
             var _user = GetUserFromEmailAddress(emailAddr);
@@ -138,6 +136,8 @@ namespace WorkerRole.Datacore
 
                 foreach (var user in userQuery)
                 {
+                    RemovePendingFriendRequests(user);
+                    RemoveAllFriends(user);
                     _db.users.DeleteOnSubmit(user);
                 }
 
@@ -170,6 +170,11 @@ namespace WorkerRole.Datacore
                 where request.to_user == curUser.ID
                 select request;
 
+            if (null == requestQuery.FirstOrDefault())
+            {
+                return null;
+            }
+
             foreach (var frdRequest in requestQuery)
             {
                 //
@@ -186,48 +191,20 @@ namespace WorkerRole.Datacore
                 userList.Add(userQuery.First());
             }
 
-            return null;
+            return userList;
         }
 
 
         public void AcceptFriendRequest(string fromUser, string toUser)
         {
-            //ToDo: Remove entry from AcceptFriendRequest table
             CreateFriendship(fromUser, toUser);
-            throw new NotImplementedException();
+            RemoveFriendRequest(fromUser, toUser);
         }
 
 
         public void RejectFriendRequest(string fromUser, string toUser)
         {
-            var _fromUser = GetUserFromEmailAddress(fromUser);
-            var _toUser = GetUserFromEmailAddress(toUser);
-
-            if ((_fromUser != null) &&
-                (_toUser != null))
-            {
-                IQueryable<friendRequest> requestQuery =
-                    from request in _db.friendRequests
-                    where (request.from_user == _fromUser.ID) && (request.to_user == _toUser.ID)
-                    select request;
-
-                foreach (var request in requestQuery)
-                {
-                    _db.friendRequests.DeleteOnSubmit(request);
-                }
-
-                try
-                {
-                    _db.SubmitChanges();
-                }
-                catch (Exception e)
-                {
-                    Trace.WriteLine(string.Format(
-                            "Exception in Database.RejectFriendRequest!\n Exception: {0} \n Callstack: {1}",
-                            e.Message,
-                            e.StackTrace));
-                }
-            }
+            RemoveFriendRequest(fromUser, toUser);
         }
 
 
@@ -336,26 +313,28 @@ namespace WorkerRole.Datacore
         }
 
 
-        public List<user> GetFriends(user user)
+        public List<user> GetFriends(string userName)
         {
             var userList = new List<user>();
+            var _user = GetUserFromEmailAddress(userName);
 
             IQueryable<int> friendshipQueryOne =
                 from frd in _db.friendships
-                where frd.user1 == user.ID
+                where frd.user1 == _user.ID
                 select frd.user2;
 
             IQueryable<int> friendshipQueryTwo =
                 from frd in _db.friendships
-                where frd.user2 == user.ID
+                where frd.user2 == _user.ID
                 select frd.user1;
             
             // ToDo: Re-evaluate query performance here.
             foreach (var frdId in friendshipQueryOne)
             {
+                var id = frdId;
                 IQueryable<user> userQuery =
                     from u in _db.users
-                    where u.ID == frdId
+                    where u.ID == id
                     select u;
 
                 userList.Add(userQuery.FirstOrDefault());
@@ -363,12 +342,18 @@ namespace WorkerRole.Datacore
 
             foreach (var frdId in friendshipQueryTwo)
             {
+                var id = frdId;
                 IQueryable<user> userQuery =
                     from u in _db.users
-                    where u.ID == frdId
+                    where u.ID == id
                     select u;
 
                 userList.Add(userQuery.FirstOrDefault());
+            }
+
+            if (userList.Count == 0)
+            {
+                return null;
             }
 
             return userList;
@@ -392,6 +377,91 @@ namespace WorkerRole.Datacore
             }
 
             return null;
+        }
+
+
+        private void RemoveAllFriends(user user)
+        {
+            IQueryable<friendship> friendshipQuery =
+                from frd in _db.friendships
+                where (frd.user1 == user.ID || frd.user2 == user.ID)
+                select frd;
+
+            foreach (var frd in friendshipQuery)
+            {
+                _db.friendships.DeleteOnSubmit(frd);
+            }
+
+            try
+            {
+                _db.SubmitChanges();
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(string.Format(
+                        "Exception in Database.RemoveAllFriends!\n Exception: {0} \n Callstack: {1}",
+                        e.Message,
+                        e.StackTrace));
+            }
+        }
+
+
+        private void RemovePendingFriendRequests(user user)
+        {
+            IQueryable<friendRequest> frdReqQuery =
+                from frdReq in _db.friendRequests
+                where (frdReq.from_user == user.ID || frdReq.to_user == user.ID)
+                select frdReq;
+
+            foreach (var frdReq in frdReqQuery)
+            {
+                _db.friendRequests.DeleteOnSubmit(frdReq);
+            }
+
+            try
+            {
+                _db.SubmitChanges();
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(string.Format(
+                        "Exception in Database.RemovePendingFriendRequests!\n Exception: {0} \n Callstack: {1}",
+                        e.Message,
+                        e.StackTrace));
+            }
+        }
+
+
+        private void RemoveFriendRequest(string fromUser, string toUser)
+        {
+            var _fromUser = GetUserFromEmailAddress(fromUser);
+            var _toUser = GetUserFromEmailAddress(toUser);
+
+            if ((_fromUser != null) &&
+                (_toUser != null))
+            {
+                IQueryable<friendRequest> requestQuery =
+                    from request in _db.friendRequests
+                    where (request.from_user == _fromUser.ID) && (request.to_user == _toUser.ID)
+                    select request;
+
+                foreach (var request in requestQuery)
+                {
+                    _db.friendRequests.DeleteOnSubmit(request);
+                }
+
+                try
+                {
+                    _db.SubmitChanges();
+                }
+                catch (Exception e)
+                {
+                    Trace.WriteLine(string.Format(
+                            "Exception in Database.RemoveFriendRequest!\n Exception: {0} \n Callstack: {1}",
+                            e.Message,
+                            e.StackTrace));
+                }
+            }
         }
 
         #endregion

@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 11, 8.5" name="OzwegoDataClasses">
+  <DataContextMoniker Name="/OzwegoDataClassesDataContext" />
+  <nestedChildShapes>
+    <classShape Id="312e9f2d-6723-4def-8457-fa523df466e0" absoluteBounds="5, 3.75, 2, 1.9631982421875">
+      <DataClassMoniker Name="/OzwegoDataClassesDataContext/user" />
+      <nestedChildShapes>
+        <elementListCompartment Id="4c053e13-75c8-4e07-bb9f-816b8505cf96" absoluteBounds="5.015, 4.21, 1.9700000000000002, 1.4031982421875" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="7dcb1fbc-07bf-489a-987a-7e8d3608fdbb" absoluteBounds="1.25, 1.625, 2, 1.3862939453125">
+      <DataClassMoniker Name="/OzwegoDataClassesDataContext/friendRequest" />
+      <nestedChildShapes>
+        <elementListCompartment Id="e2f38864-7657-4981-a840-c67279e6552b" absoluteBounds="1.2650000000000001, 2.085, 1.9700000000000002, 0.8262939453125" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(6 : 3.75); (6 : 2.31814697265625); (3.25 : 2.31814697265625)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/OzwegoDataClassesDataContext/user/user_friendRequest" />
+      <nodes>
+        <classShapeMoniker Id="312e9f2d-6723-4def-8457-fa523df466e0" />
+        <classShapeMoniker Id="7dcb1fbc-07bf-489a-987a-7e8d3608fdbb" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(5.4687475 : 3.75); (5.4687475 : 2.69597295898438); (3.25 : 2.69597295898438)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/OzwegoDataClassesDataContext/user/user_friendRequest1" />
+      <nodes>
+        <classShapeMoniker Id="312e9f2d-6723-4def-8457-fa523df466e0" />
+        <classShapeMoniker Id="7dcb1fbc-07bf-489a-987a-7e8d3608fdbb" />
+      </nodes>
+    </associationConnector>
+    <classShape Id="dc8b45f4-db61-4e01-a4b3-03cb92036393" absoluteBounds="8, 2.25, 2, 1.3862939453125">
+      <DataClassMoniker Name="/OzwegoDataClassesDataContext/friendship" />
+      <nestedChildShapes>
+        <elementListCompartment Id="6fe9422f-7bb5-4ad4-bc7c-2091329d83ff" absoluteBounds="8.015, 2.71, 1.9700000000000002, 0.8262939453125" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(7 : 4.73159912109375); (9 : 4.73159912109375); (9 : 3.6362939453125)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/OzwegoDataClassesDataContext/user/user_friendship" />
+      <nodes>
+        <classShapeMoniker Id="312e9f2d-6723-4def-8457-fa523df466e0" />
+        <classShapeMoniker Id="dc8b45f4-db61-4e01-a4b3-03cb92036393" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(7 : 4.20954706054687); (8.4687475 : 4.20954706054687); (8.4687475 : 3.6362939453125)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/OzwegoDataClassesDataContext/user/user_friendship1" />
+      <nodes>
+        <classShapeMoniker Id="312e9f2d-6723-4def-8457-fa523df466e0" />
+        <classShapeMoniker Id="dc8b45f4-db61-4e01-a4b3-03cb92036393" />
+      </nodes>
+    </associationConnector>
+  </nestedChildShapes>
+</ordesignerObjectsDiagram>

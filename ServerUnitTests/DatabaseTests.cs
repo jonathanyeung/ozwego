@@ -14,19 +14,24 @@ namespace ServerUnitTests
     [TestClass]
     public class DatabaseTests
     {
-        private Database _db = Database.GetInstance();
+        private readonly Database _db = Database.GetInstance();
 
         private const string TestUserOneEmail = "TestUser1@testaccount.com";
         private const string TestUserTwoEmail = "TestUserTwo@testaccount.com";
         private const string TestUserThreeEmail = "TestUserThree@testaccount.com";
         private const string InvalidEmail = "UnusedInvalidEmail@nonexistant.com";
 
+        private const string TestUserOneAlias = "TestUserOne";
+        private const string TestUserTwoAlias = "TestUserTwo";
+        private const string TestUserThreeAlias = "TestUserThree";
+        private const string InvalidAlias = "UnusedInvalidEmail";
+
 
         private List<user> testUserList = new List<user>()
             {
-                new user() {alias = "TestUser1", email = TestUserOneEmail},
-                new user() {alias = "TestUser2", email = TestUserTwoEmail},
-                new user() {alias = "TestUser3", email = TestUserThreeEmail}
+                new user() {alias = TestUserOneAlias, email = TestUserOneEmail},
+                new user() {alias = TestUserTwoAlias, email = TestUserTwoEmail},
+                new user() {alias = TestUserThreeAlias, email = TestUserThreeEmail}
             };
 
         [TestInitialize()]
@@ -63,22 +68,41 @@ namespace ServerUnitTests
             Assert.IsNull(user);
         }
 
+
         [TestMethod]
         public void GetMatchingUsersByEmail()
         {
-
+            var userList = _db.GetMatchingUsersByEmail("TestUserT");
+            Assert.AreEqual(userList.Count, 2);
+            if (((userList[0].email != TestUserTwoEmail) || (userList[1].email != TestUserThreeEmail)) &&
+                ((userList[1].email != TestUserTwoEmail) || (userList[0].email != TestUserThreeEmail)))
+            {
+                Assert.Fail("GetMatchingUsersByEmail did not return the right users.");
+            }
         }
+
 
         [TestMethod]
         public void GetUserByAlias()
         {
+            var user = _db.GetUserByAlias(TestUserOneAlias);
+            Assert.IsTrue(user.alias == TestUserOneAlias);
 
+            user = _db.GetUserByAlias(InvalidAlias);
+            Assert.IsNull(user);
         }
+
 
         [TestMethod]
         public void GetMatchingUsersByAlias()
         {
-
+            var userList = _db.GetMatchingUsersByAlias("TestUserT");
+            Assert.AreEqual(userList.Count, 2);
+            if (((userList[0].alias != TestUserTwoAlias) || (userList[1].alias != TestUserThreeAlias)) &&
+                ((userList[1].alias != TestUserTwoAlias) || (userList[0].alias != TestUserThreeAlias)))
+            {
+                Assert.Fail("GetMatchingUsersByAlias did not return the right users.");
+            }
         }
 
         #endregion
@@ -87,38 +111,74 @@ namespace ServerUnitTests
         #region Friendship Tests
 
         [TestMethod]
-        public void GetPendingFriendRequests()
+        public void BasicFriendshipTest()
         {
+            _db.SendFriendRequest(TestUserOneEmail, TestUserThreeEmail);
+            _db.SendFriendRequest(TestUserTwoEmail, TestUserThreeEmail);
 
-        }
 
-        [TestMethod]
-        public void AcceptFriendRequests()
-        {
+            //
+            // Test GetPendingFriendRequests() method
+            //
 
-        }
+            var friendRequests = _db.GetPendingFriendRequests(TestUserOneEmail);
+            Assert.IsNull(friendRequests);
 
-        [TestMethod]
-        public void RejectFriendRequest()
-        {
+            friendRequests = _db.GetPendingFriendRequests(TestUserTwoEmail);
+            Assert.IsNull(friendRequests);
 
-        }
+            friendRequests = _db.GetPendingFriendRequests(TestUserThreeEmail);
+            Assert.AreEqual(friendRequests.Count, 2);
 
-        [TestMethod]
-        public void SendFriendRequest()
-        {
+            var friendList = _db.GetFriends(TestUserThreeEmail);
+            Assert.IsNull(friendList);
 
-        }
 
-        [TestMethod]
-        public void RemoveFriendship()
-        {
+            //
+            // Test accepting a friend request.
+            //
 
-        }
+            _db.AcceptFriendRequest(TestUserOneEmail, TestUserThreeEmail);
 
-        [TestMethod]
-        public void GetFriends()
-        {
+            friendRequests = _db.GetPendingFriendRequests(TestUserThreeEmail);
+            Assert.AreEqual(friendRequests.Count, 1);
+
+            friendList = _db.GetFriends(TestUserThreeEmail);
+            Assert.AreEqual(friendList.Count, 1);
+
+            friendList = _db.GetFriends(TestUserOneEmail);
+            Assert.AreEqual(friendList.Count, 1);
+
+
+            //
+            // Test rejecting a friend request.
+            //
+
+            _db.RejectFriendRequest(TestUserTwoEmail, TestUserThreeEmail);
+
+            friendRequests = _db.GetPendingFriendRequests(TestUserThreeEmail);
+            Assert.IsNull(friendRequests);
+
+            friendList = _db.GetFriends(TestUserThreeEmail);
+            Assert.AreEqual(friendList.Count, 1);
+
+            friendList = _db.GetFriends(TestUserTwoEmail);
+            Assert.IsNull(friendList);
+
+
+            //
+            // Test Removing a friendship
+            //
+
+            _db.RemoveFriendship(TestUserOneEmail, TestUserThreeEmail);
+
+            friendList = _db.GetFriends(TestUserThreeEmail);
+            Assert.IsNull(friendList);
+
+            friendList = _db.GetFriends(TestUserOneEmail);
+            Assert.IsNull(friendList);
+
+            _db.RemoveFriendship(TestUserOneEmail, TestUserThreeEmail);
 
         }
 

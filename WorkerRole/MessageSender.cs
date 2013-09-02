@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using WorkerRole.Datacore;
 
 namespace WorkerRole
 {
@@ -18,7 +19,7 @@ namespace WorkerRole
         }
 
 
-        public void SendMessage(Client recipient, PacketType packetType, Dictionary<string, string> arguments)
+        private void SendMessage(Client recipient, PacketType packetType, Dictionary<string, string> arguments)
         {
             SendMessageInternal(recipient, packetType, CreateUrlQueryString(arguments));
         }
@@ -36,6 +37,11 @@ namespace WorkerRole
 
         private static void SendMessageInternal(Client recipient, PacketType packetType, string messageToSend)
         {
+            if (recipient == null)
+            {
+                return;
+            }
+
             var messageSize = (uint) (1 + Encoding.UTF8.GetByteCount(messageToSend));
 
             byte[] bytes = BitConverter.GetBytes(messageSize);
@@ -125,15 +131,42 @@ namespace WorkerRole
 
             foreach (var client in recipients)
             {
-                returnString += client.UserName;
-                returnString += delimiter;
+                if (null != client)
+                {
+                    returnString += client.UserName;
+                    returnString += delimiter;
+                }
             }
 
             return returnString.TrimEnd(delimiter);
         }
 
 
-        public string CreateUrlQueryString(Dictionary<string, string> fields)
+        public string GetRecipientListFormattedString(List<user> recipients)
+        {
+            const char delimiter = ',';
+
+            string returnString = "";
+
+            foreach (var client in recipients)
+            {
+                returnString += client.email;
+                returnString += delimiter;
+            }
+
+            return returnString.TrimEnd(delimiter);
+        }
+
+        /// <summary>
+        /// Creates a www url querable string
+        /// </summary>
+        /// <param name="fields"></param>
+        /// <param name="delimitingCharacter">The character used to separate the string instances.
+        /// This defaults to the standard '&', but a unique character needs to be used when a 
+        /// multiple type message needs to be sent to the client.  For example:
+        /// sender=foo&message=typeA=typeAData|typeB=typeBData|typeC=typeCData&recipient=blah</param>
+        /// <returns></returns>
+        public static string CreateUrlQueryString(Dictionary<string, string> fields, char delimitingCharacter = '&')
         {
             string returnString = "";
 
@@ -142,10 +175,10 @@ namespace WorkerRole
                 returnString += kvp.Key;
                 returnString += '=';
                 returnString += kvp.Value;
-                returnString += '&';
+                returnString += delimitingCharacter;
             }
 
-            return returnString.TrimEnd('&');
+            return returnString.TrimEnd(delimitingCharacter);
         }
     }
 }

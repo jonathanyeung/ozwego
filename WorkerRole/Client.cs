@@ -190,8 +190,8 @@ namespace WorkerRole
                 return true;
             }
 
-            try
-            {
+            //try
+            //{
                 _socket.BeginReceive(
                     incomingMessageBuffer, 
                     bufferOffset, 
@@ -214,7 +214,6 @@ namespace WorkerRole
 
                         try
                         {
-
                             int bytesReceived = _socket.EndReceive(aResult);
 
                             if (bytesReceived == 0 && !IsConnected)
@@ -247,7 +246,7 @@ namespace WorkerRole
                                         messageReceivedCallback);
                             }
                         }
-                        catch (Exception e)
+                        catch (SocketException se)
                         {
                             if (!IsConnected)
                             {
@@ -255,22 +254,35 @@ namespace WorkerRole
                                 return;
                             }
 
-                            Trace.WriteLine(string.Format("TCPReceiveLoop: Caught exception!! '{0}'\n{1}", e.Message, e.StackTrace));
+                            Trace.WriteLine(string.Format("TCPReceiveLoop: Client {0} has closed the connection.", this.UserName));
+                            return;
                         }
+                        //ToDo: Re-enable this catch all block.
+                        //catch (Exception e)
+                        //{
+                        //    if (!IsConnected)
+                        //    {
+                        //        Disconnect();
+                        //        return;
+                        //    }
+
+                        //    Trace.WriteLine(string.Format("TCPReceiveLoop: Caught exception!! '{0}'\n{1}", e.Message, e.StackTrace));
+                        //}
                     },
                     _socketId); // This used to be _socketID.  ToDo: Determine what the point of this object is.
-            }
-            catch (Exception e)
-            {
-                if (!IsConnected)
-                {
-                    Disconnect();
-                    return false;
-                }
+            //}
+            //ToDo: Re-enable this catch all block.
+            //catch(Exception e)
+            //{
+            //    if (!IsConnected)
+            //    {
+            //        Disconnect();
+            //        return false;
+            //    }
 
-                Trace.WriteLine(string.Format("TCPReceiveLoop: Caught exception!! '{0}'\n{1}", e.Message, e.StackTrace));
-                return false;
-            }
+            //    Trace.WriteLine(string.Format("TCPReceiveLoop: Caught exception!! '{0}'\n{1}", e.Message, e.StackTrace));
+            //    return false;
+            //}
 
             return true;
         }

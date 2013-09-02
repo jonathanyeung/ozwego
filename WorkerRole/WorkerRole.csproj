@@ -59,10 +59,10 @@
   <ItemGroup>
     <Compile Include="ClientManager.cs" />
     <Compile Include="Datacore\Database.cs" />
-    <Compile Include="Datacore\DataClasses.designer.cs">
+    <Compile Include="Datacore\OzwegoDataClasses.designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>DataClasses.dbml</DependentUpon>
+      <DependentUpon>OzwegoDataClasses.dbml</DependentUpon>
     </Compile>
     <Compile Include="DataPacket.cs" />
     <Compile Include="IncomingMessageHandler.cs" />
@@ -81,9 +81,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Datacore\DataClasses.dbml">
+    <None Include="Datacore\OzwegoDataClasses.dbml">
       <Generator>MSLinqToSQLGenerator</Generator>
-      <LastGenOutput>DataClasses.designer.cs</LastGenOutput>
+      <LastGenOutput>OzwegoDataClasses.designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
@@ -96,8 +96,8 @@
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Datacore\DataClasses.dbml.layout">
-      <DependentUpon>DataClasses.dbml</DependentUpon>
+    <None Include="Datacore\OzwegoDataClasses.dbml.layout">
+      <DependentUpon>OzwegoDataClasses.dbml</DependentUpon>
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

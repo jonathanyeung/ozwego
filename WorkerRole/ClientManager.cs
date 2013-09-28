@@ -1,8 +1,5 @@
-﻿using System;
+﻿using Ozwego.Shared;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WorkerRole.Datacore;
 
 namespace WorkerRole
@@ -25,7 +22,7 @@ namespace WorkerRole
             _globalClientList = new List<Client>();
         }
 
-        public static ClientManager GetClientManager()
+        public static ClientManager GetInstance()
         {
             return _instance ?? (_instance = new ClientManager());
         }
@@ -56,16 +53,28 @@ namespace WorkerRole
         {
             _globalClientList.Add(client);
 
-            var user = WorkerRole.Database.GetUserByEmail(client.UserName);
-            var userString = IncomingMessageHandler.CreateUrlStringFromUserList(new List<user> { user });
+            var db = Database.GetInstance();
+            var user = db.GetUserByEmail(client.UserName);
+
+            if (user == null)
+            {
+                return;
+            }
+
+            var userString = MessageReceiver.CreateUrlStringFromUserList(new List<user> { user });
 
 
             //
-            // Send the user a list of all of their friends who are online.
+            // Send a message saying that the user logged on to all of his friends who are online.
             //
 
-            var friends = WorkerRole.Database.GetFriends(client.UserName);
+            var friends = db.GetFriends(client.UserName);
             var onlineFriends = new List<Client>();
+
+            if (friends == null)
+            {
+                return;
+            }
 
             foreach (user frd in friends)
             {
@@ -76,10 +85,11 @@ namespace WorkerRole
                 }
             }
 
+            var messageSender = MessageSender.GetMessageSender();
             string onlineClients =
-                WorkerRole.MessageSender.GetRecipientListFormattedString(onlineFriends);
+                messageSender.GetRecipientListFormattedString(onlineFriends);
 
-            WorkerRole.MessageSender.BroadcastMessage(
+            messageSender.BroadcastMessage(
                 onlineFriends,
                 PacketType.UserLoggedIn,
                 userString,
@@ -91,15 +101,30 @@ namespace WorkerRole
         {
             _globalClientList.Remove(client);
 
-            var user = WorkerRole.Database.GetUserByEmail(client.UserName);
-            var userString = IncomingMessageHandler.CreateUrlStringFromUserList(new List<user> { user });
+            var db = Database.GetInstance();
+            var user = db.GetUserByEmail(client.UserName);
+            var userString = MessageReceiver.CreateUrlStringFromUserList(new List<user> { user });
 
 
             //
-            // Send the user a list of all of their friends who are online.
+            // Remove the user from his room in case he is still part of one.
             //
 
-            var friends = WorkerRole.Database.GetFriends(client.UserName);
+            var roomManager = RoomManager.GetInstance();
+            roomManager.RemoveMemberfromRoom(client.Room.Host, client);
+
+
+            //
+            // Send a message saying that the user logged off to all of his friends who are online.
+            //
+
+            var friends = db.GetFriends(client.UserName);
+
+            if (null == friends)
+            {
+                return;
+            }
+
             var onlineFriends = new List<Client>();
 
             foreach (user frd in friends)
@@ -111,10 +136,12 @@ namespace WorkerRole
                 }
             }
 
-            string onlineClients =
-                WorkerRole.MessageSender.GetRecipientListFormattedString(onlineFriends);
 
-            WorkerRole.MessageSender.BroadcastMessage(
+            var messageSender = MessageSender.GetMessageSender();
+            string onlineClients =
+                messageSender.GetRecipientListFormattedString(onlineFriends);
+
+            messageSender.BroadcastMessage(
                 onlineFriends,
                 PacketType.UserLoggedOut,
                 userString,

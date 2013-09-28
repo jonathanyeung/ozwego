@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Ozwego.Shared;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace WorkerRole
@@ -19,7 +20,7 @@ namespace WorkerRole
         }
 
 
-        public static RoomManager GetRoomManager()
+        public static RoomManager GetInstance()
         {
             return _instance ?? (_instance = new RoomManager());
         }
@@ -70,7 +71,8 @@ namespace WorkerRole
                 // Send a message to all the existing members in the room indicating who has joined.
                 //
 
-                WorkerRole.MessageSender.BroadcastMessage(
+                var messageSender = MessageSender.GetMessageSender();
+                messageSender.BroadcastMessage(
                     room.Members, 
                     PacketType.UserJoinedRoom, 
                     memberToAdd.UserName,
@@ -82,10 +84,10 @@ namespace WorkerRole
                 // members.
                 //
 
-                string recipients = WorkerRole.MessageSender.GetRecipientListFormattedString(
+                string recipients = messageSender.GetRecipientListFormattedString(
                     room.Members);
 
-                WorkerRole.MessageSender.SendMessage(
+                messageSender.SendMessage(
                     memberToAdd,
                     PacketType.ServerRoomList,
                     recipients);
@@ -95,7 +97,7 @@ namespace WorkerRole
                 // Now tell the joining person who the room host is.
                 //
 
-                WorkerRole.MessageSender.SendMessage(
+                messageSender.SendMessage(
                     memberToAdd,
                     PacketType.HostTransfer,
                     room.Host.UserName);
@@ -123,7 +125,8 @@ namespace WorkerRole
 
                 else
                 {
-                    WorkerRole.MessageSender.BroadcastMessage(
+                    var messageSender = MessageSender.GetMessageSender();
+                    messageSender.BroadcastMessage(
                         room.Members,
                         PacketType.UserLeftRoom,
                         memberToRemove.UserName,

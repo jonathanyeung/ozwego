@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ozwego.Shared;
+using System;
 using System.Collections.Generic;
 
 namespace WorkerRole
@@ -10,9 +11,6 @@ namespace WorkerRole
     {
         public Client Host;
         public List<Client> Members;
-
-        // ToDo: Is a GUID really necessary here to identify the room?  Can it be identified by the host name?
-        //private Guid _roomId;
 
         internal Room(Client host)
         {
@@ -35,7 +33,8 @@ namespace WorkerRole
                 Host = Members[index];
             }
 
-            WorkerRole.MessageSender.BroadcastMessage(
+            var messageSender = MessageSender.GetMessageSender();
+            messageSender.BroadcastMessage(
                 Members,
                 PacketType.HostTransfer, 
                 Host.UserName);

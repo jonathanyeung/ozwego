@@ -57,6 +57,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\DataPacket.cs">
+      <Link>DataPacket.cs</Link>
+    </Compile>
     <Compile Include="ClientManager.cs" />
     <Compile Include="Datacore\Database.cs" />
     <Compile Include="Datacore\OzwegoDataClasses.designer.cs">
@@ -64,8 +67,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>OzwegoDataClasses.dbml</DependentUpon>
     </Compile>
-    <Compile Include="DataPacket.cs" />
-    <Compile Include="IncomingMessageHandler.cs" />
+    <Compile Include="MessageReceiver.cs" />
     <Compile Include="MessageSender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Client.cs" />

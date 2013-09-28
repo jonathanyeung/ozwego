@@ -9,8 +9,8 @@ namespace WorkerRole.Datacore
     public class Database
     {
         private const string ConnectionString = "Server=tcp:blkp55bbj6.database.windows.net,1433;Database=ozwego-db;user ID=jonathanyeung@blkp55bbj6;Password=Jy121242121!;Trusted_Connection=False;Encrypt=True;Connection Timeout=30;";
-        private SqlConnection _connection;
-        private OzwegoDataClassesDataContext _db;
+        //private SqlConnection connection;
+        //private OzwegoDataClassesDataContext db;
 
         private static Database _instance;
 
@@ -21,25 +21,25 @@ namespace WorkerRole.Datacore
 
         private Database()
         {
-            _connection = new SqlConnection(ConnectionString);
-            _db = new OzwegoDataClassesDataContext(_connection);
+            //connection = new SqlConnection(ConnectionString);
+            //db = new OzwegoDataClassesDataContext(connection);
         }
 
 
-        ~Database()
-        {
-            if (_db != null)
-            {
-                _db.Dispose();
-                _db = null;
-            }
+        //~Database()
+        //{
+        //    if (db != null)
+        //    {
+        //        db.Dispose();
+        //        db = null;
+        //    }
 
-            if (_connection != null)
-            {
-                _connection.Dispose();
-                _connection = null;
-            }
-        }
+        //    if (connection != null)
+        //    {
+        //        connection.Dispose();
+        //        connection = null;
+        //    }
+        //}
 
 
         #region user
@@ -53,70 +53,129 @@ namespace WorkerRole.Datacore
         /// <returns></returns>
         public List<user> GetMatchingUsersByEmail(string email)
         {
-            IQueryable<user> userQuery =
-                from u in _db.users
-                where u.email.StartsWith(email)
-                select u;
+            if (email == "" || email == null)
+            {
+                return null;
+            }
 
-            return userQuery.ToList();
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                using (var db = new OzwegoDataClassesDataContext(connection))
+                {
+                    IQueryable<user> userQuery =
+                        from u in db.users
+                        where u.email.StartsWith(email)
+                        select u;
+
+                    return userQuery.ToList();
+                }
+            }
         }
 
 
         public user GetUserByEmail(string email)
         {
-            IQueryable<user> userQuery =
-                from u in _db.users
-                where u.email == email
-                select u;
+            if (email == "" || email == null)
+            {
+                return null;
+            }
 
-            return userQuery.FirstOrDefault();
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                using (var db = new OzwegoDataClassesDataContext(connection))
+                {
+                    IQueryable<user> userQuery =
+                        from u in db.users
+                        where u.email == email
+                        select u;
+
+                    return userQuery.FirstOrDefault();
+                }
+            }
         }
 
 
         public List<user> GetMatchingUsersByAlias(string alias)
         {
-            IQueryable<user> userQuery =
-                from u in _db.users
-                where u.alias.StartsWith(alias)
-                select u;
+            if (alias == "" || alias == null)
+            {
+                return null;
+            }
 
-            return userQuery.ToList();
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                using (var db = new OzwegoDataClassesDataContext(connection))
+                {
+                    IQueryable<user> userQuery =
+                        from u in db.users
+                        where u.alias.StartsWith(alias)
+                        select u;
+
+                    return userQuery.ToList();
+                }
+            }
         }
 
 
         public user GetUserByAlias(string alias)
         {
-            IQueryable<user> userQuery =
-                from u in _db.users
-                where u.alias == alias
-                select u;
+            if (alias == "" || alias == null)
+            {
+                return null;
+            }
 
-            return userQuery.FirstOrDefault();
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                using (var db = new OzwegoDataClassesDataContext(connection))
+                {
+                    IQueryable<user> userQuery =
+                        from u in db.users
+                        where u.alias == alias
+                        select u;
+
+                    return userQuery.FirstOrDefault();
+                }
+            }
         }
 
 
         public void AddNewUser(string newEmail, string newAlias)
         {
-            var newUser = new user
-                {
-                    email = newEmail,
-                    alias = newAlias,
-                    creation_time = DateTime.UtcNow,
-                    last_seen_time = DateTime.UtcNow
-                };
-
-            _db.users.InsertOnSubmit(newUser);
-
-            try
+            if (newEmail == "" || newEmail == null)
             {
-                _db.SubmitChanges();
+                return;
             }
-            catch (Exception e)
+
+            if (newAlias == "" || newAlias == null)
             {
-                Trace.WriteLine(string.Format(
-                        "Exception in Database.AddNewUser!\n Exception: {0} \n Callstack: {1}",
-                        e.Message,
-                        e.StackTrace));
+                return;
+            }
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                using (var db = new OzwegoDataClassesDataContext(connection))
+                {
+                    var newUser = new user
+                        {
+                            email = newEmail,
+                            alias = newAlias,
+                            creation_time = DateTime.UtcNow,
+                            last_seen_time = DateTime.UtcNow
+                        };
+
+                    db.users.InsertOnSubmit(newUser);
+
+                    try
+                    {
+                        db.SubmitChanges();
+                    }
+                    catch (Exception e)
+                    {
+                        Trace.WriteLine(string.Format(
+                                "Exception in Database.AddNewUser!\n Exception: {0} \n Callstack: {1}",
+                                e.Message,
+                                e.StackTrace));
+                    }
+                }
             }
         }
 
@@ -125,32 +184,38 @@ namespace WorkerRole.Datacore
         /// </summary>
         public void RemoveUser(string emailAddr)
         {
-            var _user = GetUserFromEmailAddress(emailAddr);
-
-            if (_user != null)
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
-                IQueryable<user> userQuery =
-                    from u in _db.users
-                    where (u.email == emailAddr)
-                    select u;
+                using (var db = new OzwegoDataClassesDataContext(connection))
+                {
+                    var _user = GetUserFromEmailAddress(emailAddr);
 
-                foreach (var user in userQuery)
-                {
-                    RemovePendingFriendRequests(user);
-                    RemoveAllFriends(user);
-                    _db.users.DeleteOnSubmit(user);
-                }
+                    if (_user != null)
+                    {
+                        IQueryable<user> userQuery =
+                            from u in db.users
+                            where (u.email == emailAddr)
+                            select u;
 
-                try
-                {
-                    _db.SubmitChanges();
-                }
-                catch (Exception e)
-                {
-                    Trace.WriteLine(string.Format(
-                            "Exception in Database.RemoveUser!\n Exception: {0} \n Callstack: {1}",
-                            e.Message,
-                            e.StackTrace));
+                        foreach (var user in userQuery)
+                        {
+                            RemovePendingFriendRequests(user);
+                            RemoveAllFriends(user);
+                            db.users.DeleteOnSubmit(user);
+                        }
+
+                        try
+                        {
+                            db.SubmitChanges();
+                        }
+                        catch (Exception e)
+                        {
+                            Trace.WriteLine(string.Format(
+                                    "Exception in Database.RemoveUser!\n Exception: {0} \n Callstack: {1}",
+                                    e.Message,
+                                    e.StackTrace));
+                        }
+                    }
                 }
             }
         }
@@ -162,36 +227,48 @@ namespace WorkerRole.Datacore
 
         public List<user> GetPendingFriendRequests(string username)
         {
-            var curUser = GetUserFromEmailAddress(username);
-            var userList = new List<user>();
-
-            IQueryable<friendRequest> requestQuery =
-                from request in _db.friendRequests
-                where request.to_user == curUser.ID
-                select request;
-
-            if (null == requestQuery.FirstOrDefault())
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
-                return null;
+                using (var db = new OzwegoDataClassesDataContext(connection))
+                {
+                    var curUser = GetUserFromEmailAddress(username);
+
+                    if (null == curUser)
+                    {
+                        return null;
+                    }
+
+                    var userList = new List<user>();
+
+                    IQueryable<friendRequest> requestQuery =
+                        from request in db.friendRequests
+                        where request.to_user == curUser.ID
+                        select request;
+
+                    if (null == requestQuery.FirstOrDefault())
+                    {
+                        return null;
+                    }
+
+                    foreach (var frdRequest in requestQuery)
+                    {
+                        //
+                        // Resharper's suggestion here was that frdRequest needs to be copied to a local variable.
+                        //
+
+                        friendRequest request = frdRequest;
+
+                        IQueryable<user> userQuery =
+                            from u in db.users
+                            where u.ID == request.from_user
+                            select u;
+
+                        userList.Add(userQuery.First());
+                    }
+
+                    return userList;
+                }
             }
-
-            foreach (var frdRequest in requestQuery)
-            {
-                //
-                // Resharper's suggestion here was that frdRequest needs to be copied to a local variable.
-                //
-
-                friendRequest request = frdRequest;
-
-                IQueryable<user> userQuery =
-                    from u in _db.users
-                    where u.ID == request.from_user
-                    select u;
-
-                userList.Add(userQuery.First());
-            }
-
-            return userList;
         }
 
 
@@ -210,31 +287,37 @@ namespace WorkerRole.Datacore
 
         public void SendFriendRequest(string fromUser, string toUser)
         {
-            var _fromUser = GetUserFromEmailAddress(fromUser);
-            var _toUser = GetUserFromEmailAddress(toUser);
-
-            if ((_fromUser != null) &&
-               (_toUser != null))
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
-                var request = new friendRequest
+                using (var db = new OzwegoDataClassesDataContext(connection))
+                {
+                    var _fromUser = GetUserFromEmailAddress(fromUser);
+                    var _toUser = GetUserFromEmailAddress(toUser);
+
+                    if ((_fromUser != null) &&
+                       (_toUser != null))
                     {
-                        from_user = _fromUser.ID,
-                        to_user = _toUser.ID,
-                        creation_time = DateTime.UtcNow
-                    };
+                        var request = new friendRequest
+                            {
+                                from_user = _fromUser.ID,
+                                to_user = _toUser.ID,
+                                creation_time = DateTime.UtcNow
+                            };
 
-                _db.friendRequests.InsertOnSubmit(request);
+                        db.friendRequests.InsertOnSubmit(request);
 
-                try
-                {
-                    _db.SubmitChanges();
-                }
-                catch (Exception e)
-                {
-                    Trace.WriteLine(string.Format(
-                            "Exception in Database.SendFriendRequest!\n Exception: {0} \n Callstack: {1}",
-                            e.Message, 
-                            e.StackTrace));
+                        try
+                        {
+                            db.SubmitChanges();
+                        }
+                        catch (Exception e)
+                        {
+                            Trace.WriteLine(string.Format(
+                                    "Exception in Database.SendFriendRequest!\n Exception: {0} \n Callstack: {1}",
+                                    e.Message, 
+                                    e.StackTrace));
+                        }
+                    }
                 }
             }
         }
@@ -256,25 +339,32 @@ namespace WorkerRole.Datacore
             if ((_user1 != null) &&
                 (_user2 != null))
             {
-                var friendship = new friendship 
+                using (SqlConnection connection = new SqlConnection(ConnectionString))
                 {
-                    user1 = _user1.ID,
-                    user2 = _user2.ID,
-                    creation_time = DateTime.UtcNow
-                };
+                    using (var db = new OzwegoDataClassesDataContext(connection))
+                    {
+                        var friendship = new friendship
+                        {
+                            user1 = _user1.ID,
+                            user2 = _user2.ID,
+                            creation_time = DateTime.UtcNow
+                        };
 
-                _db.friendships.InsertOnSubmit(friendship);
 
-                try
-                {
-                    _db.SubmitChanges();
-                }
-                catch (Exception e)
-                {
-                    Trace.WriteLine(string.Format(
-                            "Exception in Database.CreateFriendship!\n Exception: {0} \n Callstack: {1}",
-                            e.Message,
-                            e.StackTrace));
+                        db.friendships.InsertOnSubmit(friendship);
+
+                        try
+                        {
+                            db.SubmitChanges();
+                        }
+                        catch (Exception e)
+                        {
+                            Trace.WriteLine(string.Format(
+                                    "Exception in Database.CreateFriendship!\n Exception: {0} \n Callstack: {1}",
+                                    e.Message,
+                                    e.StackTrace));
+                        }
+                    }
                 }
             }
         }
@@ -288,26 +378,32 @@ namespace WorkerRole.Datacore
             if ((_user1 != null) &&
                 (_user2 != null))
             {
-                IQueryable<friendship> friendshipQuery =
-                    from frd in _db.friendships
-                    where (frd.user1 == _user1.ID && frd.user2 == _user2.ID) || (frd.user1 == _user2.ID && frd.user2 == _user1.ID)
-                    select frd;
+                using (SqlConnection connection = new SqlConnection(ConnectionString))
+                {
+                    using (var db = new OzwegoDataClassesDataContext(connection))
+                    {
+                        IQueryable<friendship> friendshipQuery =
+                            from frd in db.friendships
+                            where (frd.user1 == _user1.ID && frd.user2 == _user2.ID) || (frd.user1 == _user2.ID && frd.user2 == _user1.ID)
+                            select frd;
 
-                foreach (var frd in friendshipQuery)
-                {
-                    _db.friendships.DeleteOnSubmit(frd);
-                }
+                        foreach (var frd in friendshipQuery)
+                        {
+                            db.friendships.DeleteOnSubmit(frd);
+                        }
 
-                try
-                {
-                    _db.SubmitChanges();
-                }
-                catch (Exception e)
-                {
-                    Trace.WriteLine(string.Format(
-                            "Exception in Database.RemoveFriendship!\n Exception: {0} \n Callstack: {1}",
-                            e.Message,
-                            e.StackTrace));
+                        try
+                        {
+                            db.SubmitChanges();
+                        }
+                        catch (Exception e)
+                        {
+                            Trace.WriteLine(string.Format(
+                                    "Exception in Database.RemoveFriendship!\n Exception: {0} \n Callstack: {1}",
+                                    e.Message,
+                                    e.StackTrace));
+                        }
+                    }
                 }
             }
         }
@@ -315,48 +411,58 @@ namespace WorkerRole.Datacore
 
         public List<user> GetFriends(string userName)
         {
-            var userList = new List<user>();
-            var _user = GetUserFromEmailAddress(userName);
-
-            IQueryable<int> friendshipQueryOne =
-                from frd in _db.friendships
-                where frd.user1 == _user.ID
-                select frd.user2;
-
-            IQueryable<int> friendshipQueryTwo =
-                from frd in _db.friendships
-                where frd.user2 == _user.ID
-                select frd.user1;
-            
-            // ToDo: Re-evaluate query performance here.
-            foreach (var frdId in friendshipQueryOne)
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
-                var id = frdId;
-                IQueryable<user> userQuery =
-                    from u in _db.users
-                    where u.ID == id
-                    select u;
+                using (var db = new OzwegoDataClassesDataContext(connection))
+                {
+                    var userList = new List<user>();
+                    var _user = GetUserFromEmailAddress(userName);
 
-                userList.Add(userQuery.FirstOrDefault());
+                    if (null == _user)
+                    {
+                        return null;
+                    }
+
+                    IQueryable<int> friendshipQueryOne =
+                        from frd in db.friendships
+                        where frd.user1 == _user.ID
+                        select frd.user2;
+
+                    IQueryable<int> friendshipQueryTwo =
+                        from frd in db.friendships
+                        where frd.user2 == _user.ID
+                        select frd.user1;
+
+                    foreach (var frdId in friendshipQueryOne)
+                    {
+                        var id = frdId;
+                        IQueryable<user> userQuery =
+                            from u in db.users
+                            where u.ID == id
+                            select u;
+
+                        userList.Add(userQuery.FirstOrDefault());
+                    }
+
+                    foreach (var frdId in friendshipQueryTwo)
+                    {
+                        var id = frdId;
+                        IQueryable<user> userQuery =
+                            from u in db.users
+                            where u.ID == id
+                            select u;
+
+                        userList.Add(userQuery.FirstOrDefault());
+                    }
+
+                    if (userList.Count == 0)
+                    {
+                        return null;
+                    }
+
+                    return userList;
+                }
             }
-
-            foreach (var frdId in friendshipQueryTwo)
-            {
-                var id = frdId;
-                IQueryable<user> userQuery =
-                    from u in _db.users
-                    where u.ID == id
-                    select u;
-
-                userList.Add(userQuery.FirstOrDefault());
-            }
-
-            if (userList.Count == 0)
-            {
-                return null;
-            }
-
-            return userList;
         }
 
         #endregion
@@ -366,100 +472,124 @@ namespace WorkerRole.Datacore
 
         private user GetUserFromEmailAddress(string emailAddress)
         {
-            IQueryable<user> userQuery =
-                from u in _db.users
-                where u.email == emailAddress
-                select u;
-
-            if (userQuery.Count() == 1)
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
-                return userQuery.First();
-            }
+                using (var db = new OzwegoDataClassesDataContext(connection))
+                {
+                    IQueryable<user> userQuery =
+                        from u in db.users
+                        where u.email == emailAddress
+                        select u;
 
-            return null;
+                    if (userQuery.Count() == 1)
+                    {
+                        return userQuery.First();
+                    }
+
+                    return null;
+                }
+            }
         }
 
 
         private void RemoveAllFriends(user user)
         {
-            IQueryable<friendship> friendshipQuery =
-                from frd in _db.friendships
-                where (frd.user1 == user.ID || frd.user2 == user.ID)
-                select frd;
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                using (var db = new OzwegoDataClassesDataContext(connection))
+                {
+                    IQueryable<friendship> friendshipQuery =
+                        from frd in db.friendships
+                        where (frd.user1 == user.ID || frd.user2 == user.ID)
+                        select frd;
 
-            foreach (var frd in friendshipQuery)
-            {
-                _db.friendships.DeleteOnSubmit(frd);
-            }
+                    foreach (var frd in friendshipQuery)
+                    {
+                        db.friendships.DeleteOnSubmit(frd);
+                    }
 
-            try
-            {
-                _db.SubmitChanges();
-            }
-            catch (Exception e)
-            {
-                Trace.WriteLine(string.Format(
-                        "Exception in Database.RemoveAllFriends!\n Exception: {0} \n Callstack: {1}",
-                        e.Message,
-                        e.StackTrace));
+                    try
+                    {
+                        db.SubmitChanges();
+                    }
+                    catch (Exception e)
+                    {
+                        Trace.WriteLine(string.Format(
+                                "Exception in Database.RemoveAllFriends!\n Exception: {0} \n Callstack: {1}",
+                                e.Message,
+                                e.StackTrace));
+                    }
+                }
             }
         }
 
 
         private void RemovePendingFriendRequests(user user)
         {
-            IQueryable<friendRequest> frdReqQuery =
-                from frdReq in _db.friendRequests
-                where (frdReq.from_user == user.ID || frdReq.to_user == user.ID)
-                select frdReq;
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                using (var db = new OzwegoDataClassesDataContext(connection))
+                {
+                    IQueryable<friendRequest> frdReqQuery =
+                        from frdReq in db.friendRequests
+                        where (frdReq.from_user == user.ID || frdReq.to_user == user.ID)
+                        select frdReq;
 
-            foreach (var frdReq in frdReqQuery)
-            {
-                _db.friendRequests.DeleteOnSubmit(frdReq);
-            }
+                    foreach (var frdReq in frdReqQuery)
+                    {
+                        db.friendRequests.DeleteOnSubmit(frdReq);
+                    }
 
-            try
-            {
-                _db.SubmitChanges();
-            }
-            catch (Exception e)
-            {
-                Trace.WriteLine(string.Format(
-                        "Exception in Database.RemovePendingFriendRequests!\n Exception: {0} \n Callstack: {1}",
-                        e.Message,
-                        e.StackTrace));
+                    try
+                    {
+                        db.SubmitChanges();
+                    }
+                    catch (Exception e)
+                    {
+                        Trace.WriteLine(string.Format(
+                                "Exception in Database.RemovePendingFriendRequests!\n Exception: {0} \n Callstack: {1}",
+                                e.Message,
+                                e.StackTrace));
+                    }
+                }
             }
         }
 
 
         private void RemoveFriendRequest(string fromUser, string toUser)
         {
-            var _fromUser = GetUserFromEmailAddress(fromUser);
-            var _toUser = GetUserFromEmailAddress(toUser);
-
-            if ((_fromUser != null) &&
-                (_toUser != null))
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
-                IQueryable<friendRequest> requestQuery =
-                    from request in _db.friendRequests
-                    where (request.from_user == _fromUser.ID) && (request.to_user == _toUser.ID)
-                    select request;
+                using (var db = new OzwegoDataClassesDataContext(connection))
+                {
+                    var _fromUser = GetUserFromEmailAddress(fromUser);
+                    var _toUser = GetUserFromEmailAddress(toUser);
 
-                foreach (var request in requestQuery)
-                {
-                    _db.friendRequests.DeleteOnSubmit(request);
-                }
+                    if ((_fromUser != null) &&
+                        (_toUser != null))
+                    {
+                        IQueryable<friendRequest> requestQuery =
+                            from request in db.friendRequests
+                            where (request.from_user == _fromUser.ID) && (request.to_user == _toUser.ID)
+                            select request;
 
-                try
-                {
-                    _db.SubmitChanges();
-                }
-                catch (Exception e)
-                {
-                    Trace.WriteLine(string.Format(
-                            "Exception in Database.RemoveFriendRequest!\n Exception: {0} \n Callstack: {1}",
-                            e.Message,
-                            e.StackTrace));
+                        foreach (var request in requestQuery)
+                        {
+                            db.friendRequests.DeleteOnSubmit(request);
+                        }
+
+                        try
+                        {
+                            db.SubmitChanges();
+                        }
+                        catch (Exception e)
+                        {
+                            Trace.WriteLine(string.Format(
+                                    "Exception in Database.RemoveFriendRequest!\n Exception: {0} \n Callstack: {1}",
+                                    e.Message,
+                                    e.StackTrace));
+                        }
+                    }
                 }
             }
         }

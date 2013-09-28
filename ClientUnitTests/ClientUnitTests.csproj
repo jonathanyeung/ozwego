@@ -112,6 +112,7 @@
     <Compile Include="DictionaryTests.cs" />
     <Compile Include="GamePlayUnitTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StorageTests.cs" />
     <Compile Include="TileManagerTests.cs" />
   </ItemGroup>
   <ItemGroup>

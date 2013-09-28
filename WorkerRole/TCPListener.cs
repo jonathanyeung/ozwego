@@ -15,11 +15,7 @@ namespace WorkerRole
         {
             Trace.WriteLine("TCP: Starting TcpListener...");
 
-            const int port = 4029;
-
             //IPAddress addr = IPAddress.Loopback;
-
-            var addr = new IPAddress(new byte[] { 192, 168, 1, 2 });
 
             try
             {
@@ -28,10 +24,13 @@ namespace WorkerRole
 
                 //listener.ExclusiveAddressUse = false;
 
+
+                const int port = 4029;
+                var addr = new IPAddress(new byte[] { 192, 168, 1, 2 });
                 var listener = new TcpListener(addr, port);
+                Trace.WriteLine(string.Format("TCP: Listening on {0}:{1}...", addr, port));
 
                 listener.Start();
-                Trace.WriteLine(string.Format("TCP: Listening on {0}:{1}...", addr, port));
 
                 while (true)
                 {

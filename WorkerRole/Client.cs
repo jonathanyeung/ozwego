@@ -23,8 +23,9 @@ namespace WorkerRole
             //
             // Create a new room for the new connecting client.
             //
-            
-            Room = WorkerRole.RoomManager.CreateNewRoom(this);
+
+            var roomManager = RoomManager.GetInstance();
+            Room = roomManager.CreateNewRoom(this);
         }
 
         public string UserName;
@@ -54,8 +55,8 @@ namespace WorkerRole
                 try
                 {
                     //ToDo: Determine wtf this line of code is about:
-                    return !(_socket.Poll(1, SelectMode.SelectRead) && 
-                            _socket.Available == 0 || 
+                    return !(_socket.Poll(1, SelectMode.SelectRead) &&
+                            _socket.Available == 0 ||
                             _socket.Connected == false);
                 }
                 catch
@@ -82,8 +83,13 @@ namespace WorkerRole
             }
             finally
             {
-                WorkerRole.ClientManager.RemoveClient(this);
-                _socket.Close();
+                var clientManager = ClientManager.GetInstance();
+                clientManager.RemoveClient(this);
+
+                if (null != _socket)
+                {
+                    _socket.Close();
+                }
             }
         }
 
@@ -143,7 +149,8 @@ namespace WorkerRole
 
                 MessageReceiverLoop(incomingMessageSizeArray, 0, totalCount, (clientSocket, msgBytes) =>
                 {
-                    WorkerRole.IncomingMessageHandler.HandleMessage(ref clientSocket, msgBytes);
+                    var msgReceiver = MessageReceiver.GetInstance();
+                    msgReceiver.HandleMessage(ref clientSocket, msgBytes);
                     ReceiveAsync();
                 });
             });
@@ -174,8 +181,8 @@ namespace WorkerRole
             // Check and protect against bad parameters
             //
 
-            if (incomingMessageBuffer == null || 
-                numberOfBytesToRead > incomingMessageBuffer.Length || 
+            if (incomingMessageBuffer == null ||
+                numberOfBytesToRead > incomingMessageBuffer.Length ||
                 bufferOffset >= incomingMessageBuffer.Length)
             {
                 return false;
@@ -190,13 +197,13 @@ namespace WorkerRole
                 return true;
             }
 
-            //try
-            //{
+            try
+            {
                 _socket.BeginReceive(
-                    incomingMessageBuffer, 
-                    bufferOffset, 
-                    incomingMessageBuffer.Length - bufferOffset, 
-                    SocketFlags.None, 
+                    incomingMessageBuffer,
+                    bufferOffset,
+                    incomingMessageBuffer.Length - bufferOffset,
+                    SocketFlags.None,
                     aResult =>
                     {
                         //
@@ -240,13 +247,13 @@ namespace WorkerRole
                             else
                             {
                                 MessageReceiverLoop(
-                                        incomingMessageBuffer, 
-                                        receiveCount, 
-                                        numberOfBytesToRead, 
+                                        incomingMessageBuffer,
+                                        receiveCount,
+                                        numberOfBytesToRead,
                                         messageReceivedCallback);
                             }
                         }
-                        catch (SocketException se)
+                        catch (SocketException)
                         {
                             if (!IsConnected)
                             {
@@ -257,41 +264,32 @@ namespace WorkerRole
                             Trace.WriteLine(string.Format("TCPReceiveLoop: Client {0} has closed the connection.", this.UserName));
                             return;
                         }
-                        //ToDo: Re-enable this catch all block.
-                        //catch (Exception e)
-                        //{
-                        //    if (!IsConnected)
-                        //    {
-                        //        Disconnect();
-                        //        return;
-                        //    }
+                        catch (Exception e)
+                        {
+                            if (!IsConnected)
+                            {
+                                Disconnect();
+                                return;
+                            }
 
-                        //    Trace.WriteLine(string.Format("TCPReceiveLoop: Caught exception!! '{0}'\n{1}", e.Message, e.StackTrace));
-                        //}
+                            Trace.WriteLine(string.Format("TCPReceiveLoop: Caught exception!! '{0}'\n{1}", e.Message, e.StackTrace));
+                        }
                     },
                     _socketId); // This used to be _socketID.  ToDo: Determine what the point of this object is.
-            //}
-            //ToDo: Re-enable this catch all block.
-            //catch(Exception e)
-            //{
-            //    if (!IsConnected)
-            //    {
-            //        Disconnect();
-            //        return false;
-            //    }
+            }
+            catch (Exception e)
+            {
+                if (!IsConnected)
+                {
+                    Disconnect();
+                    return false;
+                }
 
-            //    Trace.WriteLine(string.Format("TCPReceiveLoop: Caught exception!! '{0}'\n{1}", e.Message, e.StackTrace));
-            //    return false;
-            //}
+                Trace.WriteLine(string.Format("TCPReceiveLoop: Caught exception!! '{0}'\n{1}", e.Message, e.StackTrace));
+                return false;
+            }
 
             return true;
         }
-
-
-        //private void OnDisconnected()
-        //{
-        //    // ToDo: Here we need to broadcast that this user has signed out.
-        //    _socket.Close();
-        //}
     }
 }

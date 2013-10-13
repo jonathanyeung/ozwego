@@ -1,7 +1,8 @@
-﻿using Ozwego.Shared;
+﻿
 using Ozwego.ViewModels;
 using System;
 using System.Threading.Tasks;
+using Shared;
 using Windows.Foundation;
 using Windows.Storage.Streams;
 

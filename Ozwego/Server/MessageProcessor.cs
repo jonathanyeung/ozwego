@@ -1,9 +1,9 @@
 ﻿using Ozwego.BuddyManagement;
 using Ozwego.Gameplay;
-using Ozwego.Shared;
 using Ozwego.UI;
 using System;
 using System.Collections.Generic;
+using Shared;
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -49,7 +49,13 @@ namespace Ozwego.Server
                     var currentFrame = Window.Current.Content as Frame;
                     if (currentFrame != null)
                     {
-                        currentFrame.Navigate(typeof(GameBoardPrototype));
+                        GameBoardNavigationArgs args = new GameBoardNavigationArgs()
+                        {
+                            GameConnectionType = GameConnectionType.Online,
+                            BotCount = 0
+                        };
+
+                        currentFrame.Navigate(typeof(GameBoardPrototype), args);
                     }
                     break;
 
@@ -101,6 +107,23 @@ namespace Ozwego.Server
 
     class DataBaseMessageProcessor : MessageProcessor
     {
+        public delegate void DataBaseMessageEventHandler(object sender, string message);
+
+
+        public static event DataBaseMessageEventHandler DataBaseMessageReceivedEvent;
+
+
+        private void OnMessageReceived(string message)
+        {
+            DataBaseMessageEventHandler handler = DataBaseMessageReceivedEvent;
+
+            if (handler != null)
+            {
+                handler(this, message);
+            }
+        }
+
+
         public override void DoActions(PacketType packetType, string messageString, string senderEmailAddress)
         {
             var separators = new string[] { "," };
@@ -201,6 +224,10 @@ namespace Ozwego.Server
                     App.ClientBuddyInstance.Ranking = tempBuddy.Ranking;
                     break;
 
+                case PacketType.ServerIsAliasAvailable:
+                    OnMessageReceived(messageString);
+                    break;
+
                 default:
                     throw new ArgumentException(
                             "Passed PacketType is not meant to be handled by this MessageProcessor");
@@ -238,7 +265,62 @@ namespace Ozwego.Server
                 return null;
             }
         }
+    }
 
 
+    class MatchmakingMessageProcessor : MessageProcessor
+    {
+        public delegate void MatchmakingMessageEventHandler(object sender);
+
+        public static event MatchmakingMessageEventHandler GameFoundEvent;
+        public static event MatchmakingMessageEventHandler GameNotFoundEvent;
+
+
+        private enum MessageResult
+        {
+            GameFound,
+            GameNotFound
+        }
+
+
+        private void OnMessageReceived(MessageResult msgResult)
+        {
+            MatchmakingMessageEventHandler handler = null;
+
+            switch (msgResult)
+            {
+                case MessageResult.GameFound:
+                    handler = GameFoundEvent;
+                    break;
+
+                case MessageResult.GameNotFound:
+                    handler = GameNotFoundEvent;
+                    break;
+            }
+
+            if (handler != null)
+            {
+                handler(this);
+            }
+        }
+
+
+        public override void DoActions(PacketType packetType, string messageString, string senderEmailAddress)
+        {
+            switch (packetType)
+            {
+                case PacketType.ServerMatchmakingGameFound:
+                    OnMessageReceived(MessageResult.GameFound);
+                    break;
+
+                case PacketType.ServerMatchmakingGameNotFound:
+                    OnMessageReceived(MessageResult.GameNotFound);
+                    break;
+
+                default:
+                    throw new ArgumentException(
+                            "Passed PacketType is not meant to be handled by this MessageProcessor");
+            }
+        }
     }
 }

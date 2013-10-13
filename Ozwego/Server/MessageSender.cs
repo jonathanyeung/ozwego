@@ -1,9 +1,12 @@
-﻿using Ozwego.BuddyManagement;
-using Ozwego.Shared;
+﻿using System.IO;
+using System.Xml.Serialization;
+using Ozwego.BuddyManagement;
+
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Shared;
 using Windows.Storage.Streams;
 
 namespace Ozwego.Server
@@ -34,14 +37,21 @@ namespace Ozwego.Server
         public async Task SendMessage(PacketType packetType)
         {
             var recipientList = new List<Buddy>();
-            await SendMessage(packetType, "", recipientList);
+            await SendMessage(packetType, recipientList, ""); //ToDo: Change this from "" to null
         }
 
 
         public async Task SendMessage(PacketType packetType, string messageString)
         {
             var recipientList = new List<Buddy>();
-            await SendMessage(packetType, messageString, recipientList);
+            await SendMessage(packetType, recipientList, messageString);
+        }
+
+
+        public async Task SendMessage(PacketType packetType, byte[] buffer)
+        {
+            var recipientList = new List<Buddy>();
+            await SendMessage(packetType, recipientList, buffer);
         }
 
 
@@ -57,12 +67,11 @@ namespace Ozwego.Server
         public async Task SendMessage(PacketType packetType, string messageString, Buddy buddy)
         {
             var recipientList = new List<Buddy> {buddy};
-            await SendMessage(packetType, messageString, recipientList);
+            await SendMessage(packetType, recipientList, messageString);
         }
 
 
-
-        private async Task SendMessage(PacketType packetType, string messageString, IEnumerable<Buddy> recipientList)
+        private async Task SendMessage(PacketType packetType, IEnumerable<Buddy> recipientList, object data)
         {
             if (ServerProxy.TcpSocket == null)
             {
@@ -75,28 +84,50 @@ namespace Ozwego.Server
                 // Generate the recipient list string.
                 //
 
-                string recipients = "";
-                foreach (var buddy in recipientList)
+                var packetBase = new PacketBase {PacketVersion = PacketVersion.Version1};
+
+                var packetV1 = new PacketV1();
+
+                foreach (Buddy b in recipientList)
                 {
-                    messageString += buddy.EmailAddress;
-                    messageString += ',';
+                    packetV1.Recipients.Add(b.EmailAddress);
                 }
-                recipients = recipients.TrimEnd(',');
 
-                var messageFields = new Dictionary<string, string>
-                    {
-                        {"recipients", recipients},
-                        {"sender", App.ClientBuddyInstance.EmailAddress},
-                        {"message", messageString}
-                    };
+                packetV1.PacketType = packetType;
 
-                var message = CreateUrlQueryString(messageFields);
+                packetV1.Data = data;
+
+
+
+                //ToDo: Does 3000 need to be adjusted?  Max seen value is 750.  Should handle an exception for buffer over run. Find a way to make these buffers dynamic.
+                var buffer = new byte[3000];
+
+                using (var stream = new MemoryStream(buffer))
+                {
+                    var ser = new XmlSerializer(typeof(PacketV1));
+
+                    ser.Serialize(stream, packetV1);
+                }
+
+                packetBase.Data = buffer;
+
+                // ToDo: Adjust this value.  Find a way to make these buffers dynamic.
+                var baseBuffer = new byte[10000];
+
+                using (var stream = new MemoryStream(baseBuffer))
+                {
+                    var ser = new XmlSerializer(typeof(PacketBase));
+
+                    ser.Serialize(stream, packetBase);
+                }
+
 
                 //
                 // 1 represents the size of the PacketType enum.
                 //
 
-                var messageSize = (uint)(1 + Encoding.UTF8.GetByteCount(message));
+                var messageSize = baseBuffer.Length;
+
                 byte[] bytes = BitConverter.GetBytes(messageSize);
 
                 if (!BitConverter.IsLittleEndian)
@@ -107,15 +138,11 @@ namespace Ozwego.Server
 
                 //
                 // 1. Write the message size
-                // 2. Write the packet type
-                // 3. Write the message string, which contains the message followed by a list of 
-                //    recipients delimited by "$$"
+                // 2. Write the object buffer.
                 //
 
                 dataWriter.WriteBytes(bytes);
-                dataWriter.WriteByte((byte)packetType);
-                uint stringSize = dataWriter.WriteString(message);
-                // ToDo: Examine stringSize and close the connection if it's invalid.
+                dataWriter.WriteBytes(baseBuffer);
 
                 await dataWriter.StoreAsync();
 

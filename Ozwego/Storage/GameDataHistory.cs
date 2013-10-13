@@ -1,28 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Ozwego.Server;
+using Shared;
 using Windows.Storage;
 using Windows.Storage.Streams;
-using Windows.Storage.Search;
-using System.Xml;
 
 namespace Ozwego.Storage
 {
     public class GameDataHistory
     {
-        private const string baseFileName = "GameDataHistory.gdh";
-        private List<GameData> gameDataList;
+        private const string BaseFileName = "GameDataHistory.gdh";
+        private List<GameData> _gameDataList;
         private static GameDataHistory _instance;
 
 
         private GameDataHistory()
         {
-            gameDataList = new List<GameData>();
+            _gameDataList = new List<GameData>();
         }
 
 
@@ -38,14 +36,16 @@ namespace Ozwego.Storage
         /// <returns></returns>
         public async Task ClearAllStoredData()
         {
-            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            var localFolder = ApplicationData.Current.LocalFolder;
 
             try
             {
-                StorageFile file = await localFolder.GetFileAsync(baseFileName);
+                var file = await localFolder.GetFileAsync(BaseFileName);
                 await file.DeleteAsync();
             }
-            catch (FileNotFoundException) { }
+            catch (FileNotFoundException)
+            {
+            }
         }
 
 
@@ -55,29 +55,28 @@ namespace Ozwego.Storage
         /// <returns></returns>
         public async Task StoreGameData(GameData dataToSave)
         {
-            ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
-            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            var localFolder = ApplicationData.Current.LocalFolder;
 
-            StorageFile file = await localFolder.CreateFileAsync(
-                    baseFileName,
-                    CreationCollisionOption.OpenIfExists);
+            var file = await localFolder.CreateFileAsync(
+                BaseFileName,
+                CreationCollisionOption.OpenIfExists);
 
 
             //
             // Retrieve existing data in storage so that it isn't overwritten.
             //
 
-            gameDataList.Clear();
-            gameDataList = await RetrieveGameData();
-            gameDataList.Add(dataToSave);
+            _gameDataList.Clear();
+            _gameDataList = await RetrieveGameData();
+            _gameDataList.Add(dataToSave);
 
             using (var streamFile = await file.OpenAsync(FileAccessMode.ReadWrite))
             {
                 using (var outputNewFile = streamFile.GetOutputStreamAt(0))
                 {
-                    var ser = new DataContractSerializer(typeof(List<GameData>));
+                    var ser = new XmlSerializer(typeof(List<GameData>));
 
-                    ser.WriteObject(outputNewFile.AsStreamForWrite(), gameDataList);
+                    ser.Serialize(outputNewFile.AsStreamForWrite(), _gameDataList);
                 }
             }
         }
@@ -89,11 +88,11 @@ namespace Ozwego.Storage
         /// <returns></returns>
         public async Task<List<GameData>> RetrieveGameData()
         {
-            List<GameData> data = new List<GameData>();
+            var data = new List<GameData>();
 
-            StorageFile dataFile = await ApplicationData.Current.LocalFolder.CreateFileAsync(
-                    baseFileName,
-                    CreationCollisionOption.OpenIfExists);
+            var dataFile = await ApplicationData.Current.LocalFolder.CreateFileAsync(
+                BaseFileName,
+                CreationCollisionOption.OpenIfExists);
 
             if (dataFile == null)
             {
@@ -102,16 +101,42 @@ namespace Ozwego.Storage
 
             using (IInputStream dataInputStream = await dataFile.OpenReadAsync())
             {
-                var sessionSerializer = new DataContractSerializer(typeof(List<GameData>));
-
                 try
                 {
-                    data = (List<GameData>)sessionSerializer.ReadObject(dataInputStream.AsStreamForRead());
+                    var ser = new XmlSerializer(typeof (List<GameData>));
+
+                    data = (List<GameData>)ser.Deserialize(dataInputStream.AsStreamForRead());
                 }
-                catch (XmlException) { }
+                catch (InvalidOperationException)
+                {
+                    // Swallow this exception which is thrown when you try to deserialize an empty obj.
+                }
             }
 
             return data;
+        }
+
+
+        public async Task UploadPendingGameData()
+        {
+            var dataList = await RetrieveGameData();
+
+            foreach (var gameData in dataList)
+            {
+                //ToDo: Does 3000 need to be adjusted?  Max seen value is 750.  Should handle an exception for buffer over run.
+                var buffer = new byte[1000];
+
+                using (var stream = new MemoryStream(buffer))
+                {
+                    var ser = new XmlSerializer(typeof(GameData));
+
+                    ser.Serialize(stream, gameData);
+
+                    var messageSender = MessageSender.GetInstance();
+
+                    await messageSender.SendMessage(PacketType.ClientUploadGameData, buffer);
+                }
+            }
         }
     }
 }

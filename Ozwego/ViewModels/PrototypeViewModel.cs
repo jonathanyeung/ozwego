@@ -10,7 +10,22 @@ namespace Ozwego.Gameplay
 {
     public class PrototypeViewModel : INotifyPropertyChanged
     {
-        public ObservableCollection<Tile> TileRack = new ObservableCollection<Tile>();
+        private static PrototypeViewModel _instance;
+
+
+        private PrototypeViewModel()
+        {
+            TileRack = new ObservableCollection<Tile>();
+        }
+
+
+        public static PrototypeViewModel GetInstance()
+        {
+            return _instance ?? (_instance = new PrototypeViewModel());
+        }
+
+
+        public ObservableCollection<Tile> TileRack;
 
         private int _gameTime;
 

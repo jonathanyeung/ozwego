@@ -39,10 +39,16 @@ namespace WorkerRole.Datacore
     partial void Insertfriendship(friendship instance);
     partial void Updatefriendship(friendship instance);
     partial void Deletefriendship(friendship instance);
+    partial void Insertuser_game(user_game instance);
+    partial void Updateuser_game(user_game instance);
+    partial void Deleteuser_game(user_game instance);
+    partial void Insertgame(game instance);
+    partial void Updategame(game instance);
+    partial void Deletegame(game instance);
     #endregion
 		
 		public OzwegoDataClassesDataContext() : 
-				base(global::WorkerRole.Properties.Settings.Default.ozwego_dbConnectionString, mappingSource)
+				base(global::WorkerRole.Properties.Settings.Default.ozwego_dbConnectionString1, mappingSource)
 		{
 			OnCreated();
 		}
@@ -94,6 +100,22 @@ namespace WorkerRole.Datacore
 				return this.GetTable<friendship>();
 			}
 		}
+		
+		public System.Data.Linq.Table<user_game> user_games
+		{
+			get
+			{
+				return this.GetTable<user_game>();
+			}
+		}
+		
+		public System.Data.Linq.Table<game> games
+		{
+			get
+			{
+				return this.GetTable<game>();
+			}
+		}
 	}
 	
 	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.[user]")]
@@ -114,6 +136,8 @@ namespace WorkerRole.Datacore
 		
 		private System.Nullable<int> _ranking;
 		
+		private System.Nullable<int> _skill_level;
+		
 		private EntitySet<friendRequest> _friendRequests;
 		
 		private EntitySet<friendRequest> _friendRequests1;
@@ -121,6 +145,8 @@ namespace WorkerRole.Datacore
 		private EntitySet<friendship> _friendships;
 		
 		private EntitySet<friendship> _friendships1;
+		
+		private EntitySet<user_game> _user_games;
 		
     #region Extensibility Method Definitions
     partial void OnLoaded();
@@ -138,6 +164,8 @@ namespace WorkerRole.Datacore
     partial void Onlast_seen_timeChanged();
     partial void OnrankingChanging(System.Nullable<int> value);
     partial void OnrankingChanged();
+    partial void Onskill_levelChanging(System.Nullable<int> value);
+    partial void Onskill_levelChanged();
     #endregion
 		
 		public user()
@@ -146,6 +174,7 @@ namespace WorkerRole.Datacore
 			this._friendRequests1 = new EntitySet<friendRequest>(new Action<friendRequest>(this.attach_friendRequests1), new Action<friendRequest>(this.detach_friendRequests1));
 			this._friendships = new EntitySet<friendship>(new Action<friendship>(this.attach_friendships), new Action<friendship>(this.detach_friendships));
 			this._friendships1 = new EntitySet<friendship>(new Action<friendship>(this.attach_friendships1), new Action<friendship>(this.detach_friendships1));
+			this._user_games = new EntitySet<user_game>(new Action<user_game>(this.attach_user_games), new Action<user_game>(this.detach_user_games));
 			OnCreated();
 		}
 		
@@ -189,7 +218,7 @@ namespace WorkerRole.Datacore
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_alias", DbType="NVarChar(15) NOT NULL", CanBeNull=false)]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_alias", DbType="NVarChar(50) NOT NULL", CanBeNull=false)]
 		public string alias
 		{
 			get
@@ -269,6 +298,26 @@ namespace WorkerRole.Datacore
 			}
 		}
 		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_skill_level", DbType="Int")]
+		public System.Nullable<int> skill_level
+		{
+			get
+			{
+				return this._skill_level;
+			}
+			set
+			{
+				if ((this._skill_level != value))
+				{
+					this.Onskill_levelChanging(value);
+					this.SendPropertyChanging();
+					this._skill_level = value;
+					this.SendPropertyChanged("skill_level");
+					this.Onskill_levelChanged();
+				}
+			}
+		}
+		
 		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="user_friendRequest", Storage="_friendRequests", ThisKey="ID", OtherKey="from_user")]
 		public EntitySet<friendRequest> friendRequests
 		{
@@ -318,6 +367,19 @@ namespace WorkerRole.Datacore
 			set
 			{
 				this._friendships1.Assign(value);
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="user_user_game", Storage="_user_games", ThisKey="ID", OtherKey="ID")]
+		public EntitySet<user_game> user_games
+		{
+			get
+			{
+				return this._user_games;
+			}
+			set
+			{
+				this._user_games.Assign(value);
 			}
 		}
 		
@@ -387,6 +449,18 @@ namespace WorkerRole.Datacore
 		{
 			this.SendPropertyChanging();
 			entity.user3 = null;
+		}
+		
+		private void attach_user_games(user_game entity)
+		{
+			this.SendPropertyChanging();
+			entity.user = this;
+		}
+		
+		private void detach_user_games(user_game entity)
+		{
+			this.SendPropertyChanging();
+			entity.user = null;
 		}
 	}
 	
@@ -771,6 +845,360 @@ namespace WorkerRole.Datacore
 			{
 				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
 			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.user_game")]
+	public partial class user_game : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _ID;
+		
+		private int _gameID;
+		
+		private EntityRef<user> _user;
+		
+		private EntityRef<game> _game;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnIDChanging(int value);
+    partial void OnIDChanged();
+    partial void OngameIDChanging(int value);
+    partial void OngameIDChanged();
+    #endregion
+		
+		public user_game()
+		{
+			this._user = default(EntityRef<user>);
+			this._game = default(EntityRef<game>);
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", DbType="Int NOT NULL", IsPrimaryKey=true)]
+		public int ID
+		{
+			get
+			{
+				return this._ID;
+			}
+			set
+			{
+				if ((this._ID != value))
+				{
+					if (this._user.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnIDChanging(value);
+					this.SendPropertyChanging();
+					this._ID = value;
+					this.SendPropertyChanged("ID");
+					this.OnIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_gameID", DbType="Int NOT NULL", IsPrimaryKey=true)]
+		public int gameID
+		{
+			get
+			{
+				return this._gameID;
+			}
+			set
+			{
+				if ((this._gameID != value))
+				{
+					if (this._game.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OngameIDChanging(value);
+					this.SendPropertyChanging();
+					this._gameID = value;
+					this.SendPropertyChanged("gameID");
+					this.OngameIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="user_user_game", Storage="_user", ThisKey="ID", OtherKey="ID", IsForeignKey=true)]
+		public user user
+		{
+			get
+			{
+				return this._user.Entity;
+			}
+			set
+			{
+				user previousValue = this._user.Entity;
+				if (((previousValue != value) 
+							|| (this._user.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._user.Entity = null;
+						previousValue.user_games.Remove(this);
+					}
+					this._user.Entity = value;
+					if ((value != null))
+					{
+						value.user_games.Add(this);
+						this._ID = value.ID;
+					}
+					else
+					{
+						this._ID = default(int);
+					}
+					this.SendPropertyChanged("user");
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="game_user_game", Storage="_game", ThisKey="gameID", OtherKey="gameID", IsForeignKey=true)]
+		public game game
+		{
+			get
+			{
+				return this._game.Entity;
+			}
+			set
+			{
+				game previousValue = this._game.Entity;
+				if (((previousValue != value) 
+							|| (this._game.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._game.Entity = null;
+						previousValue.user_games.Remove(this);
+					}
+					this._game.Entity = value;
+					if ((value != null))
+					{
+						value.user_games.Add(this);
+						this._gameID = value.gameID;
+					}
+					else
+					{
+						this._gameID = default(int);
+					}
+					this.SendPropertyChanged("game");
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.game")]
+	public partial class game : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _gameID;
+		
+		private System.DateTime _gameStartTime;
+		
+		private int _gameDuration;
+		
+		private System.Nullable<int> _winner;
+		
+		private System.Data.Linq.Binary _gameDataFile;
+		
+		private EntitySet<user_game> _user_games;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OngameIDChanging(int value);
+    partial void OngameIDChanged();
+    partial void OngameStartTimeChanging(System.DateTime value);
+    partial void OngameStartTimeChanged();
+    partial void OngameDurationChanging(int value);
+    partial void OngameDurationChanged();
+    partial void OnwinnerChanging(System.Nullable<int> value);
+    partial void OnwinnerChanged();
+    partial void OngameDataFileChanging(System.Data.Linq.Binary value);
+    partial void OngameDataFileChanged();
+    #endregion
+		
+		public game()
+		{
+			this._user_games = new EntitySet<user_game>(new Action<user_game>(this.attach_user_games), new Action<user_game>(this.detach_user_games));
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_gameID", DbType="Int NOT NULL", IsPrimaryKey=true)]
+		public int gameID
+		{
+			get
+			{
+				return this._gameID;
+			}
+			set
+			{
+				if ((this._gameID != value))
+				{
+					this.OngameIDChanging(value);
+					this.SendPropertyChanging();
+					this._gameID = value;
+					this.SendPropertyChanged("gameID");
+					this.OngameIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_gameStartTime", DbType="DateTime NOT NULL")]
+		public System.DateTime gameStartTime
+		{
+			get
+			{
+				return this._gameStartTime;
+			}
+			set
+			{
+				if ((this._gameStartTime != value))
+				{
+					this.OngameStartTimeChanging(value);
+					this.SendPropertyChanging();
+					this._gameStartTime = value;
+					this.SendPropertyChanged("gameStartTime");
+					this.OngameStartTimeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_gameDuration", DbType="Int NOT NULL")]
+		public int gameDuration
+		{
+			get
+			{
+				return this._gameDuration;
+			}
+			set
+			{
+				if ((this._gameDuration != value))
+				{
+					this.OngameDurationChanging(value);
+					this.SendPropertyChanging();
+					this._gameDuration = value;
+					this.SendPropertyChanged("gameDuration");
+					this.OngameDurationChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_winner", DbType="Int")]
+		public System.Nullable<int> winner
+		{
+			get
+			{
+				return this._winner;
+			}
+			set
+			{
+				if ((this._winner != value))
+				{
+					this.OnwinnerChanging(value);
+					this.SendPropertyChanging();
+					this._winner = value;
+					this.SendPropertyChanged("winner");
+					this.OnwinnerChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_gameDataFile", DbType="Binary(50)", CanBeNull=true, UpdateCheck=UpdateCheck.Never)]
+		public System.Data.Linq.Binary gameDataFile
+		{
+			get
+			{
+				return this._gameDataFile;
+			}
+			set
+			{
+				if ((this._gameDataFile != value))
+				{
+					this.OngameDataFileChanging(value);
+					this.SendPropertyChanging();
+					this._gameDataFile = value;
+					this.SendPropertyChanged("gameDataFile");
+					this.OngameDataFileChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="game_user_game", Storage="_user_games", ThisKey="gameID", OtherKey="gameID")]
+		public EntitySet<user_game> user_games
+		{
+			get
+			{
+				return this._user_games;
+			}
+			set
+			{
+				this._user_games.Assign(value);
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+		
+		private void attach_user_games(user_game entity)
+		{
+			this.SendPropertyChanging();
+			entity.game = this;
+		}
+		
+		private void detach_user_games(user_game entity)
+		{
+			this.SendPropertyChanging();
+			entity.game = null;
 		}
 	}
 }

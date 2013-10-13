@@ -1,7 +1,8 @@
-﻿using Ozwego.Shared;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Shared;
 using WorkerRole.Datacore;
 
 namespace WorkerRole
@@ -14,7 +15,7 @@ namespace WorkerRole
         private MessageSender() { }
 
 
-        public static MessageSender GetMessageSender()
+        public static MessageSender GetInstance()
         {
             return _instance ?? (_instance = new MessageSender());
         }
@@ -28,9 +29,9 @@ namespace WorkerRole
 
         public void SendMessage(Client recipient, PacketType packetType, string arguments)
         {
-            var messageToSend = "";
             var msgFields = new Dictionary<string, string> {{"message", arguments}};
-            messageToSend = CreateUrlQueryString(msgFields);
+
+            string messageToSend = CreateUrlQueryString(msgFields);
 
             SendMessageInternal(recipient, packetType, messageToSend);
         }
@@ -78,7 +79,7 @@ namespace WorkerRole
         /// <param name="arguments"></param>
         /// <param name="sender">Client that is sending this message, set to null if this is not a
         /// user-initiated message</param>
-        public void BroadcastMessage(List<Client> recipients, PacketType packetType, string arguments, Client sender)
+        public void BroadcastMessage(IEnumerable<Client> recipients, PacketType packetType, string arguments, Client sender)
         {
             foreach (Client c in recipients)
             {
@@ -90,7 +91,7 @@ namespace WorkerRole
         }
 
 
-        public void BroadcastMessage(List<Client> recipients, PacketType packetType, Dictionary<string, string> arguments, Client sender)
+        public void BroadcastMessage(IEnumerable<Client> recipients, PacketType packetType, Dictionary<string, string> arguments, Client sender)
         {
             foreach (Client c in recipients)
             {
@@ -108,7 +109,7 @@ namespace WorkerRole
         /// <param name="recipients"></param>
         /// <param name="packetType"></param>
         /// <param name="arguments"></param>
-        public void BroadcastMessage(List<Client> recipients, PacketType packetType, string arguments)
+        public void BroadcastMessage(IEnumerable<Client> recipients, PacketType packetType, string arguments)
         {
             foreach (Client c in recipients)
             {
@@ -124,7 +125,7 @@ namespace WorkerRole
         /// </summary>
         /// <param name="recipients"></param>
         /// <returns></returns>
-        public string GetRecipientListFormattedString(List<Client> recipients)
+        public string GetRecipientListFormattedString(IEnumerable<Client> recipients)
         {
             const char delimiter = ',';
 
@@ -143,7 +144,7 @@ namespace WorkerRole
         }
 
 
-        public string GetRecipientListFormattedString(List<user> recipients)
+        public string GetRecipientListFormattedString(IEnumerable<user> recipients)
         {
             const char delimiter = ',';
 

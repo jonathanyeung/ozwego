@@ -1,6 +1,6 @@
-﻿using Ozwego.Shared;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Shared;
 
 namespace WorkerRole
 {
@@ -71,7 +71,7 @@ namespace WorkerRole
                 // Send a message to all the existing members in the room indicating who has joined.
                 //
 
-                var messageSender = MessageSender.GetMessageSender();
+                var messageSender = MessageSender.GetInstance();
                 messageSender.BroadcastMessage(
                     room.Members, 
                     PacketType.UserJoinedRoom, 
@@ -125,7 +125,7 @@ namespace WorkerRole
 
                 else
                 {
-                    var messageSender = MessageSender.GetMessageSender();
+                    var messageSender = MessageSender.GetInstance();
                     messageSender.BroadcastMessage(
                         room.Members,
                         PacketType.UserLeftRoom,
@@ -134,6 +134,5 @@ namespace WorkerRole
                 }
             }
         }
-
     }
 }

@@ -55,6 +55,15 @@ namespace Ozwego.Gameplay.Bots
 
 
         /// <summary>
+        /// Removes all bots from bot manager.
+        /// </summary>
+        public void ClearBotList()
+        {
+            _botList.Clear();
+        }
+
+
+        /// <summary>
         /// Tells the bots to start going.
         /// </summary>
         public void StartBots()

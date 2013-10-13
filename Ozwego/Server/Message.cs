@@ -1,4 +1,5 @@
-﻿using Ozwego.Shared;
+﻿
+using Shared;
 
 namespace Ozwego.Server
 {

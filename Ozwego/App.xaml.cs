@@ -23,10 +23,6 @@ namespace Ozwego
         public static CoreDispatcher Dispatcher;
 
 
-        //ToDo: Remove these statics.
-        public static GameBoardViewModel GameBoardViewModel = new GameBoardViewModel();
-        public static PrototypeViewModel PrototypeViewModel = new PrototypeViewModel();
-
         public const string ApplicationUri = "https://ozwego.azure-mobile.net/";
 
 

@@ -1,4 +1,5 @@
-﻿using Ozwego.Gameplay;
+﻿using Ozwego.BuddyManagement;
+using Ozwego.Gameplay;
 using Ozwego.ViewModels;
 using System;
 using System.Collections.ObjectModel;
@@ -27,6 +28,16 @@ namespace Ozwego.UI
             foreach (IPlayer player in gameController.LocalPlayers)
             {
                 PlayerList.Add(new PlayerPaneViewModel(player.Alias));
+            }
+
+            var roomManager = RoomManager.GetInstance();
+            foreach (var member in roomManager.RoomMembers)
+            {
+                //ToDo: Remove this instance.  Do a smarter check to prevent double adding the client name.
+                if (member.Alias != App.ClientBuddyInstance.EmailAddress)
+                {
+                    PlayerList.Add(new PlayerPaneViewModel(member.EmailAddress));
+                }
             }
         }
 

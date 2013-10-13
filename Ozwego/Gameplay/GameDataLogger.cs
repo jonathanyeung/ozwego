@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ozwego.Storage;
 
 namespace Ozwego.Gameplay
@@ -15,17 +13,12 @@ namespace Ozwego.Gameplay
         /// <summary>
         /// Method called to initialize the Game Data Logger for a new game
         /// </summary>
-        public void BeginLoggingSession(string GameHost, List<IPlayer> Players)
+        public void BeginLoggingSession(string gameHost, IEnumerable<IPlayer> players)
         {
-            _gameData = new GameData();
-            _gameData.GameHost = GameHost;
+            _gameData = new GameData {GameHost = gameHost};
 
-            var nameList = new List<string>();
-
-            foreach (IPlayer player in Players)
-            {
-                nameList.Add(player.Alias);
-            }
+            var nameList = players.Select(player
+                    => new PlayerTuple() {Name = player.Alias, Stats = null}).ToList();
 
             _gameData.Players = nameList;
         }
@@ -53,6 +46,7 @@ namespace Ozwego.Gameplay
         /// </summary>
         public async void EndLoggingSession()
         {
+            _gameData.ProcessGameData();
             var gdh = GameDataHistory.GetInstance();
             await gdh.StoreGameData(_gameData);
             _gameData = null;

@@ -99,7 +99,7 @@
                     </StackPanel>
                     <Button Name="LeaveRoomButton" Content="Leave Lobby" VerticalAlignment="Bottom" Width="200" Tapped="LeaveRoomButton_OnTapped" Margin="0, 0, 10, 0"/>
                     <Button Name="StartGame" Content="Start Game with Lobby"  VerticalAlignment="Bottom" Width="200" Tapped="StartGame_OnTapped" Margin="0, 0, 10, 0"/>
-                    <Button Content="Matchmaking" HorizontalAlignment="Left"  VerticalAlignment="Bottom" Width="200" />
+                    <Button Content="Matchmaking" HorizontalAlignment="Left"  VerticalAlignment="Bottom" Width="200" Tapped="Matchmaking_OnTapped"/>
                 </StackPanel>
 
                 <GridView x:Name="RoomListUI" Grid.Row="1" Grid.Column="1"

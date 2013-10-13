@@ -31,6 +31,7 @@ namespace Ozwego.BuddyManagement
             }
         }
 
+
         [IgnoreDataMember]
         private string _emailAddress;
 
@@ -51,28 +52,6 @@ namespace Ozwego.BuddyManagement
                 }
             }
         }
-
-
-        //[IgnoreDataMember]
-        //private string _roomGuid;
-
-        //[DataMember(Name = "RoomIdentifier")] 
-        //public string RoomGuid
-        //{
-        //    get
-        //    {
-        //        return _roomGuid;
-        //    }
-
-        //    set
-        //    {
-        //        if (value != _roomGuid)
-        //        {
-        //            _roomGuid = value;
-        //            NotifyPropertyChanged("RoomIdentifier");
-        //        }
-        //    }
-        //}
 
 
         //
@@ -101,11 +80,13 @@ namespace Ozwego.BuddyManagement
         }
 
 
+        // Player Ranking.  This is monotonically increasing, increases with experience and is not
+        // an indicator of how good a player is.
         [IgnoreDataMember]
-        protected string _ranking;
+        protected int _ranking;
 
         [DataMember(Name = "Ranking")]
-        public string Ranking
+        public int Ranking
         {
             get
             {
@@ -119,6 +100,21 @@ namespace Ozwego.BuddyManagement
                     _ranking = value;
                     NotifyPropertyChanged("Ranking");
                 }
+            }
+        }
+
+
+        // Skill level is NOT monotonically increasing.  This is meant to be an indicator of how
+        // good a player actually is, and it varies with win/loss ratio.
+        [IgnoreDataMember]
+        protected int _skillLevel;
+
+        [DataMember(Name = "SkillLevel")]
+        public int SkillLevel
+        {
+            get
+            {
+                return _skillLevel;
             }
         }
 

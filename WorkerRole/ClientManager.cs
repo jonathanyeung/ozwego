@@ -1,5 +1,6 @@
-﻿using Ozwego.Shared;
+﻿
 using System.Collections.Generic;
+using Shared;
 using WorkerRole.Datacore;
 
 namespace WorkerRole
@@ -85,7 +86,7 @@ namespace WorkerRole
                 }
             }
 
-            var messageSender = MessageSender.GetMessageSender();
+            var messageSender = MessageSender.GetInstance();
             string onlineClients =
                 messageSender.GetRecipientListFormattedString(onlineFriends);
 
@@ -137,7 +138,7 @@ namespace WorkerRole
             }
 
 
-            var messageSender = MessageSender.GetMessageSender();
+            var messageSender = MessageSender.GetInstance();
             string onlineClients =
                 messageSender.GetRecipientListFormattedString(onlineFriends);
 

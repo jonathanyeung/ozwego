@@ -1,26 +1,32 @@
 ﻿using Ozwego.BuddyManagement;
 using Ozwego.Gameplay.Bots;
 using Ozwego.Server;
-using Ozwego.Shared;
+
+using Ozwego.UI;
 using Ozwego.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Shared;
 using Windows.Foundation;
 using Windows.UI.Core;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 
 namespace Ozwego.Gameplay
 {
     public class GameController
     {
-        private readonly Dictionary _dictionary;
-        private readonly GameBoard _gameBoard;
-        private readonly TileManager _tileManager;
-        private readonly BotManager _botManager;
+        private Dictionary _dictionary;
+        private GameBoard _gameBoard;
+        private TileManager _tileManager;
+        private BotManager _botManager;
         private DispatcherTimer _gameClock;
         private GameDataLogger _gameDataLogger;
+
+        private GameConnectionType _gameConnectionType;
+        private GameMode _gameMode;
 
         private HumanPlayer _humanPlayer;
         public HumanPlayer HumanPlayer
@@ -31,7 +37,7 @@ namespace Ozwego.Gameplay
             }
         }
 
-        private List<IPlayer> _localPlayers;
+        private readonly List<IPlayer> _localPlayers;
         public List<IPlayer> LocalPlayers
         {
             get
@@ -47,10 +53,6 @@ namespace Ozwego.Gameplay
 
         private GameController()
         {
-            _dictionary = Dictionary.GetInstance();
-            _gameBoard = GameBoard.GetInstance();
-            _tileManager = TileManager.GetInstance();
-            _botManager = BotManager.GetInstance();
             _localPlayers = new List<IPlayer>();
             _gameDataLogger = new GameDataLogger();
         }
@@ -63,33 +65,6 @@ namespace Ozwego.Gameplay
         public static GameController GetInstance()
         {
             return _instance ?? (_instance = new GameController());
-        }
-
-
-        public async Task<bool> Initialize()
-        {
-            InitializeGameClock();
-            _gameBoard.ClearBoard();
-
-            await _dictionary.PopulateDictionary();
-            await _tileManager.InitializeForNewGame();
-
-            _humanPlayer = new HumanPlayer();
-            _localPlayers.Add(_humanPlayer);
-
-            //_botManager.CreateBot(10);
-            //_botManager.CreateBot(2);
-            foreach (IRobot bot in _botManager.BotList)
-            {
-                _localPlayers.Add(bot);
-            }
-
-            foreach (IPlayer player in _localPlayers)
-            {
-                player.InitializeForGame();
-            }
-            
-            return true;
         }
 
 
@@ -147,6 +122,20 @@ namespace Ozwego.Gameplay
             }
         }
 
+
+        public delegate void InitializeCompletedHandler(object sender);
+        public event InitializeCompletedHandler InitializeCompleteEvent;
+
+        private void OnInitializeComplete()
+        {
+            InitializeCompletedHandler handler = InitializeCompleteEvent;
+
+            if (handler != null)
+            {
+                handler(this);
+            }
+        }
+
         #endregion
 
 
@@ -158,15 +147,95 @@ namespace Ozwego.Gameplay
             _gameClock.Tick += GameClockOnTick;
             _gameClock.Interval = new TimeSpan(0, 0, 1);
 
-            App.GameBoardViewModel.GameTime = 0;
+            var viewModel = GameBoardViewModel.GetInstance();
+            viewModel.GameTime = 0;
         }
 
         private void GameClockOnTick(object sender, object o)
         {
-            App.GameBoardViewModel.GameTime++;
+            var viewModel = GameBoardViewModel.GetInstance();
+            viewModel.GameTime++;
         }
 
         #endregion
+
+
+        public async Task Initialize(GameBoardNavigationArgs args)
+        {
+            _gameConnectionType = args.GameConnectionType;
+            _gameMode = args.GameMode;
+
+            _tileManager = TileManager.GetInstance();
+            await _tileManager.InitializeForNewGame();
+
+            _botManager = BotManager.GetInstance();
+
+            _gameBoard = GameBoard.GetInstance();
+            _gameBoard.ClearBoard();
+
+            _dictionary = Dictionary.GetInstance();
+            await _dictionary.PopulateDictionary();
+
+            InitializeGameClock();
+
+            _humanPlayer = new HumanPlayer();
+
+            _localPlayers.Clear();
+            _localPlayers.Add(_humanPlayer);
+
+            _botManager.ClearBotList();
+
+            for (int i = 0; i < args.BotCount; i++)
+            {
+                _botManager.CreateBot(5);
+            }
+
+            foreach (IRobot bot in _botManager.BotList)
+            {
+                _localPlayers.Add(bot);
+            }
+
+            foreach (IPlayer player in _localPlayers)
+            {
+                player.InitializeForGame();
+            }
+
+            OnInitializeComplete();
+        }
+
+
+        /// <summary>
+        /// Method starts the game.  Updates UI with game start animations and kicks off the bots.
+        /// </summary>
+        public async void StartGame()
+        {
+            if (GameStarted) return;
+            GameStarted = true;
+
+            var serverProxy = ServerProxy.GetInstance();
+
+            if (serverProxy.messageSender != null)
+            {
+                await serverProxy.messageSender.SendMessage(PacketType.ClientStartGame);
+            }
+
+            _gameDataLogger.BeginLoggingSession(_humanPlayer.Alias, _localPlayers);
+
+            OnGameStarted();
+
+            await App.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                var viewModel = GameBoardViewModel.GetInstance();
+
+                viewModel.GameTime = 0;
+                viewModel.TilePileCount = _tileManager.GetPileCount();
+                _gameClock.Start();
+            });
+
+            // ToDo: Add a blocking method here that waits for the startgameanimation to complete.
+
+            _botManager.StartBots();
+        }
 
 
         /// <summary>
@@ -313,37 +382,6 @@ namespace Ozwego.Gameplay
         /// </summary>
         #region Game Action Message Handlers
 
-        /// <summary>
-        /// Method starts the game.  Updates UI with game start animations and kicks off the bots.
-        /// </summary>
-        public async void StartGame()
-        {
-            if (GameStarted) return;
-            GameStarted = true;
-
-            var serverProxy = ServerProxy.GetInstance();
-
-            if (serverProxy.messageSender != null)
-            {
-                await serverProxy.messageSender.SendMessage(PacketType.StartGame);
-            }
-
-            _gameDataLogger.BeginLoggingSession(_humanPlayer.Alias, _localPlayers);
-
-            OnGameStarted();
-
-            await App.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                App.GameBoardViewModel.GameTime = 0;
-                App.GameBoardViewModel.TilePileCount = _tileManager.GetPileCount();
-                _gameClock.Start();
-            });
-
-            // ToDo: Add a blocking method here that waits for the startgameanimation to complete.
-
-            _botManager.StartBots();
-        }
-
 
         /// <summary>
         /// This method is invoked whenever someone (either local or from the server) performs a
@@ -354,6 +392,7 @@ namespace Ozwego.Gameplay
         {
             var serverProxy = ServerProxy.GetInstance();
             var roomManager = RoomManager.GetInstance();
+            var viewModel = GameBoardViewModel.GetInstance();
 
 
             //
@@ -401,7 +440,7 @@ namespace Ozwego.Gameplay
                     // double counted.
                     //
 
-                    App.GameBoardViewModel.TilePileCount -=
+                    viewModel.TilePileCount -=
                             (roomManager.RoomMembers.Count + _localPlayers.Count - 1);
                     
                 });
@@ -417,7 +456,7 @@ namespace Ozwego.Gameplay
                 // Log the Peel event
                 //
 
-                _gameDataLogger.LogMove(actionSender, App.GameBoardViewModel.GameTime, Storage.MoveType.Peel);
+                _gameDataLogger.LogMove(actionSender, viewModel.GameTime, Storage.MoveType.Peel);
             }
             else
             {
@@ -440,11 +479,13 @@ namespace Ozwego.Gameplay
         /// <param name="actionSender">The person who performed the dump action</param>
         public async void DumpActionReceivedFromServer(string actionSender)
         {
-            _gameDataLogger.LogMove(actionSender, App.GameBoardViewModel.GameTime, Storage.MoveType.Dump);
+            var viewModel = GameBoardViewModel.GetInstance();
+
+            _gameDataLogger.LogMove(actionSender, viewModel.GameTime, Storage.MoveType.Dump);
 
             await App.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                App.GameBoardViewModel.TilePileCount -= 2;
+                viewModel.TilePileCount -= 2;
 
                 // ToDo: Get these two Tiles from the server.
                 _tileManager.DumpReceived(new Tile("a"), new Tile("b"));
@@ -457,6 +498,7 @@ namespace Ozwego.Gameplay
         /// dump action.
         /// </summary>
         /// <param name="actionSender">The person who performed the dump action</param>
+        /// <param name="returnedTile"></param>
         public async Task<List<Tile>> PerformDumpAction(string actionSender, Tile returnedTile)
         {
             var tiles = _tileManager.PerformDumpAction(returnedTile);
@@ -471,9 +513,11 @@ namespace Ozwego.Gameplay
                 return new List<Tile>();
             }
 
-            _gameDataLogger.LogMove(actionSender, App.GameBoardViewModel.GameTime, Storage.MoveType.Dump);
+            var viewModel = GameBoardViewModel.GetInstance();
 
-            App.GameBoardViewModel.TilePileCount -= 2;
+            _gameDataLogger.LogMove(actionSender, viewModel.GameTime, Storage.MoveType.Dump);
+
+            viewModel.TilePileCount -= 2;
 
             var serverProxy = ServerProxy.GetInstance();
 
@@ -495,10 +539,11 @@ namespace Ozwego.Gameplay
         public async void EndGame(string winnerName)
         {
             //
-            // Log the vicotry event.
+            // Log the victory event.
             //
 
-            _gameDataLogger.LogMove(winnerName, App.GameBoardViewModel.GameTime, Storage.MoveType.Victory);
+            var viewModel = GameBoardViewModel.GetInstance();
+            _gameDataLogger.LogMove(winnerName, viewModel.GameTime, Storage.MoveType.Victory);
 
             GameStarted = false;
 
@@ -510,11 +555,26 @@ namespace Ozwego.Gameplay
 
                 string title = string.Format("We Have a Winner!");
                 var dialog = new MessageDialog(winnerName, title);
-                dialog.Commands.Add(new UICommand("OK"));
+                dialog.Commands.Add(new UICommand("OK", CommandInvokedHandler));
                 await dialog.ShowAsync();
             });
 
             _gameDataLogger.EndLoggingSession();
+        }
+
+        private void CommandInvokedHandler(IUICommand command)
+        {
+            var args = new PostGamePageNavigationArgs()
+            {
+                GameConnectionType = _gameConnectionType,
+                GameMode = _gameMode
+            };
+
+            var currentFrame = Window.Current.Content as Frame;
+            if (currentFrame != null)
+            {
+                currentFrame.Navigate(typeof(PostGamePage), args);
+            }
         }
 
         #endregion // MessageReceivedHandlers

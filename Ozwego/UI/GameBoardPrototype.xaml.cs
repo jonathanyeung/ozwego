@@ -28,10 +28,10 @@ namespace Ozwego.UI
         private const int GameBoardDimension = 31;  // This value should be odd! Remember to update corresponding value in GameBoard.cs
         private const int StartingBoardDimension = 11; // This value should be odd!
 
-        private int NorthLimit;
-        private int SouthLimit;
-        private int EastLimit;
-        private int WestLimit;
+        private int _northLimit;
+        private int _southLimit;
+        private int _eastLimit;
+        private int _westLimit;
 
         private readonly TileRack _tileRack;
 
@@ -44,12 +44,13 @@ namespace Ozwego.UI
 
         private readonly List<Border> _gridBorders = new List<Border>();
 
-        private List<Grid> PlayedTiles;
+        private readonly List<Grid> _playedTiles;
 
         public GameBoardPrototype()
         {
             InitializeComponent();
-            DataContext = App.GameBoardViewModel;
+
+            DataContext = GameBoardViewModel.GetInstance();
 
             _tileRack = new TileRack(ref TileRackUi);
             
@@ -60,7 +61,7 @@ namespace Ozwego.UI
             _dirtyTiles = new List<Rectangle>();
 
             GenerateGrid();
-            PlayedTiles = new List<Grid>();
+            _playedTiles = new List<Grid>();
 
             UiTester();
         }
@@ -83,9 +84,9 @@ namespace Ozwego.UI
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="invalidPoints"></param>
-        private void GameControllerOnInvalidWordUiUpdateEvent(object sender, List<Point> invalidPoints)
+        private void OnInvalidWordUiUpdateEvent(object sender, List<Point> invalidPoints)
         {
-            Storyboard FadeIncorrectWordsToRed = new Storyboard();
+            var fadeIncorrectWordsToRed = new Storyboard();
 
             foreach (var point in invalidPoints)
             {
@@ -120,11 +121,11 @@ namespace Ozwego.UI
                 }
             }
 
-            FadeIncorrectWordsToRed.Begin();
+            fadeIncorrectWordsToRed.Begin();
         }
 
 
-        private void GameControllerOnGameStartedEvent(object sender)
+        private void OnGameStartedEvent(object sender)
         {
             GenerateBoxes();
             ColorCircle.Begin();
@@ -151,8 +152,7 @@ namespace Ozwego.UI
             //GameBoardScrollViewer.ZoomSnapPoints.Add(1.0f);
             //GameBoardScrollViewer.ZoomSnapPoints.Add(2.5f);
             //GameBoardScrollViewer.ZoomSnapPointsType = SnapPointsType.Mandatory;
-            GameBoardScrollViewer.Background = new SolidColorBrush(Colors.RoyalBlue);
-            GameBoardScrollViewer.Background.Opacity = 0.1f;
+            GameBoardScrollViewer.Background = new SolidColorBrush(Colors.RoyalBlue) {Opacity = 0.1f};
 
             DumpCircle.Fill.Opacity = .7f;
             //TileRackUi.Background = new SolidColorBrush(Colors.MediumVioletRed);
@@ -307,8 +307,8 @@ namespace Ozwego.UI
             //
             // Set the boundaries of the grid.
             //
-            NorthLimit = WestLimit = (GameBoardDimension / 2) - (StartingBoardDimension - 1) / 2;
-            SouthLimit = EastLimit = (GameBoardDimension / 2) + (StartingBoardDimension - 1) / 2;
+            _northLimit = _westLimit = (GameBoardDimension / 2) - (StartingBoardDimension - 1) / 2;
+            _southLimit = _eastLimit = (GameBoardDimension / 2) + (StartingBoardDimension - 1) / 2;
 
         }
 
@@ -327,23 +327,23 @@ namespace Ozwego.UI
             //
 
             const int boardBufferSize = 3;
-            var absX = x + WestLimit;
-            var absY = y + NorthLimit;
+            var absX = x + _westLimit;
+            var absY = y + _northLimit;
 
 
             //
             // Case: Expand in the East direction
             //
 
-            while ((absX + boardBufferSize > EastLimit) && (EastLimit < GameBoardDimension - 1))
+            while ((absX + boardBufferSize > _eastLimit) && (_eastLimit < GameBoardDimension - 1))
             {
                 var column = new ColumnDefinition { Width = new GridLength(50) };
                 GameBoard.ColumnDefinitions.Add(column);
-                EastLimit++;
+                _eastLimit++;
 
-                for (int i = 0; i <= SouthLimit - NorthLimit; i++)
+                for (int i = 0; i <= _southLimit - _northLimit; i++)
                 {
-                    CreateBorder(EastLimit - WestLimit, i);
+                    CreateBorder(_eastLimit - _westLimit, i);
                 }
             }
 
@@ -352,7 +352,7 @@ namespace Ozwego.UI
             // Case: Expand in the West direction
             //
 
-            while ((absX - boardBufferSize < WestLimit) && (WestLimit > 0))
+            while ((absX - boardBufferSize < _westLimit) && (_westLimit > 0))
             {
                 var column = new ColumnDefinition { Width = new GridLength(50) };
                 GameBoard.ColumnDefinitions.Insert(0, column);
@@ -368,16 +368,16 @@ namespace Ozwego.UI
                     gridBorder.SetValue(Grid.ColumnProperty, col + 1);
                 }
 
-                foreach (var tile in PlayedTiles)
+                foreach (var tile in _playedTiles)
                 {
                     var col = (int)tile.GetValue(Grid.ColumnProperty);
                     tile.SetValue(Grid.ColumnProperty, col + 1);
                 }
 
 
-                WestLimit--;
+                _westLimit--;
 
-                for (int i = 0; i <= SouthLimit - NorthLimit; i++)
+                for (int i = 0; i <= _southLimit - _northLimit; i++)
                 {
                     CreateBorder(0, i);
                 }
@@ -388,15 +388,15 @@ namespace Ozwego.UI
             // Case: Expand in the South direction
             //
 
-            while ((absY + boardBufferSize > SouthLimit) && (SouthLimit < GameBoardDimension - 1))
+            while ((absY + boardBufferSize > _southLimit) && (_southLimit < GameBoardDimension - 1))
             {
                 var row = new RowDefinition { Height = new GridLength(50) };
                 GameBoard.RowDefinitions.Add(row);
-                SouthLimit++;
+                _southLimit++;
 
-                for (int i = 0; i <= EastLimit - WestLimit; i++)
+                for (int i = 0; i <= _eastLimit - _westLimit; i++)
                 {
-                    CreateBorder(i, SouthLimit - NorthLimit);
+                    CreateBorder(i, _southLimit - _northLimit);
                 }
             }
 
@@ -405,7 +405,7 @@ namespace Ozwego.UI
             // Case: Expand in the North direction
             //
 
-            while ((absY - boardBufferSize < NorthLimit) && (NorthLimit > 0))
+            while ((absY - boardBufferSize < _northLimit) && (_northLimit > 0))
             {
                 var row = new RowDefinition { Height = new GridLength(50) };
                 GameBoard.RowDefinitions.Insert(0, row);
@@ -421,16 +421,16 @@ namespace Ozwego.UI
                     gridBorder.SetValue(Grid.RowProperty, newRow + 1);
                 }
 
-                foreach (var tile in PlayedTiles)
+                foreach (var tile in _playedTiles)
                 {
                     var newRow = (int)tile.GetValue(Grid.RowProperty);
                     tile.SetValue(Grid.RowProperty, newRow + 1);
                 }
 
 
-                NorthLimit--;
+                _northLimit--;
 
-                for (int i = 0; i <= EastLimit - WestLimit; i++)
+                for (int i = 0; i <= _eastLimit - _westLimit; i++)
                 {
                     CreateBorder(i, 0);
                 }
@@ -537,9 +537,9 @@ namespace Ozwego.UI
                 var curRow = (int)box.GetValue(Grid.RowProperty);
 
                 var gameController = GameController.GetInstance();
-                gameController.ClearBoardSpace(WestLimit + curColumn, NorthLimit + curRow);
+                gameController.ClearBoardSpace(_westLimit + curColumn, _northLimit + curRow);
 
-                PlayedTiles.Remove(box);
+                _playedTiles.Remove(box);
             }
 
             var rect = box.Children[0] as Rectangle;
@@ -758,7 +758,7 @@ namespace Ozwego.UI
 
                     if ((smallestDistance > distanceBetweenPoints(endOfDragPosition, gridAnchorPoint)
                         || (smallestDistance == 0))
-                        && (!gameController.IsBoardSpaceOccupied(WestLimit + curGridColumn, NorthLimit + curGridRow)))
+                        && (!gameController.IsBoardSpaceOccupied(_westLimit + curGridColumn, _northLimit + curGridRow)))
                     {
                         smallestDistance = distanceBetweenPoints(endOfDragPosition, gridAnchorPoint);
                         closestGridRow = curGridRow;
@@ -787,16 +787,16 @@ namespace Ozwego.UI
                 //box.SetValue(Canvas.ZIndexProperty, 1);
 
                 // ToDo: Check this line:
-                _gameBoardArray[WestLimit + closestGridColumn, NorthLimit + closestGridRow] = box;
+                _gameBoardArray[_westLimit + closestGridColumn, _northLimit + closestGridRow] = box;
 
 
                 //
                 // Get the box's letter value and then update it in the gameboard array.
                 //
 
-                PlayedTiles.Add(box);
+                _playedTiles.Add(box);
 
-                gameController.SetBoardSpace(textBlock.Text, WestLimit + closestGridColumn, NorthLimit + closestGridRow);
+                gameController.SetBoardSpace(textBlock.Text, _westLimit + closestGridColumn, _northLimit + closestGridRow);
 
                 ExpandGridIfRequired(closestGridColumn, closestGridRow);
 
@@ -856,22 +856,39 @@ namespace Ozwego.UI
 
         protected override async void OnNavigatedTo(Windows.UI.Xaml.Navigation.NavigationEventArgs e)
         {
-
-            //ToDo: Determine whether these OnNavigated* EH's are the places to (un)register these EH's.
-            App.GameBoardViewModel.TilePileCount = 0;
-
-            var gameController = GameController.GetInstance();
-            gameController.PeelEvent += OnPeelEventReceived;
-            gameController.InvalidWordUiUpdateEvent += GameControllerOnInvalidWordUiUpdateEvent;
-            gameController.GameStartedEvent += GameControllerOnGameStartedEvent;
-
-            await gameController.Initialize();
-
             base.OnNavigatedTo(e);
 
-            if (!gameController.GameStarted)
+
+            //
+            // Hook up the event handlers.
+            //
+
+            var gameController = GameController.GetInstance();
+            
+            gameController.PeelEvent += OnPeelEventReceived;
+            
+            gameController.InvalidWordUiUpdateEvent += OnInvalidWordUiUpdateEvent;
+            
+            gameController.GameStartedEvent += OnGameStartedEvent;
+
+
+            //
+            // Initialize the game.  If the game was started in local mode, then go ahead and start
+            // the game.  If we're in online mode, then wait for the server to indicate game start
+            // before starting.
+            //
+
+            var args = (GameBoardNavigationArgs)e.Parameter;
+
+
+            await gameController.Initialize(args);
+
+            if (args.GameConnectionType == GameConnectionType.Local)
             {
-                gameController.StartGame();
+                if (!gameController.GameStarted)
+                {
+                    gameController.StartGame();
+                }
             }
         }
 
@@ -880,8 +897,8 @@ namespace Ozwego.UI
         {
             var gameController = GameController.GetInstance();
             gameController.PeelEvent -= OnPeelEventReceived;
-            gameController.InvalidWordUiUpdateEvent -= GameControllerOnInvalidWordUiUpdateEvent;
-            gameController.GameStartedEvent -= GameControllerOnGameStartedEvent;
+            gameController.InvalidWordUiUpdateEvent -= OnInvalidWordUiUpdateEvent;
+            gameController.GameStartedEvent -= OnGameStartedEvent;
             gameController.Cleanup();
             base.OnNavigatedFrom(e);
         }

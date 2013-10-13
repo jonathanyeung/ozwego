@@ -1,9 +1,10 @@
 ﻿using Microsoft.Live;
 using Ozwego.BuddyManagement;
-using Ozwego.Shared;
+
 using Ozwego.ViewModels;
 using System;
 using System.Threading.Tasks;
+using Shared;
 using Windows.Networking;
 using Windows.Networking.Sockets;
 using Windows.UI.Core;
@@ -71,7 +72,7 @@ namespace Ozwego.Server
                 messageReceiver = MessageReceiver.GetInstance();
                 messageSender = MessageSender.GetInstance();
 
-                await messageSender.SendMessage(PacketType.LogIn, App.ClientBuddyInstance.EmailAddress);
+                await messageSender.SendMessage(PacketType.ClientLogIn, App.ClientBuddyInstance.EmailAddress);
 
 
                 //

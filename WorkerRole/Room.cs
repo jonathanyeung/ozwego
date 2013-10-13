@@ -1,6 +1,6 @@
-﻿using Ozwego.Shared;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Shared;
 
 namespace WorkerRole
 {
@@ -10,7 +10,7 @@ namespace WorkerRole
     public class Room
     {
         public Client Host;
-        public List<Client> Members;
+        public readonly List<Client> Members;
 
         internal Room(Client host)
         {
@@ -33,7 +33,7 @@ namespace WorkerRole
                 Host = Members[index];
             }
 
-            var messageSender = MessageSender.GetMessageSender();
+            var messageSender = MessageSender.GetInstance();
             messageSender.BroadcastMessage(
                 Members,
                 PacketType.HostTransfer, 

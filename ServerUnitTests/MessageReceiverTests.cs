@@ -1,8 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Ozwego.Shared;
+
 using System;
 using System.Diagnostics;
 using System.Text;
+using Shared;
 using WorkerRole;
 
 namespace ServerUnitTests
@@ -42,7 +43,7 @@ namespace ServerUnitTests
 
             var receiver = MessageReceiver.GetInstance();
 
-            var messageBuffer = CreateMessage(PacketType.LogIn, "InvalidString");
+            var messageBuffer = CreateMessage(PacketType.ClientLogIn, "InvalidString");
             receiver.HandleMessage(ref client, messageBuffer);
         }
 
@@ -54,7 +55,7 @@ namespace ServerUnitTests
 
             var receiver = MessageReceiver.GetInstance();
 
-            var messageBuffer = CreateMessage(PacketType.LogIn, @"sender=TestUser1&message=crapmessage");
+            var messageBuffer = CreateMessage(PacketType.ClientLogIn, @"sender=TestUser1&message=crapmessage");
             receiver.HandleMessage(ref client, messageBuffer);
         }
 

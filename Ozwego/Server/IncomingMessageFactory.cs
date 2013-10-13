@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Ozwego.Shared;
+
+using Shared;
 
 namespace Ozwego.Server
 {
@@ -55,7 +56,13 @@ namespace Ozwego.Server
                 case PacketType.ServerFriendRequestAccepted:
                 case PacketType.ServerFriendSearchResults:
                 case PacketType.ServerUserStats:
+                case PacketType.ServerIsAliasAvailable:
                     newIncomingMessage.SetMessageProcessor(new DataBaseMessageProcessor());
+                    break;
+
+                case PacketType.ServerMatchmakingGameFound:
+                case PacketType.ServerMatchmakingGameNotFound:
+                    newIncomingMessage.SetMessageProcessor(new MatchmakingMessageProcessor());
                     break;
 
                 default:

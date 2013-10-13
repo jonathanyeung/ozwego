@@ -333,6 +333,7 @@ namespace Ozwego.Common
             // Returning to a cached page through navigation shouldn't trigger state loading
             if (this._pageKey != null) return;
 
+            
             var frameState = SuspensionManager.SessionStateForFrame(this.Frame);
             this._pageKey = "Page-" + this.Frame.BackStackDepth;
 

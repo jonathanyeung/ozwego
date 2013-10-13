@@ -105,10 +105,30 @@
     <Compile Include="..\Shared\DataPacket.cs">
       <Link>Server\DataPacket.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\GameData.cs">
+      <Link>Storage\GameData.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\GameMoveDataPoint.cs">
+      <Link>Storage\GameMoveDataPoint.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\PacketBase.cs">
+      <Link>DataTypes\PacketBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\PacketV1.cs">
+      <Link>DataTypes\PacketV1.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\PlayerGameStats.cs">
+      <Link>Storage\PlayerGameStats.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\PlayerTuple.cs">
+      <Link>Storage\PlayerTuple.cs</Link>
+    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="BuddyManagement\Buddy.cs" />
+    <Compile Include="Gameplay\Ranking\ExperienceCalculator.cs" />
+    <Compile Include="Gameplay\Ranking\PlayerRank.cs" />
     <Compile Include="BuddyManagement\FriendManager.cs" />
     <Compile Include="BuddyManagement\RequestManager.cs" />
     <Compile Include="Common\BindableBase.cs" />
@@ -121,15 +141,15 @@
     <Compile Include="Gameplay\Bots\TimerBot.cs" />
     <Compile Include="Gameplay\Bots\BotManager.cs" />
     <Compile Include="Gameplay\Bots\IRobot.cs" />
+    <Compile Include="Gameplay\GameBoardNavigationArgs.cs" />
     <Compile Include="Gameplay\GameDataLogger.cs" />
     <Compile Include="Gameplay\HandTileSet.cs" />
     <Compile Include="Gameplay\HumanPlayer.cs" />
     <Compile Include="Gameplay\IPlayer.cs" />
+    <Compile Include="Gameplay\PostGamePageNavigationArgs.cs" />
     <Compile Include="Gameplay\Tile.cs" />
     <Compile Include="Server\IncomingMessageFactory.cs" />
-    <Compile Include="Storage\GameData.cs" />
     <Compile Include="Storage\GameDataHistory.cs" />
-    <Compile Include="Storage\GameMoveDataPoint.cs" />
     <Compile Include="Storage\Settings.cs" />
     <Compile Include="UI\ColumnView\ColumnViewModel.cs" />
     <Compile Include="UI\ColumnView\FriendsList.xaml.cs">
@@ -152,9 +172,15 @@
     <Compile Include="UI\Lobby.xaml.cs">
       <DependentUpon>Lobby.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\MatchmakingWaitPage.xaml.cs">
+      <DependentUpon>MatchmakingWaitPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\PlayerPane.cs" />
     <Compile Include="UI\ColumnView\RequestsList.xaml.cs">
       <DependentUpon>RequestsList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\PostGamePage.xaml.cs">
+      <DependentUpon>PostGamePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\TileRack.cs" />
     <Compile Include="ViewModels\GameBoardViewModel.cs" />
@@ -226,6 +252,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UI\MatchmakingWaitPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\PostGamePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <SDKReference Include="LiveSDKXAML, Version=5.0">
@@ -235,6 +269,7 @@
       <Name>Windows Azure Mobile Services Managed Client</Name>
     </SDKReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '11.0' ">
     <VisualStudioVersion>11.0</VisualStudioVersion>
   </PropertyGroup>

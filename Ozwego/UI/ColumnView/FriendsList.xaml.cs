@@ -1,6 +1,6 @@
 ﻿using Ozwego.BuddyManagement;
 using Ozwego.Server;
-using Ozwego.Shared;
+using Shared;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;

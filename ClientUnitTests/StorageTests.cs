@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Ozwego.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
@@ -44,7 +41,25 @@ namespace ClientUnitTests
             // Create 2 game data sets.
             //
 
-            var dataSet1 = new GameData();
+            var dataSet1 = new GameData {GameDuration = 50, GameHost = "AGameHost"};
+
+            dataSet1.GameMoves.Add(new GameMoveDataPoint("Player", 5, MoveType.Peel));
+
+            var stats = new PlayerGameStats()
+                {
+                    AvgTimeBetweenDumps = 5,
+                    AvgTimeBetweenPeels = 5,
+                    NumberOfDumps = 3,
+                    NumberOfPeels = 3,
+                    PerformedFirstPeel = true,
+                    WonTheGame = false,
+                    RawGameData = new List<GameMoveDataPoint>() {new GameMoveDataPoint("Me", 1, MoveType.Peel)}
+                };
+
+            var playerTuple = new PlayerTuple {Name = "NewPlayer", Stats = stats};
+            var tupleList = new List<PlayerTuple> {playerTuple};
+            dataSet1.Players = tupleList;
+
             var dataSet2 = new GameData();
 
 
@@ -79,6 +94,9 @@ namespace ClientUnitTests
             //
 
             Assert.IsTrue(gamesList.Count == 2);
+
+            t = _gameDataHistory.UploadPendingGameData();
+            t.Wait();
         }
 
 

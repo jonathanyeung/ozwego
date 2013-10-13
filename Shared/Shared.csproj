@@ -40,6 +40,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataPacket.cs" />
+    <Compile Include="GameData.cs" />
+    <Compile Include="GameMoveDataPoint.cs" />
+    <Compile Include="PacketBase.cs" />
+    <Compile Include="PacketV1.cs" />
+    <Compile Include="PlayerGameStats.cs" />
+    <Compile Include="PlayerTuple.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

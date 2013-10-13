@@ -19,8 +19,8 @@ namespace WorkerRole
 
             while (true)
             {
-                Thread.Sleep(1000);
-                Trace.WriteLine("Working", "Information");
+                Thread.Sleep(30000);
+                Trace.WriteLine("Server Hearbeat", "Information");
             }
         }
 

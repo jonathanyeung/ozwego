@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
+using Ozwego.Storage;
 
 namespace WorkerRole.Datacore
 {
@@ -21,25 +22,7 @@ namespace WorkerRole.Datacore
 
         private Database()
         {
-            //connection = new SqlConnection(ConnectionString);
-            //db = new OzwegoDataClassesDataContext(connection);
         }
-
-
-        //~Database()
-        //{
-        //    if (db != null)
-        //    {
-        //        db.Dispose();
-        //        db = null;
-        //    }
-
-        //    if (connection != null)
-        //    {
-        //        connection.Dispose();
-        //        connection = null;
-        //    }
-        //}
 
 
         #region user
@@ -53,16 +36,16 @@ namespace WorkerRole.Datacore
         /// <returns></returns>
         public List<user> GetMatchingUsersByEmail(string email)
         {
-            if (email == "" || email == null)
+            if (string.IsNullOrEmpty(email))
             {
                 return null;
             }
 
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
                 using (var db = new OzwegoDataClassesDataContext(connection))
                 {
-                    IQueryable<user> userQuery =
+                    var userQuery =
                         from u in db.users
                         where u.email.StartsWith(email)
                         select u;
@@ -75,16 +58,16 @@ namespace WorkerRole.Datacore
 
         public user GetUserByEmail(string email)
         {
-            if (email == "" || email == null)
+            if (string.IsNullOrEmpty(email))
             {
                 return null;
             }
 
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
                 using (var db = new OzwegoDataClassesDataContext(connection))
                 {
-                    IQueryable<user> userQuery =
+                    var userQuery =
                         from u in db.users
                         where u.email == email
                         select u;
@@ -97,16 +80,16 @@ namespace WorkerRole.Datacore
 
         public List<user> GetMatchingUsersByAlias(string alias)
         {
-            if (alias == "" || alias == null)
+            if (string.IsNullOrEmpty(alias))
             {
                 return null;
             }
 
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
                 using (var db = new OzwegoDataClassesDataContext(connection))
                 {
-                    IQueryable<user> userQuery =
+                    var userQuery =
                         from u in db.users
                         where u.alias.StartsWith(alias)
                         select u;
@@ -119,16 +102,16 @@ namespace WorkerRole.Datacore
 
         public user GetUserByAlias(string alias)
         {
-            if (alias == "" || alias == null)
+            if (string.IsNullOrEmpty(alias))
             {
                 return null;
             }
 
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
                 using (var db = new OzwegoDataClassesDataContext(connection))
                 {
-                    IQueryable<user> userQuery =
+                    var userQuery =
                         from u in db.users
                         where u.alias == alias
                         select u;
@@ -141,16 +124,17 @@ namespace WorkerRole.Datacore
 
         public void AddNewUser(string newEmail, string newAlias)
         {
-            if (newEmail == "" || newEmail == null)
+            if (string.IsNullOrEmpty(newEmail))
             {
                 return;
             }
 
-            if (newAlias == "" || newAlias == null)
+            if (string.IsNullOrEmpty(newAlias))
             {
                 return;
             }
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+
+            using (var connection = new SqlConnection(ConnectionString))
             {
                 using (var db = new OzwegoDataClassesDataContext(connection))
                 {
@@ -184,13 +168,13 @@ namespace WorkerRole.Datacore
         /// </summary>
         public void RemoveUser(string emailAddr)
         {
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
                 using (var db = new OzwegoDataClassesDataContext(connection))
                 {
-                    var _user = GetUserFromEmailAddress(emailAddr);
+                    var curUser = GetUserFromEmailAddress(emailAddr);
 
-                    if (_user != null)
+                    if (curUser != null)
                     {
                         IQueryable<user> userQuery =
                             from u in db.users
@@ -227,7 +211,7 @@ namespace WorkerRole.Datacore
 
         public List<user> GetPendingFriendRequests(string username)
         {
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
                 using (var db = new OzwegoDataClassesDataContext(connection))
                 {
@@ -237,8 +221,6 @@ namespace WorkerRole.Datacore
                     {
                         return null;
                     }
-
-                    var userList = new List<user>();
 
                     IQueryable<friendRequest> requestQuery =
                         from request in db.friendRequests
@@ -250,23 +232,13 @@ namespace WorkerRole.Datacore
                         return null;
                     }
 
-                    foreach (var frdRequest in requestQuery)
-                    {
-                        //
-                        // Resharper's suggestion here was that frdRequest needs to be copied to a local variable.
-                        //
-
-                        friendRequest request = frdRequest;
-
-                        IQueryable<user> userQuery =
+                    return requestQuery.Select(request => 
+                        (
                             from u in db.users
                             where u.ID == request.from_user
-                            select u;
-
-                        userList.Add(userQuery.First());
-                    }
-
-                    return userList;
+                            select u)
+                        )
+                        .Select(userQuery => userQuery.First()).ToList();
                 }
             }
         }
@@ -285,22 +257,22 @@ namespace WorkerRole.Datacore
         }
 
 
-        public void SendFriendRequest(string fromUser, string toUser)
+        public void SendFriendRequest(string fromUserString, string toUserString)
         {
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
                 using (var db = new OzwegoDataClassesDataContext(connection))
                 {
-                    var _fromUser = GetUserFromEmailAddress(fromUser);
-                    var _toUser = GetUserFromEmailAddress(toUser);
+                    var fromUser = GetUserFromEmailAddress(fromUserString);
+                    var toUser = GetUserFromEmailAddress(toUserString);
 
-                    if ((_fromUser != null) &&
-                       (_toUser != null))
+                    if ((fromUser != null) &&
+                       (toUser != null))
                     {
                         var request = new friendRequest
                             {
-                                from_user = _fromUser.ID,
-                                to_user = _toUser.ID,
+                                from_user = fromUser.ID,
+                                to_user = toUser.ID,
                                 creation_time = DateTime.UtcNow
                             };
 
@@ -339,7 +311,7 @@ namespace WorkerRole.Datacore
             if ((_user1 != null) &&
                 (_user2 != null))
             {
-                using (SqlConnection connection = new SqlConnection(ConnectionString))
+                using (var connection = new SqlConnection(ConnectionString))
                 {
                     using (var db = new OzwegoDataClassesDataContext(connection))
                     {
@@ -378,7 +350,7 @@ namespace WorkerRole.Datacore
             if ((_user1 != null) &&
                 (_user2 != null))
             {
-                using (SqlConnection connection = new SqlConnection(ConnectionString))
+                using (var connection = new SqlConnection(ConnectionString))
                 {
                     using (var db = new OzwegoDataClassesDataContext(connection))
                     {
@@ -411,57 +383,94 @@ namespace WorkerRole.Datacore
 
         public List<user> GetFriends(string userName)
         {
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
                 using (var db = new OzwegoDataClassesDataContext(connection))
                 {
-                    var userList = new List<user>();
-                    var _user = GetUserFromEmailAddress(userName);
+                    var curUser = GetUserFromEmailAddress(userName);
 
-                    if (null == _user)
+                    if (null == curUser)
                     {
                         return null;
                     }
 
-                    IQueryable<int> friendshipQueryOne =
+                    var friendshipQueryOne =
                         from frd in db.friendships
-                        where frd.user1 == _user.ID
+                        where frd.user1 == curUser.ID
                         select frd.user2;
 
-                    IQueryable<int> friendshipQueryTwo =
+                    var friendshipQueryTwo =
                         from frd in db.friendships
-                        where frd.user2 == _user.ID
+                        where frd.user2 == curUser.ID
                         select frd.user1;
 
-                    foreach (var frdId in friendshipQueryOne)
-                    {
-                        var id = frdId;
-                        IQueryable<user> userQuery =
+                    var userList = friendshipQueryOne.Select(id => 
+                        (
                             from u in db.users
                             where u.ID == id
-                            select u;
+                            select u)
+                        )
+                        .Select(userQuery => userQuery.FirstOrDefault()).ToList();
 
-                        userList.Add(userQuery.FirstOrDefault());
-                    }
-
-                    foreach (var frdId in friendshipQueryTwo)
-                    {
-                        var id = frdId;
-                        IQueryable<user> userQuery =
+                    userList.AddRange(friendshipQueryTwo.Select(id => 
+                        (
                             from u in db.users
                             where u.ID == id
-                            select u;
+                            select u)
+                        ).Select(userQuery => userQuery.FirstOrDefault()));
 
-                        userList.Add(userQuery.FirstOrDefault());
-                    }
-
-                    if (userList.Count == 0)
-                    {
-                        return null;
-                    }
-
-                    return userList;
+                    return userList.Count == 0 ? null : userList;
                 }
+            }
+        }
+
+        #endregion
+
+
+        #region GameData
+
+        public void AddNewGameData(GameData gameData)
+        {
+            if (null == gameData)
+            {
+                return;
+            }
+
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                using (var db = new OzwegoDataClassesDataContext(connection))
+                {
+
+                    var newData = new game
+                        {
+                            winner = GetUserFromEmailAddress(gameData.Winner).ID,
+                            gameStartTime = gameData.GameStartTime,
+                            gameDuration = gameData.GameDuration
+                        };
+
+                    // ToDo: newData.gameDataFile = ??
+
+
+                    db.games.InsertOnSubmit(newData);
+
+                    try
+                    {
+                        db.SubmitChanges();
+                    }
+                    catch (Exception e)
+                    {
+                        Trace.WriteLine(string.Format(
+                                "Exception in Database.AddNewGameData!\n Exception: {0} \n Callstack: {1}",
+                                e.Message,
+                                e.StackTrace));
+                    }
+
+                    foreach (PlayerTuple p in gameData.Players)
+                    {
+                        p.Stats
+                    }
+                }
+
             }
         }
 
@@ -472,21 +481,16 @@ namespace WorkerRole.Datacore
 
         private user GetUserFromEmailAddress(string emailAddress)
         {
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
                 using (var db = new OzwegoDataClassesDataContext(connection))
                 {
-                    IQueryable<user> userQuery =
+                    var userQuery =
                         from u in db.users
                         where u.email == emailAddress
                         select u;
 
-                    if (userQuery.Count() == 1)
-                    {
-                        return userQuery.First();
-                    }
-
-                    return null;
+                    return userQuery.Count() == 1 ? userQuery.First() : null;
                 }
             }
         }
@@ -494,11 +498,11 @@ namespace WorkerRole.Datacore
 
         private void RemoveAllFriends(user user)
         {
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
                 using (var db = new OzwegoDataClassesDataContext(connection))
                 {
-                    IQueryable<friendship> friendshipQuery =
+                    var friendshipQuery =
                         from frd in db.friendships
                         where (frd.user1 == user.ID || frd.user2 == user.ID)
                         select frd;
@@ -526,11 +530,11 @@ namespace WorkerRole.Datacore
 
         private void RemovePendingFriendRequests(user user)
         {
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
                 using (var db = new OzwegoDataClassesDataContext(connection))
                 {
-                    IQueryable<friendRequest> frdReqQuery =
+                    var frdReqQuery =
                         from frdReq in db.friendRequests
                         where (frdReq.from_user == user.ID || frdReq.to_user == user.ID)
                         select frdReq;
@@ -558,17 +562,17 @@ namespace WorkerRole.Datacore
 
         private void RemoveFriendRequest(string fromUser, string toUser)
         {
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            var _fromUser = GetUserFromEmailAddress(fromUser);
+            var _toUser = GetUserFromEmailAddress(toUser);
+
+            using (var connection = new SqlConnection(ConnectionString))
             {
                 using (var db = new OzwegoDataClassesDataContext(connection))
                 {
-                    var _fromUser = GetUserFromEmailAddress(fromUser);
-                    var _toUser = GetUserFromEmailAddress(toUser);
-
                     if ((_fromUser != null) &&
                         (_toUser != null))
                     {
-                        IQueryable<friendRequest> requestQuery =
+                        var requestQuery =
                             from request in db.friendRequests
                             where (request.from_user == _fromUser.ID) && (request.to_user == _toUser.ID)
                             select request;

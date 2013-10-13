@@ -12,7 +12,7 @@ namespace WorkerRole
     public class Client
     {
 
-        private readonly Socket _socket = null;
+        private readonly Socket _socket;
         private readonly int _socketId;
         public Room Room;
 
@@ -100,13 +100,13 @@ namespace WorkerRole
             {
                 var sendArgs = new SocketAsyncEventArgs();
                 sendArgs.SetBuffer(data, 0, data.Length);
-                sendArgs.Completed += new EventHandler<SocketAsyncEventArgs>((obj, args) =>
-                {
-                    if (args.BytesTransferred == 0 || args.SocketError != SocketError.Success)
+                sendArgs.Completed += (obj, args) =>
                     {
-                        Trace.WriteLine("TCP: : Error, Failed to send data!");
-                    }
-                });
+                        if (args.BytesTransferred == 0 || args.SocketError != SocketError.Success)
+                        {
+                            Trace.WriteLine("TCP: : Error, Failed to send data!");
+                        }
+                    };
 
                 _socket.SendAsync(sendArgs);
             }
@@ -261,8 +261,7 @@ namespace WorkerRole
                                 return;
                             }
 
-                            Trace.WriteLine(string.Format("TCPReceiveLoop: Client {0} has closed the connection.", this.UserName));
-                            return;
+                            Trace.WriteLine(string.Format("TCPReceiveLoop: Client {0} has closed the connection.", UserName));
                         }
                         catch (Exception e)
                         {
@@ -275,7 +274,7 @@ namespace WorkerRole
                             Trace.WriteLine(string.Format("TCPReceiveLoop: Caught exception!! '{0}'\n{1}", e.Message, e.StackTrace));
                         }
                     },
-                    _socketId); // This used to be _socketID.  ToDo: Determine what the point of this object is.
+                    _socketId); // ToDo: Determine what the point of this object is.
             }
             catch (Exception e)
             {

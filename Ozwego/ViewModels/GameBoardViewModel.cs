@@ -10,6 +10,19 @@ namespace Ozwego.Gameplay
 {
     public class GameBoardViewModel : INotifyPropertyChanged
     {
+        private static GameBoardViewModel _instance;
+
+
+        private GameBoardViewModel()
+        {
+        }
+
+
+        public static GameBoardViewModel GetInstance()
+        {
+            return _instance ?? (_instance = new GameBoardViewModel());
+        }
+
 
         private int _gameTime;
 
@@ -45,6 +58,28 @@ namespace Ozwego.Gameplay
                 {
                     _tilePileCount = value;
                     NotifyPropertyChanged("TilePileCount");
+                }
+            }
+        }
+
+        //
+        // Not actually in Game Board, but used in the matchmaking wait page...
+        //
+        private int _matchmakingWaitTime;
+
+        public int MatchmakingWaitTime
+        {
+            get
+            {
+                return _matchmakingWaitTime;
+            }
+
+            set
+            {
+                if (value != _matchmakingWaitTime)
+                {
+                    _matchmakingWaitTime = value;
+                    NotifyPropertyChanged("MatchmakingWaitTime");
                 }
             }
         }

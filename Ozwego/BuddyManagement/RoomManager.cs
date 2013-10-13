@@ -1,9 +1,10 @@
 ﻿using Ozwego.Server;
-using Ozwego.Shared;
+
 using Ozwego.ViewModels;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Shared;
 using Windows.UI.Core;
 
 namespace Ozwego.BuddyManagement
@@ -91,7 +92,7 @@ namespace Ozwego.BuddyManagement
         {
             var serverProxy = ServerProxy.GetInstance();
             await serverProxy.messageSender.SendMessage(
-                    PacketType.JoinRoom,
+                    PacketType.ClientJoinRoom,
                     buddyToJoin.EmailAddress);
         }
 
@@ -100,7 +101,7 @@ namespace Ozwego.BuddyManagement
         {
             var serverProxy = ServerProxy.GetInstance();
             await serverProxy.messageSender.SendMessage(
-                    PacketType.JoinRoom,
+                    PacketType.ClientJoinRoom,
                     accountAddress);
         }
 
@@ -114,7 +115,7 @@ namespace Ozwego.BuddyManagement
             var serverProxy = ServerProxy.GetInstance();
             if (null != serverProxy.messageSender)
             {
-                await serverProxy.messageSender.SendMessage(PacketType.LeaveRoom);
+                await serverProxy.messageSender.SendMessage(PacketType.ClientLeaveRoom);
             }
 
 

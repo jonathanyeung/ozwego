@@ -1,17 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?><Database Name="ozwego-db" Class="OzwegoDataClassesDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
-  <Connection Mode="AppSettings" ConnectionString="Data Source=blkp55bbj6.database.windows.net;Initial Catalog=ozwego-db;User ID=jonathanyeung" SettingsObjectName="WorkerRole.Properties.Settings" SettingsPropertyName="ozwego_dbConnectionString" Provider="System.Data.SqlClient" />
+  <Connection Mode="AppSettings" ConnectionString="Data Source=blkp55bbj6.database.windows.net;Initial Catalog=ozwego-db;User ID=jonathanyeung" SettingsObjectName="WorkerRole.Properties.Settings" SettingsPropertyName="ozwego_dbConnectionString1" Provider="System.Data.SqlClient" />
   <Table Name="dbo.[user]" Member="users">
     <Type Name="user">
       <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
       <Column Name="email" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
-      <Column Name="alias" Type="System.String" DbType="NVarChar(15) NOT NULL" CanBeNull="false" />
+      <Column Name="alias" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
       <Column Name="creation_time" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
       <Column Name="last_seen_time" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
       <Column Name="ranking" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="skill_level" Type="System.Int32" DbType="Int" CanBeNull="true" />
       <Association Name="user_friendRequest" Member="friendRequests" ThisKey="ID" OtherKey="from_user" Type="friendRequest" />
       <Association Name="user_friendRequest1" Member="friendRequests1" ThisKey="ID" OtherKey="to_user" Type="friendRequest" />
       <Association Name="user_friendship" Member="friendships" ThisKey="ID" OtherKey="user1" Type="friendship" />
       <Association Name="user_friendship1" Member="friendships1" ThisKey="ID" OtherKey="user2" Type="friendship" />
+      <Association Name="user_user_game" Member="user_games" ThisKey="ID" OtherKey="ID" Type="user_game" />
     </Type>
   </Table>
   <Table Name="dbo.friendRequest" Member="friendRequests">
@@ -30,6 +32,24 @@
       <Column Name="creation_time" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
       <Association Name="user_friendship" Member="user" ThisKey="user1" OtherKey="ID" Type="user" IsForeignKey="true" />
       <Association Name="user_friendship1" Member="user3" ThisKey="user2" OtherKey="ID" Type="user" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.user_game" Member="user_games">
+    <Type Name="user_game">
+      <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="gameID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Association Name="user_user_game" Member="user" ThisKey="ID" OtherKey="ID" Type="user" IsForeignKey="true" />
+      <Association Name="game_user_game" Member="game" ThisKey="gameID" OtherKey="gameID" Type="game" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.game" Member="games">
+    <Type Name="game">
+      <Column Name="gameID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="gameStartTime" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="gameDuration" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="winner" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="gameDataFile" Type="System.Data.Linq.Binary" DbType="Binary(50)" CanBeNull="true" UpdateCheck="Never" />
+      <Association Name="game_user_game" Member="user_games" ThisKey="gameID" OtherKey="gameID" Type="user_game" />
     </Type>
   </Table>
 </Database>

@@ -1,10 +1,12 @@
 ﻿using Ozwego.BuddyManagement;
 using Ozwego.Common;
+using Ozwego.Gameplay;
 using Ozwego.Server;
-using Ozwego.Shared;
+
 using Ozwego.ViewModels;
 using System;
 using System.Collections.Generic;
+using Shared;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -72,12 +74,18 @@ namespace Ozwego.UI
                 return;
             }
 
-            Frame.Navigate(typeof(GameBoardPrototype));
+            GameBoardNavigationArgs args = new GameBoardNavigationArgs()
+            {
+                GameConnectionType = GameConnectionType.Online,
+                BotCount = 0
+            };
+
+            Frame.Navigate(typeof(GameBoardPrototype), args);
 
             var serverProxy = ServerProxy.GetInstance();
             if (serverProxy.messageSender != null)
             {
-                await serverProxy.messageSender.SendMessage(PacketType.InitiateGame);
+                await serverProxy.messageSender.SendMessage(PacketType.ClientInitiateGame);
             }
         }
 
@@ -187,6 +195,12 @@ namespace Ozwego.UI
         private void RequestsColumnView_OnTapped(object sender, TappedRoutedEventArgs e)
         {
             LoadColumnView(typeof(RequestsList));
+        }
+
+        private async void Matchmaking_OnTapped(object sender, TappedRoutedEventArgs e)
+        {
+            var messageSender = MessageSender.GetInstance();
+            await messageSender.SendMessage(PacketType.ClientStartingMatchmaking);
         }
 
         #endregion

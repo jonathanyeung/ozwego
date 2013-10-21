@@ -52,7 +52,7 @@ namespace ClientUnitTests
                     NumberOfDumps = 3,
                     NumberOfPeels = 3,
                     PerformedFirstPeel = true,
-                    WonTheGame = false,
+                    IsWinner = false,
                     RawGameData = new List<GameMoveDataPoint>() {new GameMoveDataPoint("Me", 1, MoveType.Peel)}
                 };
 
@@ -106,6 +106,15 @@ namespace ClientUnitTests
             var gamesListTask = _gameDataHistory.RetrieveGameData();
             gamesListTask.Wait();
             var gamesList = gamesListTask.Result;
+        }
+
+        [TestMethod]
+        public void SettingsTest()
+        {
+            var alias = Settings.Alias;
+            var addr = Settings.EmailAddress;
+
+            var exp = Settings.Experience;
         }
     }
 }

@@ -61,7 +61,7 @@ namespace Ozwego.Storage
         public void ProcessGameData()
         {
             var activePlayers = new List<string>();
-            bool isFirstPeel = true;
+            var isFirstPeel = true;
 
 
             //
@@ -74,6 +74,13 @@ namespace Ozwego.Storage
             }
 
             GameDuration = GameMoves.Last().TimeOfMove;
+
+            if (GameDuration <= 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                        string.Format("Game Duration must be positive. GameDuration = {0}",
+                        GameDuration));
+            }
 
             foreach (var dataPoint in GameMoves)
             {
@@ -121,6 +128,26 @@ namespace Ozwego.Storage
                 PlayerDictionary[activePlayer].AvgTimeBetweenPeels = 
                         PlayerDictionary[activePlayer].NumberOfPeels / GameDuration;
             }
+
+
+            //
+            //Store back the dictionary data to the Player object.
+            //ToDo: Figure out what to do with the data types here, and maybe remove the dictionary.
+            //
+
+            foreach (var playerTuple in Players)
+            {
+                playerTuple.Stats = PlayerDictionary[playerTuple.Name];
+
+                //The code below solves the problem of when a player doesn't make any moves during the game (no peel or dumps).
+                //ToDo: Remove this workaround code.  This is hacky.
+                if (playerTuple.Stats == null)
+                {
+                    playerTuple.Stats = new PlayerGameStats();
+                }
+                
+            }
+
         }
     }
 }

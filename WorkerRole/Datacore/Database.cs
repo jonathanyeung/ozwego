@@ -429,12 +429,67 @@ namespace WorkerRole.Datacore
 
         #region GameData
 
+
+        public List<user_game> GetUserGameHistory(user user)
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                using (var db = new OzwegoDataClassesDataContext(connection))
+                {
+                    var userQuery =
+                        from g in db.user_games
+                        where g.userID == user.ID
+                        select g;
+
+                    return userQuery.ToList();
+                }
+            }
+        }
+
         public void AddNewGameData(GameData gameData)
         {
             if (null == gameData)
             {
+                Trace.WriteLine(string.Format(
+                    "Invalid Game Data in Database.AddNewGameData!\n GameData is null."));
+
                 return;
             }
+
+            var winnerUser = GetUserFromEmailAddress(gameData.Winner);
+
+            if (null == winnerUser)
+            {
+                Trace.WriteLine(string.Format(
+                    "Invalid Game Data in Database.AddNewGameData!\n Winner {0} not recognized.",
+                    gameData.Winner));
+
+                return;
+            }
+
+            foreach (PlayerTuple p in gameData.Players)
+            {
+                var player = GetUserFromEmailAddress(p.Name);
+
+                if (null == player)
+                {
+                    Trace.WriteLine(string.Format(
+                        "Invalid Game Data in Database.AddNewGameData!\n Player {0} not recognized.",
+                        p.Name));
+
+                    return;
+                }
+            }
+
+            if (gameData.GameDuration < 0)
+            {
+                Trace.WriteLine(string.Format(
+                    "Invalid Game Data in Database.AddNewGameData!\n GameDuration of value {0} is invalid.",
+                    gameData.GameDuration));
+
+                return;
+            }
+
 
             using (var connection = new SqlConnection(ConnectionString))
             {
@@ -443,7 +498,7 @@ namespace WorkerRole.Datacore
 
                     var newData = new game
                         {
-                            winner = GetUserFromEmailAddress(gameData.Winner).ID,
+                            winner = winnerUser.ID,
                             gameStartTime = gameData.GameStartTime,
                             gameDuration = gameData.GameDuration
                         };
@@ -465,12 +520,57 @@ namespace WorkerRole.Datacore
                                 e.StackTrace));
                     }
 
+                    var gameInstance = GetGameID(GetUserFromEmailAddress(gameData.Winner).ID, gameData.GameStartTime);
+
+                    if (gameInstance == null)
+                    {
+                        return;
+                    }
+
                     foreach (PlayerTuple p in gameData.Players)
                     {
-                        p.Stats
+                        var userGame = new user_game();
+                        userGame.avgTimeBetweenDumps = p.Stats.AvgTimeBetweenDumps;
+                        userGame.avgTimeBetweenPeels = p.Stats.AvgTimeBetweenPeels;
+                        userGame.isWinner = p.Stats.IsWinner;
+                        userGame.numberOfDumps = p.Stats.NumberOfDumps;
+                        userGame.numberOfPeels = p.Stats.NumberOfPeels;
+                        userGame.performedFirstPeel = p.Stats.PerformedFirstPeel;
+                        userGame.userID = GetUserFromEmailAddress(p.Name).ID;
+                        userGame.gameID = gameInstance.gameID;
+
+                        db.user_games.InsertOnSubmit(userGame);
+                    }
+
+                    try
+                    {
+                        db.SubmitChanges();
+                    }
+                    catch (Exception e)
+                    {
+                        Trace.WriteLine(string.Format(
+                                "Exception in Database.AddNewGameData!\n Exception: {0} \n Callstack: {1}",
+                                e.Message,
+                                e.StackTrace));
                     }
                 }
+            }
+        }
 
+
+        private game GetGameID(int winnerId, DateTime gameStartTime)
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                using (var db = new OzwegoDataClassesDataContext(connection))
+                {
+                    var userQuery =
+                        from u in db.games
+                        where ((u.winner == winnerId) && (u.gameStartTime == gameStartTime))
+                        select u;
+
+                    return userQuery.FirstOrDefault();
+                }
             }
         }
 

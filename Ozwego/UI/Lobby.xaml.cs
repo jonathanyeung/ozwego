@@ -11,6 +11,7 @@ using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
+using Ozwego.Storage;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -69,7 +70,7 @@ namespace Ozwego.UI
 
             var mainPageViewModel = MainPageViewModel.GetInstance();
 
-            if (mainPageViewModel.RoomHost != App.ClientBuddyInstance.EmailAddress)
+            if (mainPageViewModel.RoomHost != Settings.EmailAddress)
             {
                 return;
             }

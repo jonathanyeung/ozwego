@@ -7,6 +7,7 @@ using Shared;
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Ozwego.Storage;
 
 namespace Ozwego.Server
 {
@@ -219,9 +220,10 @@ namespace Ozwego.Server
                     //
 
                     var tempBuddy = CreateBuddyFromUrlString(messageString);
-                    App.ClientBuddyInstance.Alias = tempBuddy.Alias;
-                    App.ClientBuddyInstance.CreationTime = tempBuddy.CreationTime;
-                    App.ClientBuddyInstance.Ranking = tempBuddy.Ranking;
+                    Settings.Alias = tempBuddy.Alias;
+                    // ToDo: Re-enable once Server -> Client communication is down through XMLSerializer and a data type for this is formed.
+                    //Settings.CreationTime = tempBuddy.CreationTime;
+                    Settings.Level = tempBuddy.Ranking;
                     break;
 
                 case PacketType.ServerIsAliasAvailable:
@@ -235,6 +237,7 @@ namespace Ozwego.Server
         }
 
 
+        //ToDo: Once Server->Client communication is done through XMl Serializeation, then remove this method.
         /// <summary>
         /// Creates a buddy instance based on the information string sent from the server. The 
         /// values in the string sent from the server are delimited by the '|' character, so that

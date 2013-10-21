@@ -9,6 +9,7 @@ using Windows.Networking;
 using Windows.Networking.Sockets;
 using Windows.UI.Core;
 using Windows.UI.Popups;
+using Ozwego.Storage;
 
 namespace Ozwego.Server
 {
@@ -72,7 +73,7 @@ namespace Ozwego.Server
                 messageReceiver = MessageReceiver.GetInstance();
                 messageSender = MessageSender.GetInstance();
 
-                await messageSender.SendMessage(PacketType.ClientLogIn, App.ClientBuddyInstance.EmailAddress);
+                await messageSender.SendMessage(PacketType.ClientLogIn, Settings.EmailAddress);
 
 
                 //
@@ -152,7 +153,7 @@ namespace Ozwego.Server
                     {
                         userName = string.Format("{0} {1}", dynamicResult.first_name, dynamicResult.last_name);
                         email = dynamicResult.emails.preferred;
-                        App.ClientBuddyInstance.EmailAddress = email;
+                        Settings.EmailAddress = email;
 
                         var roomManager = RoomManager.GetInstance();
                         roomManager.AddMemberToRoom(email);
@@ -165,6 +166,8 @@ namespace Ozwego.Server
 
                     var mainPageViewModel = MainPageViewModel.GetInstance();
                     mainPageViewModel.UserName = string.Format("Welcome {0}!", meResult.Result["first_name"]);
+
+                    Settings.Alias = (string)meResult.Result["first_name"];
 
                 }
                 else

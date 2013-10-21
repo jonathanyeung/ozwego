@@ -1,7 +1,7 @@
 ﻿using Ozwego.BuddyManagement;
 using Ozwego.Gameplay.Bots;
 using Ozwego.Server;
-
+using Ozwego.Storage;
 using Ozwego.UI;
 using Ozwego.ViewModels;
 using System;
@@ -24,6 +24,7 @@ namespace Ozwego.Gameplay
         private BotManager _botManager;
         private DispatcherTimer _gameClock;
         private GameDataLogger _gameDataLogger;
+        private GameData _postGameData;
 
         private GameConnectionType _gameConnectionType;
         private GameMode _gameMode;
@@ -538,16 +539,25 @@ namespace Ozwego.Gameplay
         /// <param name="winnerName"></param>
         public async void EndGame(string winnerName)
         {
-            //
-            // Log the victory event.
-            //
-
-            var viewModel = GameBoardViewModel.GetInstance();
-            _gameDataLogger.LogMove(winnerName, viewModel.GameTime, Storage.MoveType.Victory);
+            if (null == winnerName)
+            {
+                throw new ArgumentException();
+            }
 
             GameStarted = false;
 
             _botManager.StopBots();
+
+
+            //
+            // Log the victory event. and then end the logging session.
+            //
+
+            var viewModel = GameBoardViewModel.GetInstance();
+
+            _gameDataLogger.LogMove(winnerName, viewModel.GameTime, MoveType.Victory);
+
+            _postGameData = await _gameDataLogger.EndLoggingSession();
 
             await App.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
@@ -558,16 +568,21 @@ namespace Ozwego.Gameplay
                 dialog.Commands.Add(new UICommand("OK", CommandInvokedHandler));
                 await dialog.ShowAsync();
             });
-
-            _gameDataLogger.EndLoggingSession();
         }
 
+
+        /// <summary>
+        /// Invoked when the user presses OK on the Game Over page.  This method takes the user to
+        /// the post game stats page.
+        /// </summary>
+        /// <param name="command"></param>
         private void CommandInvokedHandler(IUICommand command)
         {
             var args = new PostGamePageNavigationArgs()
             {
                 GameConnectionType = _gameConnectionType,
-                GameMode = _gameMode
+                GameMode = _gameMode,
+                GameData = _postGameData
             };
 
             var currentFrame = Window.Current.Content as Frame;

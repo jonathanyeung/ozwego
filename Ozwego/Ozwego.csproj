@@ -127,8 +127,8 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="BuddyManagement\Buddy.cs" />
-    <Compile Include="Gameplay\Ranking\ExperienceCalculator.cs" />
-    <Compile Include="Gameplay\Ranking\PlayerRank.cs" />
+    <Compile Include="PlayerStatistics\ExperienceCalculator.cs" />
+    <Compile Include="PlayerStatistics\PlayerLevel.cs" />
     <Compile Include="BuddyManagement\FriendManager.cs" />
     <Compile Include="BuddyManagement\RequestManager.cs" />
     <Compile Include="Common\BindableBase.cs" />
@@ -147,6 +147,7 @@
     <Compile Include="Gameplay\HumanPlayer.cs" />
     <Compile Include="Gameplay\IPlayer.cs" />
     <Compile Include="Gameplay\PostGamePageNavigationArgs.cs" />
+    <Compile Include="PlayerStatistics\PlayerRank.cs" />
     <Compile Include="Gameplay\Tile.cs" />
     <Compile Include="Server\IncomingMessageFactory.cs" />
     <Compile Include="Storage\GameDataHistory.cs" />
@@ -215,6 +216,8 @@
     <Content Include="Gameplay\ReducedTileSet.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Gameplay\SmallWords.txt" />
+    <Content Include="Gameplay\unixfreebsd.txt" />
     <Content Include="Gameplay\TileSet.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>

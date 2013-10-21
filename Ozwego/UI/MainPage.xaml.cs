@@ -89,9 +89,9 @@ namespace Ozwego
         {
             var gdh = GameDataHistory.GetInstance();
 
-            var dataSet1 = new GameData { GameDuration = 50, GameHost = "AGameHost" };
+            var dataSet1 = new GameData { GameDuration = 50, GameHost = "abc@outlook.com", Winner = "abc@outlook.com", GameStartTime = new DateTime(2013, 10, 14)};
 
-            dataSet1.GameMoves.Add(new GameMoveDataPoint("Player", 5, MoveType.Peel));
+            dataSet1.GameMoves.Add(new GameMoveDataPoint("abc@outlook.com", 5, MoveType.Peel));
 
             var stats = new PlayerGameStats()
             {
@@ -100,11 +100,11 @@ namespace Ozwego
                 NumberOfDumps = 3,
                 NumberOfPeels = 3,
                 PerformedFirstPeel = true,
-                WonTheGame = false,
-                RawGameData = new List<GameMoveDataPoint>() { new GameMoveDataPoint("Me", 1, MoveType.Peel) }
+                IsWinner = false,
+                RawGameData = new List<GameMoveDataPoint>() { new GameMoveDataPoint("abc@outlook.com", 1, MoveType.Peel) }
             };
 
-            var playerTuple = new PlayerTuple { Name = "NewPlayer", Stats = stats };
+            var playerTuple = new PlayerTuple { Name = "abc@outlook.com", Stats = stats };
             var tupleList = new List<PlayerTuple> { playerTuple };
             dataSet1.Players = tupleList;
 

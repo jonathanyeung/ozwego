@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 11, 9.125" name="OzwegoDataClasses">
+<ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 11, 9.375" name="OzwegoDataClasses">
   <DataContextMoniker Name="/OzwegoDataClassesDataContext" />
   <nestedChildShapes>
     <classShape Id="61706489-ced9-4533-a0a6-2d43f9acccb8" absoluteBounds="5.125, 3.25, 2, 2.1554996744791666">
@@ -34,44 +34,44 @@
         <elementListCompartment Id="da2bb0f3-d4ea-461f-a7e3-e5d0d4b892e8" absoluteBounds="6.6400000000000006, 1.585, 1.9700000000000002, 0.8262939453125" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
       </nestedChildShapes>
     </classShape>
-    <associationConnector edgePoints="[(6.875 : 3.25); (6.875 : 2.5112939453125)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+    <associationConnector edgePoints="[(6.875 : 3.25); (6.875 : 2.5112939453125)]" fixedFrom="NotFixed" fixedTo="NotFixed">
       <AssociationMoniker Name="/OzwegoDataClassesDataContext/user/user_friendship" />
       <nodes>
         <classShapeMoniker Id="61706489-ced9-4533-a0a6-2d43f9acccb8" />
         <classShapeMoniker Id="3239517f-1179-4737-8682-51db22a0ca99" />
       </nodes>
     </associationConnector>
-    <associationConnector edgePoints="[(7.0625 : 3.25); (7.0625 : 2.5112939453125)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+    <associationConnector edgePoints="[(7.0625 : 3.25); (7.0625 : 2.5112939453125)]" fixedFrom="NotFixed" fixedTo="NotFixed">
       <AssociationMoniker Name="/OzwegoDataClassesDataContext/user/user_friendship1" />
       <nodes>
         <classShapeMoniker Id="61706489-ced9-4533-a0a6-2d43f9acccb8" />
         <classShapeMoniker Id="3239517f-1179-4737-8682-51db22a0ca99" />
       </nodes>
     </associationConnector>
-    <classShape Id="0575d4f8-bbdd-4a6c-bd47-2411d640249b" absoluteBounds="5.5, 7.25, 2, 1.1939925130208333">
+    <classShape Id="de3a9d0e-c4b0-4259-aabb-0fca2a10523e" absoluteBounds="5.125, 6.75, 2, 2.3478011067708335">
       <DataClassMoniker Name="/OzwegoDataClassesDataContext/user_game" />
       <nestedChildShapes>
-        <elementListCompartment Id="b41cbbd4-c763-485a-a521-7edba2162892" absoluteBounds="5.515, 7.71, 1.9700000000000002, 0.63399251302083326" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+        <elementListCompartment Id="cb0ecf3d-4389-401b-90d3-fb3de728b8d6" absoluteBounds="5.1400000000000006, 7.2100000000000009, 1.9700000000000002, 1.7878011067708335" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
       </nestedChildShapes>
     </classShape>
-    <associationConnector edgePoints="[(6.3125 : 5.40549967447917); (6.3125 : 7.25)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+    <associationConnector edgePoints="[(6.125 : 5.40549967447917); (6.125 : 6.75)]" fixedFrom="Algorithm" fixedTo="Algorithm">
       <AssociationMoniker Name="/OzwegoDataClassesDataContext/user/user_user_game" />
       <nodes>
         <classShapeMoniker Id="61706489-ced9-4533-a0a6-2d43f9acccb8" />
-        <classShapeMoniker Id="0575d4f8-bbdd-4a6c-bd47-2411d640249b" />
+        <classShapeMoniker Id="de3a9d0e-c4b0-4259-aabb-0fca2a10523e" />
       </nodes>
     </associationConnector>
-    <classShape Id="baa30c22-ac74-4c0a-8758-11732c23d8bc" absoluteBounds="1.875, 7.125, 2, 1.7708968098958331">
+    <classShape Id="78257f9a-c3d2-4741-b4f5-b0530420a06b" absoluteBounds="1.75, 7.25, 2, 1.7708968098958331">
       <DataClassMoniker Name="/OzwegoDataClassesDataContext/game" />
       <nestedChildShapes>
-        <elementListCompartment Id="947113e5-0fe9-4f6f-9307-5aba9c535af2" absoluteBounds="1.8900000000000001, 7.585, 1.9700000000000002, 1.2108968098958333" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+        <elementListCompartment Id="7e5f3672-08c2-4edf-ac05-cc868c4f18a7" absoluteBounds="1.7650000000000001, 7.71, 1.9700000000000002, 1.2108968098958333" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
       </nestedChildShapes>
     </classShape>
-    <associationConnector edgePoints="[(3.875 : 7.84699625651042); (5.5 : 7.84699625651042)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+    <associationConnector edgePoints="[(3.75 : 8.13544840494792); (5.125 : 8.13544840494792)]" fixedFrom="Algorithm" fixedTo="Algorithm">
       <AssociationMoniker Name="/OzwegoDataClassesDataContext/game/game_user_game" />
       <nodes>
-        <classShapeMoniker Id="baa30c22-ac74-4c0a-8758-11732c23d8bc" />
-        <classShapeMoniker Id="0575d4f8-bbdd-4a6c-bd47-2411d640249b" />
+        <classShapeMoniker Id="78257f9a-c3d2-4741-b4f5-b0530420a06b" />
+        <classShapeMoniker Id="de3a9d0e-c4b0-4259-aabb-0fca2a10523e" />
       </nodes>
     </associationConnector>
   </nestedChildShapes>

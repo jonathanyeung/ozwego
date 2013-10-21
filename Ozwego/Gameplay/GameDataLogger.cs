@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Ozwego.Storage;
 
 namespace Ozwego.Gameplay
@@ -44,12 +45,19 @@ namespace Ozwego.Gameplay
         /// <summary>
         /// Method called to complete the logging session.  It saves the current game data to disk.
         /// </summary>
-        public async void EndLoggingSession()
+        public async Task<GameData> EndLoggingSession()
         {
             _gameData.ProcessGameData();
+
             var gdh = GameDataHistory.GetInstance();
+
             await gdh.StoreGameData(_gameData);
+
+            var tempData = _gameData;
+
             _gameData = null;
+
+            return tempData;
         }
     }
 }

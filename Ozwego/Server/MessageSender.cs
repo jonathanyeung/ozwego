@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Ozwego.ViewModels;
 using Shared;
 using Windows.Storage.Streams;
 
@@ -73,7 +74,9 @@ namespace Ozwego.Server
 
         private async Task SendMessage(PacketType packetType, IEnumerable<Buddy> recipientList, object data)
         {
-            if (ServerProxy.TcpSocket == null)
+            var mainPageViewModel = MainPageViewModel.GetInstance();
+
+            if ((ServerProxy.TcpSocket == null) || mainPageViewModel.ConnectionStatus == false)
             {
                 return;
             }

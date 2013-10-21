@@ -11,6 +11,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Shapes;
 using Ozwego.ViewModels;
+using Ozwego.Storage;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -686,13 +687,8 @@ namespace Ozwego.UI
                 var returnedTile = new Tile(textBlock.Text);
 
 
-                // ToDo: Remove this shit...
-                if (App.ClientBuddyInstance.Alias == null)
-                {
-                    App.ClientBuddyInstance.Alias = "Bob";
-                }
                 //ToDo: The line below is super hacky...yuck yuck.  Should not use app.clientbuddyinstance here, but instead use the performdumpaction method of humanplayer.cs
-                var tiles = await gameController.PerformDumpAction(App.ClientBuddyInstance.Alias, returnedTile);
+                var tiles = await gameController.PerformDumpAction(Settings.Alias, returnedTile);
 
 
                 //
@@ -786,7 +782,6 @@ namespace Ozwego.UI
                 box.SetValue(Grid.ColumnProperty, closestGridColumn);
                 //box.SetValue(Canvas.ZIndexProperty, 1);
 
-                // ToDo: Check this line:
                 _gameBoardArray[_westLimit + closestGridColumn, _northLimit + closestGridRow] = box;
 
 

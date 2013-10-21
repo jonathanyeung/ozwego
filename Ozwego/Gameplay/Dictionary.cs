@@ -31,6 +31,7 @@ namespace Ozwego.Gameplay
         private SortedDictionary<string, string> _englishDictionary;
 
         private const string filename = @"ms-appx:///Gameplay/2of12inf.data";
+        //private const string filename = @"ms-appx:///Gameplay/unixfreebsd.txt";
 
 
         public async Task<bool> PopulateDictionary()
@@ -64,7 +65,14 @@ namespace Ozwego.Gameplay
                 foreach (var word in fileContent)
                 {
                     //ToDo: Replace 1 with something perhaps more meaningful.
-                    _englishDictionary.Add(word, "1");
+                    try
+                    {
+                        _englishDictionary.Add(word, "1");
+                    }
+                    catch (ArgumentException)
+                    {
+                        //Swallow if there are multiple entries of the same word.
+                    }
                 }
             }
 
@@ -74,7 +82,8 @@ namespace Ozwego.Gameplay
 
         public bool IsAValidWord(string word)
         {
-            return _englishDictionary.ContainsKey(word);
+            var tempWord = word.ToLowerInvariant();
+            return _englishDictionary.ContainsKey(tempWord);
         }
     }
 }

@@ -145,6 +145,21 @@ namespace WorkerRole.PacketHandlers
 
                     break;
 
+                case PacketType.ClientGetGameHistory:
+
+                    var user = db.GetUserByEmail(Sender);
+
+                    var games = db.GetUserGameHistory(user);
+
+                    // ToDo: Check whether this should be (games != null) or (games.Count != 0)
+                    if (games != null)
+                    {
+                        //messageSender.SendMessage(client, PacketType.ServerUserGameHistory, ??);
+                    }
+
+                    //ToDo: Finish Implementing.
+                    throw new NotImplementedException();
+
                 default:
                     Trace.WriteLine(string.Format("[DataBasePacketHandler.DoActions] - " +
                         "Invalid packet type for this PacketHandler = {0}", PacketType.ToString()));

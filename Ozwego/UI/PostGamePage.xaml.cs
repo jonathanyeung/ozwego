@@ -4,10 +4,14 @@ using System.IO;
 using System.Linq;
 using Ozwego.Common;
 using Ozwego.Gameplay;
+using Ozwego.Gameplay.Ranking;
 using Ozwego.Server;
+using Ozwego.Storage;
 using Shared;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Core;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -23,9 +27,9 @@ namespace Ozwego.UI
     /// <summary>
     /// A basic page that provides characteristics common to most applications.
     /// </summary>
-    public sealed partial class PostGamePage : Ozwego.Common.LayoutAwarePage
+    public sealed partial class PostGamePage
     {
-        private PostGamePageNavigationArgs _navigationArgs = null;
+        private PostGamePageNavigationArgs _navigationArgs;
 
         public PostGamePage()
         {
@@ -58,7 +62,15 @@ namespace Ozwego.UI
         }
 
 
-        private async void OnPlayAgainClicked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            
+            CalculatePlayerExperience();
+        }
+
+
+        private async void OnPlayAgainClicked(object sender, RoutedEventArgs e)
         {
             switch (_navigationArgs.GameMode)
             {
@@ -76,7 +88,7 @@ namespace Ozwego.UI
                     }
                     else
                     {
-                        var args = new GameBoardNavigationArgs()
+                        var args = new GameBoardNavigationArgs
                         {
                             GameConnectionType = GameConnectionType.Local,
                             BotCount = 1
@@ -93,9 +105,41 @@ namespace Ozwego.UI
             }
         }
 
-        private void OnMainMenuClicked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+
+        private void OnMainMenuClicked(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof(MainPage));
+        }
+
+
+        private void CalculatePlayerExperience()
+        {
+            var localPlayer = _navigationArgs.GameData.Players.FirstOrDefault(p => p.Name == Settings.Alias);
+
+            var expEarned = ExperienceCalculator.GetGameExperienceEarned(localPlayer);
+
+            Settings.Experience += expEarned;
+
+            var postGameRank = ExperienceCalculator.GetPlayerLevelFromExperienceTotal(expEarned);
+
+            if ((int) postGameRank != Settings.Level)
+            {
+                Settings.Level = (int)postGameRank;
+
+                //ToDo: RE-enable; Currently this throws a SystemUnauthorizedAccess exception during dialog.ShowAsync();
+                //ShowLevelUpAnimation(postGameRank);
+            }
+        }
+
+        private async void ShowLevelUpAnimation(PlayerLevel newRank)
+        {
+            var title = string.Format("You have levelled up!");
+
+            var dialog = new MessageDialog("New Ranking: " + newRank.ToString(), title);
+
+            dialog.Commands.Add(new UICommand("OK"));
+
+            await dialog.ShowAsync();
         }
     }
 }

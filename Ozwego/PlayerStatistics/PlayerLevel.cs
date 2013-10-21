@@ -1,6 +1,6 @@
 ﻿namespace Ozwego.Gameplay.Ranking
 {
-    public enum PlayerRank : int
+    public enum PlayerLevel : int
     {
         TypoL1,
         TypoL2,
@@ -32,5 +32,7 @@
         TheTruthL1,
         TheTruthL2,
         TheTruthL3,
+        MaxValue
     }
+
 }

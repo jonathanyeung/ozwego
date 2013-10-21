@@ -38,8 +38,9 @@ namespace Shared
         ClientQueryIfAliasAvailable     = 19,
 
         ClientUploadGameData            = 20,
+        ClientGetGameHistory            = 21,
 
-        ClientMaxValue                  = 21,
+        ClientMaxValue                  = 22,
 
 
         //
@@ -74,8 +75,9 @@ namespace Shared
         ServerMatchmakingGameNotFound   = 120,
 
         ServerIsAliasAvailable          = 121,
+        ServerUserGameHistory           = 122,
 
-        ServerMaxValue                  = 122
+        ServerMaxValue                  = 123
     }
 
     public static class DataPacket

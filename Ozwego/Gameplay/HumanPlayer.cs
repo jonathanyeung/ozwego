@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ozwego.Storage;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +18,7 @@ namespace Ozwego.Gameplay
         public HumanPlayer()
         {
             _playerTileSet = new HandTileSet();
-            _alias = App.ClientBuddyInstance.Alias;
+            _alias = Settings.Alias;
         }
 
         public void InitializeForGame()
@@ -36,7 +37,13 @@ namespace Ozwego.Gameplay
         public void PerformPeelAction()
         {
             var gameController = GameController.GetInstance();
-            gameController.PeelActionReceived(Alias);
+
+            // ToDo: Remove this shit:
+            if (_alias == null)
+            {
+                _alias = "Temporary Alias";
+            }
+            gameController.PeelActionReceived(_alias);
         }
 
         public void SignalVictory()
@@ -50,7 +57,7 @@ namespace Ozwego.Gameplay
             get
             {
                 //ToDo: This ain't right...Refactor buddy class with IPlayer class.
-                return App.ClientBuddyInstance.Alias;
+                return Settings.Alias;
             }
             set
             {

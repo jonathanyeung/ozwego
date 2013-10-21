@@ -16,7 +16,7 @@ namespace ClientUnitTests
         [TestMethod]
         public void PopulateDictionary()
         {
-            Task<bool> isReady = _dictionary.PopulateDictionary();
+            var isReady = _dictionary.PopulateDictionary();
 
             isReady.Wait();
 
@@ -28,6 +28,44 @@ namespace ClientUnitTests
 
             result = _dictionary.IsAValidWord("notarealword");
             Assert.AreEqual(result, false);
+
+            result = _dictionary.IsAValidWord("Irena"); // Proper Noun.
+            Assert.AreEqual(result, false);
+
+            result = _dictionary.IsAValidWord("hm");
+            Assert.AreEqual(result, true);
+
+            result = _dictionary.IsAValidWord("qi");
+            Assert.AreEqual(result, true);
+
+            result = _dictionary.IsAValidWord("op");
+            Assert.AreEqual(result, true);
+
+            result = _dictionary.IsAValidWord("aal");
+            Assert.AreEqual(result, true);
+
+            result = _dictionary.IsAValidWord("efs");
+            Assert.AreEqual(result, true);
+
+            result = _dictionary.IsAValidWord("fet");
+            Assert.AreEqual(result, true);
+
+            result = _dictionary.IsAValidWord("qat");
+            Assert.AreEqual(result, true);
+
+            result = _dictionary.IsAValidWord("zoa");
+            Assert.AreEqual(result, true);
+
+            result = _dictionary.IsAValidWord("xis");
+            Assert.AreEqual(result, true);
+
+            result = _dictionary.IsAValidWord("gnu");
+            Assert.AreEqual(result, true);
+
+            result = _dictionary.IsAValidWord("jus");
+            Assert.AreEqual(result, true);
+
+
         }
     }
 }

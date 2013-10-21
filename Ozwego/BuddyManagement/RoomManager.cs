@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Shared;
 using Windows.UI.Core;
+using Ozwego.Storage;
 
 namespace Ozwego.BuddyManagement
 {
@@ -22,7 +23,7 @@ namespace Ozwego.BuddyManagement
         private RoomManager()
         {
             RoomMembers = new ObservableCollection<Buddy>();
-            RoomMembers.Add(App.ClientBuddyInstance);
+            AddMemberToRoom(Settings.EmailAddress);
         }
 
 
@@ -80,7 +81,7 @@ namespace Ozwego.BuddyManagement
                 //
 
                 if ((budref != null) &&
-                    (buddyAccountAddress != App.ClientBuddyInstance.EmailAddress))
+                    (buddyAccountAddress != Settings.EmailAddress))
                 {
                     roomManager.RoomMembers.Remove(budref);
                 }
@@ -125,7 +126,7 @@ namespace Ozwego.BuddyManagement
 
             var roomManager = RoomManager.GetInstance();
             roomManager.RoomMembers.Clear();
-            AddMemberToRoom(App.ClientBuddyInstance.EmailAddress);
+            AddMemberToRoom(Settings.EmailAddress);
         }
 
 
@@ -138,7 +139,7 @@ namespace Ozwego.BuddyManagement
                 mainPageViewModel.RoomHost = newHostName;
             });
             
-            if (newHostName != App.ClientBuddyInstance.EmailAddress)
+            if (newHostName != Settings.EmailAddress)
             {
                 //ToDO: Disable Start Game with Room Button.
             }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Ozwego.BuddyManagement;
 using Ozwego.Storage;
+using WorkerRole.DataTypes;
 
 namespace Shared
 {
@@ -17,7 +19,7 @@ namespace Shared
 
         // Sendable only by room host:
         ClientInitiateGame              = 5,          // Move everyone in the room to the GameUI page
-        ClientStartGame                 = 6,          // Start the actual round
+        ClientReadyForGameStart         = 6,          // Start the actual round
 
         // In game packet types:
         ClientDump                      = 7,
@@ -40,7 +42,9 @@ namespace Shared
         ClientUploadGameData            = 20,
         ClientGetGameHistory            = 21,
 
-        ClientMaxValue                  = 22,
+        ClientHeartBeat                 = 22,
+
+        ClientMaxValue                  = 23,
 
 
         //
@@ -62,7 +66,7 @@ namespace Shared
 
         ServerOnlineFriendList          = 110,       // User just signed in, send the list of friends currently online.
         ServerRoomList                  = 111,       // User just joined a room, send the room members list.
-        ServerInitiateGame              = 112,       // On receiving this, the client is supposed to move to the Game UI, but the actual game has NOT started yet.
+        ServerBeginGameInitialization   = 112,       // On receiving this, the client is supposed to move to the Game UI and initialize, but the game should NOT start.
 
         ServerFriendList                = 113,       // This contains the complete list of friends, both online and offline.
         ServerFriendRequests            = 114,
@@ -88,53 +92,55 @@ namespace Shared
                 // Client Message Types
                 //
                 //ToDo: Scrub through all of these typeof's to make sure that they are correct.
-                {PacketType.ClientLogIn,                        typeof (string)},
-                {PacketType.ClientLogOut,                       typeof (string)},
-                {PacketType.ClientJoinRoom,                     typeof (string)},
-                {PacketType.ClientLeaveRoom,                    typeof (string)},
-                {PacketType.ClientInitiateGame,                 typeof (string)},
-                {PacketType.ClientStartGame,                    typeof (string)},
-                {PacketType.ClientDump,                         typeof (string)},
-                {PacketType.ClientPeel,                         typeof (string)},
-                {PacketType.ClientVictory,                      typeof (string)},
-                {PacketType.ClientChat,                         typeof (string)},
-                {PacketType.ClientGetFriendList,                typeof (string)},
-                {PacketType.ClientSendFriendRequest,            typeof (string)},
-                {PacketType.ClientAcceptFriendRequest,          typeof (string)},
-                {PacketType.ClientRejectFriendRequest,          typeof (string)},
-                {PacketType.ClientRemoveFriend,                 typeof (string)},
+                {PacketType.ClientLogIn,                        typeof (Friend)},
+                {PacketType.ClientLogOut,                       typeof (Friend)},
+                {PacketType.ClientJoinRoom,                     typeof (Friend)}, //ToDo: It makes sense to change this to null.
+                {PacketType.ClientLeaveRoom,                    null},
+                {PacketType.ClientInitiateGame,                 null},
+                {PacketType.ClientReadyForGameStart,            null},
+                {PacketType.ClientDump,                         null},
+                {PacketType.ClientPeel,                         null},
+                {PacketType.ClientVictory,                      null},
+                {PacketType.ClientChat,                         typeof (ChatMessage)},
+                {PacketType.ClientGetFriendList,                null},
+                {PacketType.ClientSendFriendRequest,            typeof (Friend)},
+                {PacketType.ClientAcceptFriendRequest,          typeof (Friend)},
+                {PacketType.ClientRejectFriendRequest,          typeof (Friend)},
+                {PacketType.ClientRemoveFriend,                 typeof (Friend)},
                 {PacketType.ClientFindBuddyFromGlobalList,      typeof (string)},
                 {PacketType.ClientStartingMatchmaking,          null},
                 {PacketType.ClientStoppingMatchmaking,          null},
                 {PacketType.ClientQueryIfAliasAvailable,        typeof (string)},
                 {PacketType.ClientUploadGameData,               typeof (GameData)},
+                {PacketType.ClientGetGameHistory,               null},
+                {PacketType.ClientHeartBeat,                    null},
 
 
                 //
                 // Server Message Types
                 //
 
-                {PacketType.UserLoggedOut,                      typeof (string)},
-                {PacketType.UserLoggedIn,                       typeof (string)},
-                {PacketType.UserJoinedRoom,                     typeof (string)},
-                {PacketType.UserLeftRoom,                       typeof (string)},
-                {PacketType.HostTransfer,                       typeof (string)},
-                {PacketType.ServerPeel,                         typeof (string)},
-                {PacketType.ServerDump,                         typeof (string)},
-                {PacketType.ServerGameStart,                    typeof (string)},
-                {PacketType.ServerGameOver,                     typeof (string)},
-                {PacketType.ServerChat,                         typeof (string)},
-                {PacketType.ServerOnlineFriendList,             typeof (string)},
-                {PacketType.ServerRoomList,                     typeof (string)},
-                {PacketType.ServerInitiateGame,                 typeof (string)},
-                {PacketType.ServerFriendList,                   typeof (string)},
-                {PacketType.ServerFriendRequests,               typeof (string)},
-                {PacketType.ServerFriendRequestAccepted,        typeof (string)},
-                {PacketType.ServerFriendSearchResults,          typeof (string)},
-                {PacketType.ServerUserStats,                    typeof (string)},
-                {PacketType.ServerRemoveFriend,                 typeof (string)},
-                {PacketType.ServerMatchmakingGameFound,         typeof (string)},
-                {PacketType.ServerMatchmakingGameNotFound,      typeof (string)},
+                {PacketType.UserLoggedOut,                      typeof (Friend)},
+                {PacketType.UserLoggedIn,                       typeof (Friend)},
+                {PacketType.UserJoinedRoom,                     typeof (Friend)},
+                {PacketType.UserLeftRoom,                       typeof (Friend)},
+                {PacketType.HostTransfer,                       typeof (Friend)},
+                {PacketType.ServerPeel,                         typeof (Friend)}, //ToDo: If the server holds tile information, then change this to something else
+                {PacketType.ServerDump,                         typeof (Friend)}, //ToDo: If the server holds tile information, then change this to something else
+                {PacketType.ServerGameStart,                    null},
+                {PacketType.ServerGameOver,                     typeof (Friend)},
+                {PacketType.ServerChat,                         typeof (ChatMessage)},
+                {PacketType.ServerOnlineFriendList,             typeof (FriendList)},
+                {PacketType.ServerRoomList,                     typeof (FriendList)},
+                {PacketType.ServerBeginGameInitialization,      null},
+                {PacketType.ServerFriendList,                   typeof (FriendList)},
+                {PacketType.ServerFriendRequests,               typeof (FriendList)},
+                {PacketType.ServerFriendRequestAccepted,        typeof (Friend)},
+                {PacketType.ServerFriendSearchResults,          typeof (FriendList)},
+                {PacketType.ServerUserStats,                    typeof (Friend)},
+                {PacketType.ServerRemoveFriend,                 typeof (Friend)},
+                {PacketType.ServerMatchmakingGameFound,         null},
+                {PacketType.ServerMatchmakingGameNotFound,      null},
                 {PacketType.ServerIsAliasAvailable,             typeof (string)}
             };
     }

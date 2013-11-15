@@ -213,14 +213,20 @@ namespace Ozwego.Gameplay
             if (GameStarted) return;
             GameStarted = true;
 
-            var serverProxy = ServerProxy.GetInstance();
-
-            if (serverProxy.messageSender != null)
+            if (_gameConnectionType == GameConnectionType.Local)
             {
-                await serverProxy.messageSender.SendMessage(PacketType.ClientStartGame);
+                // ToDo: Make logging use email address instead of alias
+                _gameDataLogger.BeginLoggingSession(_humanPlayer.Alias, _localPlayers);
             }
 
-            _gameDataLogger.BeginLoggingSession(_humanPlayer.Alias, _localPlayers);
+            else if (_gameConnectionType == GameConnectionType.Online)
+            {
+                var room = RoomManager.GetInstance();
+
+                // ToDo: Make logging use email address instead of alias
+                _gameDataLogger.BeginLoggingSession(room.Host.Alias, room.RoomMembers);
+            }
+
 
             OnGameStarted();
 
@@ -377,19 +383,18 @@ namespace Ozwego.Gameplay
 
         #endregion
 
+        #region Game Action Message Handlers
 
         /// <summary>
         /// Contains methods that are called when game action messages are received.
         /// </summary>
-        #region Game Action Message Handlers
-
-
         /// <summary>
         /// This method is invoked whenever someone (either local or from the server) performs a
         /// peel action.
         /// </summary>
         /// <param name="actionSender">The person who performed the dump action</param>
-        public async void PeelActionReceived(string actionSender)
+        /// <param name="IsSenderLocal">If the person performing the peel action is local (not from server) or not</param>
+        public async void PeelActionReceived(string actionSender, bool IsSenderLocal = true)
         {
             var serverProxy = ServerProxy.GetInstance();
             var roomManager = RoomManager.GetInstance();
@@ -446,7 +451,14 @@ namespace Ozwego.Gameplay
                     
                 });
 
-                if (serverProxy.messageSender != null)
+
+                //
+                // If the person performing the peel is local, then send a message to the server informing
+                // of the peel.  Otherwise, if it came from the server, then don't send a message
+                // to the server.
+                //
+
+                if ((serverProxy.messageSender != null) && IsSenderLocal)
                 {
                     // ToDo: This will send the incorrect message to the server if a bot has peeled and not the client.
                     await serverProxy.messageSender.SendMessage(PacketType.ClientPeel);
@@ -461,14 +473,12 @@ namespace Ozwego.Gameplay
             }
             else
             {
-                if (serverProxy.messageSender != null)
+                if ((serverProxy.messageSender != null) && IsSenderLocal)
                 {
                     await serverProxy.messageSender.SendMessage(PacketType.ClientVictory);
                 }
-                else
-                {
-                    EndGame(actionSender);
-                }
+
+                EndGame(actionSender);
             }
         }
 
@@ -516,7 +526,7 @@ namespace Ozwego.Gameplay
 
             var viewModel = GameBoardViewModel.GetInstance();
 
-            _gameDataLogger.LogMove(actionSender, viewModel.GameTime, Storage.MoveType.Dump);
+            _gameDataLogger.LogMove(actionSender, viewModel.GameTime, MoveType.Dump);
 
             viewModel.TilePileCount -= 2;
 
@@ -556,6 +566,7 @@ namespace Ozwego.Gameplay
             var viewModel = GameBoardViewModel.GetInstance();
 
             _gameDataLogger.LogMove(winnerName, viewModel.GameTime, MoveType.Victory);
+
 
             _postGameData = await _gameDataLogger.EndLoggingSession();
 

@@ -1,9 +1,12 @@
 ﻿
+using System;
+using Ozwego.BuddyManagement;
 using Shared;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
+using WorkerRole.DataTypes;
 using WorkerRole.Datacore;
 
 
@@ -29,27 +32,34 @@ namespace WorkerRole
 
         public void HandleMessage(ref Client client, byte[] msgBytes)
         {
-            PacketBase packetBase;
+            var packetBase = new PacketBase();
 
             using (var stream = new MemoryStream(msgBytes))
             {
-                var ser = new XmlSerializer(typeof (PacketBase));
+                try
+                {
+                    var reader = new BinaryReader(stream);
 
-                packetBase = (PacketBase) ser.Deserialize(stream);
+                    packetBase.Read(reader);
+                }
+                catch (Exception e)
+                {
+#if DEBUG
+                    throw;
+#else
+                    Trace.WriteLine(string.Format("[IncomingMessageHandler.HandleMessage] - " +
+                            "Invalid packet from client! Deserialization failed: {0}, Trace: {1}",
+                            e.Message,
+                            e.StackTrace));
+#endif
+                }
             }
 
-            switch (packetBase.PacketVersion)
-            {
-                case PacketVersion.Version1:
-                    var handler = PacketHandlerFactory.GetPacketHandler(packetBase.Data);
-                    handler.DoActions(ref client);
-                    break;
+            var handler = PacketHandlerFactory.GetPacketHandler(packetBase);
 
-                default:
-                    Trace.WriteLine(string.Format("[IncomingMessageHandler.HandleMessage] - " +
-                                                  "Invalid packet version from client! PacketVersion = {0}",
-                                                  packetBase.PacketVersion.ToString()));
-                    break;
+            if (handler != null)
+            {
+                handler.DoActions(ref client);
             }
         }
 
@@ -66,17 +76,16 @@ namespace WorkerRole
             //
 
             var db = Database.GetInstance();
-            var friendList = db.GetFriends(client.UserName);
+            var friendList = db.GetFriends(client.UserInfo.EmailAddress);
 
             if (null != friendList)
             {
-                var friendListString = CreateUrlStringFromUserList(friendList);
+                var friendListString = CreateFriendListFromUserList(friendList);
 
-                var messageSender = MessageSender.GetInstance();
-                messageSender.SendMessage(
-                    client,
-                    PacketType.ServerFriendList,
-                    friendListString);
+                MessageSender.SendMessage(
+                        client,
+                        PacketType.ServerFriendList,
+                        friendListString);
 
 
                 //
@@ -96,9 +105,9 @@ namespace WorkerRole
                     }
                 }
 
-                var onlineFriends = CreateUrlStringFromUserList(onlineUsers);
+                var onlineFriends = CreateFriendListFromUserList(onlineUsers);
 
-                messageSender.SendMessage(
+                MessageSender.SendMessage(
                     client,
                     PacketType.ServerOnlineFriendList,
                     onlineFriends);
@@ -113,32 +122,51 @@ namespace WorkerRole
         /// </summary>
         /// <param name="users"></param>
         /// <returns></returns>
-        public static string CreateUrlStringFromUserList(IEnumerable<user> users)
+        public static FriendList CreateFriendListFromUserList(IEnumerable<user> users)
         {
-            var newFormattedString = "";
+            var friendList = new FriendList();
 
             if (null == users)
             {
-                return newFormattedString;
+                return null;
             }
 
             foreach (var user in users)
             {
-                if (user != null)
-                {
-                    var dic = new Dictionary<string, string> 
-                        {
-                            {"email", user.email },
-                            {"creationTime", user.creation_time.ToString() },
-                            {"alias", user.alias }
-                        };
+                var friend = GetFriendFromUser(user);
 
-                    newFormattedString += MessageSender.CreateUrlQueryString(dic, '|');
-                    newFormattedString += ',';
-                }
+                friendList.Friends.Add(friend);
             }
 
-            return newFormattedString.TrimEnd(',');
+            return friendList;
+        }
+
+        //ToDo: Move this class elsewhere.
+        public static Friend GetFriendFromUser(user user)
+        {
+            var friend = new Friend { Alias = user.alias, EmailAddress = user.email };
+
+            if (user.creation_time != null)
+            {
+                friend.CreationTime = (DateTime)user.creation_time;
+            }
+
+            if (user.skill_level != null)
+            {
+                friend.Level = (int)user.skill_level;
+            }
+
+            if (user.ranking != null)
+            {
+                friend.Ranking = (int)user.ranking;
+            }
+
+            if (user.experience != null)
+            {
+                friend.Experience = (long)user.experience;
+            }
+
+            return friend;
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Ozwego.Server;
 using Windows.UI.Core;
 
 namespace Ozwego.BuddyManagement
@@ -9,39 +10,21 @@ namespace Ozwego.BuddyManagement
     public class FriendManager
     {
         private static FriendManager _instance;
-        private List<Buddy> CompleteFriendList;
+        private List<Friend> CompleteFriendList;
 
-        public readonly ObservableCollection<Buddy> OnlineFriendList;
-        public readonly ObservableCollection<Buddy> OfflineFriendList;
-        public readonly ObservableCollection<Buddy> FriendSearchResultsList;
+        public readonly ObservableCollection<Friend> OnlineFriendList;
+        public readonly ObservableCollection<Friend> OfflineFriendList;
+        public readonly ObservableCollection<Friend> FriendSearchResultsList;
 
         /// <summary>
         /// Private Constructor
         /// </summary>
         private FriendManager()
         {
-            CompleteFriendList = new List<Buddy>();
-            FriendSearchResultsList = new ObservableCollection<Buddy>();
-            OfflineFriendList = new ObservableCollection<Buddy>();
-            OnlineFriendList = new ObservableCollection<Buddy>();
-
-            //ToDo: Remove temporary code.
-            //for (int i = 0; i < 10; i++)
-            //{
-            //    var tempBuddy = new Buddy()
-            //    {
-            //        Alias = "GoodFriend" + i.ToString(),
-            //        EmailAddress = "GoodFriend" + i.ToString() + "@address.com"
-            //    };
-
-            //    CompleteFriendList.Add(tempBuddy);
-            //    OfflineFriendList.Add(tempBuddy);
-
-            //    if (i <= 5)
-            //    {
-            //        OnBuddySignIn(tempBuddy);
-            //    }
-            //}
+            CompleteFriendList = new List<Friend>();
+            FriendSearchResultsList = new ObservableCollection<Friend>();
+            OfflineFriendList = new ObservableCollection<Friend>();
+            OnlineFriendList = new ObservableCollection<Friend>();
         }
 
 
@@ -56,32 +39,32 @@ namespace Ozwego.BuddyManagement
 
 
         /// <summary>
-        /// Used on first sign in; populates the buddy list of all friends both online and offline.
+        /// Used on first sign in; populates the Friend list of all friends both online and offline.
         /// </summary>
         /// <param name="buddyList"></param>
-        public void InitializeCompleteBuddyList(List<Buddy> buddyList)
+        public void InitializeCompleteBuddyList(List<Friend> buddyList)
         {
             CompleteFriendList.Clear();
 
-            foreach (var buddy in buddyList)
+            foreach (var friend in buddyList)
             {
-                CompleteFriendList.Add(buddy);
-                OnBuddySignOut(buddy);
+                CompleteFriendList.Add(friend);
+                OnBuddySignOut(friend);
             }
         }
 
 
         /// <summary>
-        /// Used on first sign in; populates the buddy list of all are online.
+        /// Used on first sign in; populates the Friend list of all are online.
         /// </summary>
         /// <param name="buddyList"></param>
-        public void InitializeOnlineBuddyList(List<Buddy> buddyList)
+        public void InitializeOnlineBuddyList(List<Friend> buddyList)
         {
-            foreach (var buddy in buddyList)
+            foreach (var friend in buddyList)
             {
-                if (null != buddy)
+                if (null != friend)
                 {
-                    OnBuddySignIn(buddy);
+                    OnBuddySignIn(friend);
                 }
             }
         }
@@ -91,7 +74,7 @@ namespace Ozwego.BuddyManagement
         /// Used when a friend request is accepted while the user is still online.
         /// </summary>
         /// <param name="buddy"></param>
-        public void AddNewBuddy(Buddy buddy)
+        public void AddNewBuddy(Friend buddy)
         {
             CompleteFriendList.Add(buddy);
             OnBuddySignIn(buddy);
@@ -100,24 +83,24 @@ namespace Ozwego.BuddyManagement
 
 
         /// <summary>
-        /// Buddy signed in, add him to the buddy list.
+        /// Friend signed in, add him to the Friend list.
         /// </summary>
         /// <param name="buddy"></param>
-        public void OnBuddySignIn(Buddy buddy)
+        public void OnBuddySignIn(Friend buddy)
         {
             if (buddy == null)
             {
                 return;
             }
 
-            var buddyToRemove = OfflineFriendList.FirstOrDefault((Buddy b) => b.EmailAddress == buddy.EmailAddress);
+            var buddyToRemove = OfflineFriendList.FirstOrDefault((Friend b) => b.EmailAddress == buddy.EmailAddress);
 
             if (null != buddyToRemove)
             {
                 OfflineFriendList.Remove(buddyToRemove);
             }
 
-            if (OnlineFriendList.FirstOrDefault((Buddy b) => b.EmailAddress == buddy.EmailAddress) == null)
+            if (OnlineFriendList.FirstOrDefault((Friend b) => b.EmailAddress == buddy.EmailAddress) == null)
             {
                 OnlineFriendList.Add(buddy);
             }
@@ -125,24 +108,24 @@ namespace Ozwego.BuddyManagement
 
 
         /// <summary>
-        /// Buddy signed out, move him from the online list to the offline list.
+        /// Friend signed out, move him from the online list to the offline list.
         /// </summary>
         /// <param name="buddy"></param>
-        public void OnBuddySignOut(Buddy buddy)
+        public void OnBuddySignOut(Friend buddy)
         {
             if (buddy == null)
             {
                 return;
             }
 
-            var buddyToRemove = OnlineFriendList.FirstOrDefault((Buddy b) => b.EmailAddress == buddy.EmailAddress);
+            var buddyToRemove = OnlineFriendList.FirstOrDefault((Friend b) => b.EmailAddress == buddy.EmailAddress);
 
             if (null != buddyToRemove)
             {
                 OnlineFriendList.Remove(buddyToRemove);
             }
 
-            if (OfflineFriendList.FirstOrDefault((Buddy b) => b.EmailAddress == buddy.EmailAddress) == null)
+            if (OfflineFriendList.FirstOrDefault((Friend b) => b.EmailAddress == buddy.EmailAddress) == null)
             {
                 OfflineFriendList.Add(buddy);
             }
@@ -150,16 +133,16 @@ namespace Ozwego.BuddyManagement
 
 
         /// <summary>
-        /// Buddy signed in, move him from the offline list to the online list.
+        /// Friend signed in, move him from the offline list to the online list.
         /// </summary>
         /// <param name="buddy"></param>
-        public void AddSearchResults(List<Buddy> results)
+        public void AddSearchResults(List<Friend> results)
         {
             FriendSearchResultsList.Concat(results);
 
             if (FriendSearchResultsList.Count == 0)
             {
-                FriendSearchResultsList.Add(new Buddy { Alias = "No Results" });
+                FriendSearchResultsList.Add(new Friend { Alias = "No Results" });
             }
         }
 

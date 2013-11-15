@@ -30,9 +30,6 @@ namespace WorkerRole.Datacore
 		
     #region Extensibility Method Definitions
     partial void OnCreated();
-    partial void Insertuser(user instance);
-    partial void Updateuser(user instance);
-    partial void Deleteuser(user instance);
     partial void InsertfriendRequest(friendRequest instance);
     partial void UpdatefriendRequest(friendRequest instance);
     partial void DeletefriendRequest(friendRequest instance);
@@ -45,6 +42,9 @@ namespace WorkerRole.Datacore
     partial void Insertgame(game instance);
     partial void Updategame(game instance);
     partial void Deletegame(game instance);
+    partial void Insertuser(user instance);
+    partial void Updateuser(user instance);
+    partial void Deleteuser(user instance);
     #endregion
 		
 		public OzwegoDataClassesDataContext() : 
@@ -75,14 +75,6 @@ namespace WorkerRole.Datacore
 				base(connection, mappingSource)
 		{
 			OnCreated();
-		}
-		
-		public System.Data.Linq.Table<user> users
-		{
-			get
-			{
-				return this.GetTable<user>();
-			}
 		}
 		
 		public System.Data.Linq.Table<friendRequest> friendRequests
@@ -116,351 +108,13 @@ namespace WorkerRole.Datacore
 				return this.GetTable<game>();
 			}
 		}
-	}
-	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.[user]")]
-	public partial class user : INotifyPropertyChanging, INotifyPropertyChanged
-	{
 		
-		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
-		
-		private int _ID;
-		
-		private string _email;
-		
-		private string _alias;
-		
-		private System.Nullable<System.DateTime> _creation_time;
-		
-		private System.Nullable<System.DateTime> _last_seen_time;
-		
-		private System.Nullable<int> _ranking;
-		
-		private System.Nullable<int> _skill_level;
-		
-		private EntitySet<friendRequest> _friendRequests;
-		
-		private EntitySet<friendRequest> _friendRequests1;
-		
-		private EntitySet<friendship> _friendships;
-		
-		private EntitySet<friendship> _friendships1;
-		
-		private EntitySet<user_game> _user_games;
-		
-    #region Extensibility Method Definitions
-    partial void OnLoaded();
-    partial void OnValidate(System.Data.Linq.ChangeAction action);
-    partial void OnCreated();
-    partial void OnIDChanging(int value);
-    partial void OnIDChanged();
-    partial void OnemailChanging(string value);
-    partial void OnemailChanged();
-    partial void OnaliasChanging(string value);
-    partial void OnaliasChanged();
-    partial void Oncreation_timeChanging(System.Nullable<System.DateTime> value);
-    partial void Oncreation_timeChanged();
-    partial void Onlast_seen_timeChanging(System.Nullable<System.DateTime> value);
-    partial void Onlast_seen_timeChanged();
-    partial void OnrankingChanging(System.Nullable<int> value);
-    partial void OnrankingChanged();
-    partial void Onskill_levelChanging(System.Nullable<int> value);
-    partial void Onskill_levelChanged();
-    #endregion
-		
-		public user()
-		{
-			this._friendRequests = new EntitySet<friendRequest>(new Action<friendRequest>(this.attach_friendRequests), new Action<friendRequest>(this.detach_friendRequests));
-			this._friendRequests1 = new EntitySet<friendRequest>(new Action<friendRequest>(this.attach_friendRequests1), new Action<friendRequest>(this.detach_friendRequests1));
-			this._friendships = new EntitySet<friendship>(new Action<friendship>(this.attach_friendships), new Action<friendship>(this.detach_friendships));
-			this._friendships1 = new EntitySet<friendship>(new Action<friendship>(this.attach_friendships1), new Action<friendship>(this.detach_friendships1));
-			this._user_games = new EntitySet<user_game>(new Action<user_game>(this.attach_user_games), new Action<user_game>(this.detach_user_games));
-			OnCreated();
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
-		public int ID
+		public System.Data.Linq.Table<user> users
 		{
 			get
 			{
-				return this._ID;
+				return this.GetTable<user>();
 			}
-			set
-			{
-				if ((this._ID != value))
-				{
-					this.OnIDChanging(value);
-					this.SendPropertyChanging();
-					this._ID = value;
-					this.SendPropertyChanged("ID");
-					this.OnIDChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_email", DbType="NVarChar(50) NOT NULL", CanBeNull=false)]
-		public string email
-		{
-			get
-			{
-				return this._email;
-			}
-			set
-			{
-				if ((this._email != value))
-				{
-					this.OnemailChanging(value);
-					this.SendPropertyChanging();
-					this._email = value;
-					this.SendPropertyChanged("email");
-					this.OnemailChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_alias", DbType="NVarChar(50) NOT NULL", CanBeNull=false)]
-		public string alias
-		{
-			get
-			{
-				return this._alias;
-			}
-			set
-			{
-				if ((this._alias != value))
-				{
-					this.OnaliasChanging(value);
-					this.SendPropertyChanging();
-					this._alias = value;
-					this.SendPropertyChanged("alias");
-					this.OnaliasChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_creation_time", DbType="DateTime")]
-		public System.Nullable<System.DateTime> creation_time
-		{
-			get
-			{
-				return this._creation_time;
-			}
-			set
-			{
-				if ((this._creation_time != value))
-				{
-					this.Oncreation_timeChanging(value);
-					this.SendPropertyChanging();
-					this._creation_time = value;
-					this.SendPropertyChanged("creation_time");
-					this.Oncreation_timeChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_last_seen_time", DbType="DateTime")]
-		public System.Nullable<System.DateTime> last_seen_time
-		{
-			get
-			{
-				return this._last_seen_time;
-			}
-			set
-			{
-				if ((this._last_seen_time != value))
-				{
-					this.Onlast_seen_timeChanging(value);
-					this.SendPropertyChanging();
-					this._last_seen_time = value;
-					this.SendPropertyChanged("last_seen_time");
-					this.Onlast_seen_timeChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ranking", DbType="Int")]
-		public System.Nullable<int> ranking
-		{
-			get
-			{
-				return this._ranking;
-			}
-			set
-			{
-				if ((this._ranking != value))
-				{
-					this.OnrankingChanging(value);
-					this.SendPropertyChanging();
-					this._ranking = value;
-					this.SendPropertyChanged("ranking");
-					this.OnrankingChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_skill_level", DbType="Int")]
-		public System.Nullable<int> skill_level
-		{
-			get
-			{
-				return this._skill_level;
-			}
-			set
-			{
-				if ((this._skill_level != value))
-				{
-					this.Onskill_levelChanging(value);
-					this.SendPropertyChanging();
-					this._skill_level = value;
-					this.SendPropertyChanged("skill_level");
-					this.Onskill_levelChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="user_friendRequest", Storage="_friendRequests", ThisKey="ID", OtherKey="from_user")]
-		public EntitySet<friendRequest> friendRequests
-		{
-			get
-			{
-				return this._friendRequests;
-			}
-			set
-			{
-				this._friendRequests.Assign(value);
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="user_friendRequest1", Storage="_friendRequests1", ThisKey="ID", OtherKey="to_user")]
-		public EntitySet<friendRequest> friendRequests1
-		{
-			get
-			{
-				return this._friendRequests1;
-			}
-			set
-			{
-				this._friendRequests1.Assign(value);
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="user_friendship", Storage="_friendships", ThisKey="ID", OtherKey="user1")]
-		public EntitySet<friendship> friendships
-		{
-			get
-			{
-				return this._friendships;
-			}
-			set
-			{
-				this._friendships.Assign(value);
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="user_friendship1", Storage="_friendships1", ThisKey="ID", OtherKey="user2")]
-		public EntitySet<friendship> friendships1
-		{
-			get
-			{
-				return this._friendships1;
-			}
-			set
-			{
-				this._friendships1.Assign(value);
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="user_user_game", Storage="_user_games", ThisKey="ID", OtherKey="userID")]
-		public EntitySet<user_game> user_games
-		{
-			get
-			{
-				return this._user_games;
-			}
-			set
-			{
-				this._user_games.Assign(value);
-			}
-		}
-		
-		public event PropertyChangingEventHandler PropertyChanging;
-		
-		public event PropertyChangedEventHandler PropertyChanged;
-		
-		protected virtual void SendPropertyChanging()
-		{
-			if ((this.PropertyChanging != null))
-			{
-				this.PropertyChanging(this, emptyChangingEventArgs);
-			}
-		}
-		
-		protected virtual void SendPropertyChanged(String propertyName)
-		{
-			if ((this.PropertyChanged != null))
-			{
-				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
-		}
-		
-		private void attach_friendRequests(friendRequest entity)
-		{
-			this.SendPropertyChanging();
-			entity.user = this;
-		}
-		
-		private void detach_friendRequests(friendRequest entity)
-		{
-			this.SendPropertyChanging();
-			entity.user = null;
-		}
-		
-		private void attach_friendRequests1(friendRequest entity)
-		{
-			this.SendPropertyChanging();
-			entity.user1 = this;
-		}
-		
-		private void detach_friendRequests1(friendRequest entity)
-		{
-			this.SendPropertyChanging();
-			entity.user1 = null;
-		}
-		
-		private void attach_friendships(friendship entity)
-		{
-			this.SendPropertyChanging();
-			entity.user = this;
-		}
-		
-		private void detach_friendships(friendship entity)
-		{
-			this.SendPropertyChanging();
-			entity.user = null;
-		}
-		
-		private void attach_friendships1(friendship entity)
-		{
-			this.SendPropertyChanging();
-			entity.user3 = this;
-		}
-		
-		private void detach_friendships1(friendship entity)
-		{
-			this.SendPropertyChanging();
-			entity.user3 = null;
-		}
-		
-		private void attach_user_games(user_game entity)
-		{
-			this.SendPropertyChanging();
-			entity.user = this;
-		}
-		
-		private void detach_user_games(user_game entity)
-		{
-			this.SendPropertyChanging();
-			entity.user = null;
 		}
 	}
 	
@@ -870,9 +524,9 @@ namespace WorkerRole.Datacore
 		
 		private System.Nullable<bool> _isWinner;
 		
-		private EntityRef<user> _user;
-		
 		private EntityRef<game> _game;
+		
+		private EntityRef<user> _user;
 		
     #region Extensibility Method Definitions
     partial void OnLoaded();
@@ -898,8 +552,8 @@ namespace WorkerRole.Datacore
 		
 		public user_game()
 		{
-			this._user = default(EntityRef<user>);
 			this._game = default(EntityRef<game>);
+			this._user = default(EntityRef<user>);
 			OnCreated();
 		}
 		
@@ -1071,40 +725,6 @@ namespace WorkerRole.Datacore
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="user_user_game", Storage="_user", ThisKey="userID", OtherKey="ID", IsForeignKey=true)]
-		public user user
-		{
-			get
-			{
-				return this._user.Entity;
-			}
-			set
-			{
-				user previousValue = this._user.Entity;
-				if (((previousValue != value) 
-							|| (this._user.HasLoadedOrAssignedValue == false)))
-				{
-					this.SendPropertyChanging();
-					if ((previousValue != null))
-					{
-						this._user.Entity = null;
-						previousValue.user_games.Remove(this);
-					}
-					this._user.Entity = value;
-					if ((value != null))
-					{
-						value.user_games.Add(this);
-						this._userID = value.ID;
-					}
-					else
-					{
-						this._userID = default(int);
-					}
-					this.SendPropertyChanged("user");
-				}
-			}
-		}
-		
 		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="game_user_game", Storage="_game", ThisKey="gameID", OtherKey="gameID", IsForeignKey=true)]
 		public game game
 		{
@@ -1135,6 +755,40 @@ namespace WorkerRole.Datacore
 						this._gameID = default(int);
 					}
 					this.SendPropertyChanged("game");
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="user_user_game", Storage="_user", ThisKey="userID", OtherKey="ID", IsForeignKey=true)]
+		public user user
+		{
+			get
+			{
+				return this._user.Entity;
+			}
+			set
+			{
+				user previousValue = this._user.Entity;
+				if (((previousValue != value) 
+							|| (this._user.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._user.Entity = null;
+						previousValue.user_games.Remove(this);
+					}
+					this._user.Entity = value;
+					if ((value != null))
+					{
+						value.user_games.Add(this);
+						this._userID = value.ID;
+					}
+					else
+					{
+						this._userID = default(int);
+					}
+					this.SendPropertyChanged("user");
 				}
 			}
 		}
@@ -1343,6 +997,376 @@ namespace WorkerRole.Datacore
 		{
 			this.SendPropertyChanging();
 			entity.game = null;
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.[user]")]
+	public partial class user : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _ID;
+		
+		private string _email;
+		
+		private string _alias;
+		
+		private System.Nullable<System.DateTime> _creation_time;
+		
+		private System.Nullable<System.DateTime> _last_seen_time;
+		
+		private System.Nullable<int> _ranking;
+		
+		private System.Nullable<int> _skill_level;
+		
+		private System.Nullable<long> _experience;
+		
+		private EntitySet<friendRequest> _friendRequests;
+		
+		private EntitySet<friendRequest> _friendRequests1;
+		
+		private EntitySet<friendship> _friendships;
+		
+		private EntitySet<friendship> _friendships1;
+		
+		private EntitySet<user_game> _user_games;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnIDChanging(int value);
+    partial void OnIDChanged();
+    partial void OnemailChanging(string value);
+    partial void OnemailChanged();
+    partial void OnaliasChanging(string value);
+    partial void OnaliasChanged();
+    partial void Oncreation_timeChanging(System.Nullable<System.DateTime> value);
+    partial void Oncreation_timeChanged();
+    partial void Onlast_seen_timeChanging(System.Nullable<System.DateTime> value);
+    partial void Onlast_seen_timeChanged();
+    partial void OnrankingChanging(System.Nullable<int> value);
+    partial void OnrankingChanged();
+    partial void Onskill_levelChanging(System.Nullable<int> value);
+    partial void Onskill_levelChanged();
+    partial void OnexperienceChanging(System.Nullable<long> value);
+    partial void OnexperienceChanged();
+    #endregion
+		
+		public user()
+		{
+			this._friendRequests = new EntitySet<friendRequest>(new Action<friendRequest>(this.attach_friendRequests), new Action<friendRequest>(this.detach_friendRequests));
+			this._friendRequests1 = new EntitySet<friendRequest>(new Action<friendRequest>(this.attach_friendRequests1), new Action<friendRequest>(this.detach_friendRequests1));
+			this._friendships = new EntitySet<friendship>(new Action<friendship>(this.attach_friendships), new Action<friendship>(this.detach_friendships));
+			this._friendships1 = new EntitySet<friendship>(new Action<friendship>(this.attach_friendships1), new Action<friendship>(this.detach_friendships1));
+			this._user_games = new EntitySet<user_game>(new Action<user_game>(this.attach_user_games), new Action<user_game>(this.detach_user_games));
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int ID
+		{
+			get
+			{
+				return this._ID;
+			}
+			set
+			{
+				if ((this._ID != value))
+				{
+					this.OnIDChanging(value);
+					this.SendPropertyChanging();
+					this._ID = value;
+					this.SendPropertyChanged("ID");
+					this.OnIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_email", DbType="NVarChar(50) NOT NULL", CanBeNull=false)]
+		public string email
+		{
+			get
+			{
+				return this._email;
+			}
+			set
+			{
+				if ((this._email != value))
+				{
+					this.OnemailChanging(value);
+					this.SendPropertyChanging();
+					this._email = value;
+					this.SendPropertyChanged("email");
+					this.OnemailChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_alias", DbType="NVarChar(50) NOT NULL", CanBeNull=false)]
+		public string alias
+		{
+			get
+			{
+				return this._alias;
+			}
+			set
+			{
+				if ((this._alias != value))
+				{
+					this.OnaliasChanging(value);
+					this.SendPropertyChanging();
+					this._alias = value;
+					this.SendPropertyChanged("alias");
+					this.OnaliasChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_creation_time", DbType="DateTime")]
+		public System.Nullable<System.DateTime> creation_time
+		{
+			get
+			{
+				return this._creation_time;
+			}
+			set
+			{
+				if ((this._creation_time != value))
+				{
+					this.Oncreation_timeChanging(value);
+					this.SendPropertyChanging();
+					this._creation_time = value;
+					this.SendPropertyChanged("creation_time");
+					this.Oncreation_timeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_last_seen_time", DbType="DateTime")]
+		public System.Nullable<System.DateTime> last_seen_time
+		{
+			get
+			{
+				return this._last_seen_time;
+			}
+			set
+			{
+				if ((this._last_seen_time != value))
+				{
+					this.Onlast_seen_timeChanging(value);
+					this.SendPropertyChanging();
+					this._last_seen_time = value;
+					this.SendPropertyChanged("last_seen_time");
+					this.Onlast_seen_timeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ranking", DbType="Int")]
+		public System.Nullable<int> ranking
+		{
+			get
+			{
+				return this._ranking;
+			}
+			set
+			{
+				if ((this._ranking != value))
+				{
+					this.OnrankingChanging(value);
+					this.SendPropertyChanging();
+					this._ranking = value;
+					this.SendPropertyChanged("ranking");
+					this.OnrankingChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_skill_level", DbType="Int")]
+		public System.Nullable<int> skill_level
+		{
+			get
+			{
+				return this._skill_level;
+			}
+			set
+			{
+				if ((this._skill_level != value))
+				{
+					this.Onskill_levelChanging(value);
+					this.SendPropertyChanging();
+					this._skill_level = value;
+					this.SendPropertyChanged("skill_level");
+					this.Onskill_levelChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_experience", DbType="BigInt")]
+		public System.Nullable<long> experience
+		{
+			get
+			{
+				return this._experience;
+			}
+			set
+			{
+				if ((this._experience != value))
+				{
+					this.OnexperienceChanging(value);
+					this.SendPropertyChanging();
+					this._experience = value;
+					this.SendPropertyChanged("experience");
+					this.OnexperienceChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="user_friendRequest", Storage="_friendRequests", ThisKey="ID", OtherKey="from_user")]
+		public EntitySet<friendRequest> friendRequests
+		{
+			get
+			{
+				return this._friendRequests;
+			}
+			set
+			{
+				this._friendRequests.Assign(value);
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="user_friendRequest1", Storage="_friendRequests1", ThisKey="ID", OtherKey="to_user")]
+		public EntitySet<friendRequest> friendRequests1
+		{
+			get
+			{
+				return this._friendRequests1;
+			}
+			set
+			{
+				this._friendRequests1.Assign(value);
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="user_friendship", Storage="_friendships", ThisKey="ID", OtherKey="user1")]
+		public EntitySet<friendship> friendships
+		{
+			get
+			{
+				return this._friendships;
+			}
+			set
+			{
+				this._friendships.Assign(value);
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="user_friendship1", Storage="_friendships1", ThisKey="ID", OtherKey="user2")]
+		public EntitySet<friendship> friendships1
+		{
+			get
+			{
+				return this._friendships1;
+			}
+			set
+			{
+				this._friendships1.Assign(value);
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="user_user_game", Storage="_user_games", ThisKey="ID", OtherKey="userID")]
+		public EntitySet<user_game> user_games
+		{
+			get
+			{
+				return this._user_games;
+			}
+			set
+			{
+				this._user_games.Assign(value);
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+		
+		private void attach_friendRequests(friendRequest entity)
+		{
+			this.SendPropertyChanging();
+			entity.user = this;
+		}
+		
+		private void detach_friendRequests(friendRequest entity)
+		{
+			this.SendPropertyChanging();
+			entity.user = null;
+		}
+		
+		private void attach_friendRequests1(friendRequest entity)
+		{
+			this.SendPropertyChanging();
+			entity.user1 = this;
+		}
+		
+		private void detach_friendRequests1(friendRequest entity)
+		{
+			this.SendPropertyChanging();
+			entity.user1 = null;
+		}
+		
+		private void attach_friendships(friendship entity)
+		{
+			this.SendPropertyChanging();
+			entity.user = this;
+		}
+		
+		private void detach_friendships(friendship entity)
+		{
+			this.SendPropertyChanging();
+			entity.user = null;
+		}
+		
+		private void attach_friendships1(friendship entity)
+		{
+			this.SendPropertyChanging();
+			entity.user3 = this;
+		}
+		
+		private void detach_friendships1(friendship entity)
+		{
+			this.SendPropertyChanging();
+			entity.user3 = null;
+		}
+		
+		private void attach_user_games(user_game entity)
+		{
+			this.SendPropertyChanging();
+			entity.user = this;
+		}
+		
+		private void detach_user_games(user_game entity)
+		{
+			this.SendPropertyChanging();
+			entity.user = null;
 		}
 	}
 }

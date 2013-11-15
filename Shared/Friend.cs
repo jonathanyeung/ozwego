@@ -1,19 +1,21 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Runtime.Serialization;
+using System.IO;
+using Shared.Serialization;
+
+#if CLIENT
 using Windows.UI.Core;
+#endif
 
 namespace Ozwego.BuddyManagement
 {
     /// <summary>
     /// Represents an end-user of the application.
     /// </summary>
-    public class Buddy : INotifyPropertyChanged
+    public class Friend : INotifyPropertyChanged, IBinarySerializable
     {
-        [IgnoreDataMember]
         protected string _alias;
 
-        [DataMember(Name = "Alias")]
         public string Alias
         {
             get
@@ -32,10 +34,8 @@ namespace Ozwego.BuddyManagement
         }
 
 
-        [IgnoreDataMember]
         private string _emailAddress;
 
-        [DataMember(Name = "EmailAddress")] 
         public string EmailAddress
         {
             get
@@ -58,11 +58,9 @@ namespace Ozwego.BuddyManagement
         // The time that the account was created.
         //
 
-        [IgnoreDataMember]
-        private string _creationTime;
+        private DateTime _creationTime;
 
-        [DataMember(Name = "CreationTime")]
-        public string CreationTime
+        public DateTime CreationTime
         {
             get
             {
@@ -82,10 +80,8 @@ namespace Ozwego.BuddyManagement
 
         // Player Ranking.  This is monotonically increasing, increases with experience and is not
         // an indicator of how good a player is.
-        [IgnoreDataMember]
-        protected int _ranking;
+        private int _ranking;
 
-        [DataMember(Name = "Ranking")]
         public int Ranking
         {
             get
@@ -106,40 +102,89 @@ namespace Ozwego.BuddyManagement
 
         // Skill level is NOT monotonically increasing.  This is meant to be an indicator of how
         // good a player actually is, and it varies with win/loss ratio.
-        [IgnoreDataMember]
-        protected int _skillLevel;
+        protected int _level;
 
-        [DataMember(Name = "SkillLevel")]
-        public int SkillLevel
+        public int Level
         {
             get
             {
-                return _skillLevel;
+                return _level;
+            }
+
+            set
+            {
+                if (value != _level)
+                {
+                    _level = value;
+                    NotifyPropertyChanged("Level");
+                }
+            }
+        }
+
+        protected long _experience;
+
+        public long Experience
+        {
+            get
+            {
+                return _experience;
+            }
+
+            set
+            {
+                if (value != _experience)
+                {
+                    _experience = value;
+                    NotifyPropertyChanged("Experience");
+                }
             }
         }
 
 
-        public Buddy()
+        public Friend()
         {
         }
 
-        public Buddy(string _accountAddress)
+        public Friend(string accountAddress)
         {
-            EmailAddress = _accountAddress;
+            EmailAddress = accountAddress;
         }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         private async void NotifyPropertyChanged(String propertyName)
         {
+#if CLIENT
             PropertyChangedEventHandler handler = PropertyChanged;
             if (null != handler)
             {
-                await App.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    handler(this, new PropertyChangedEventArgs(propertyName));
-                });
+                await App.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+                        handler(this, new PropertyChangedEventArgs(propertyName)));
             }
+#endif
+        }
+
+
+        public void Write(BinaryWriter writer)
+        {
+            writer.Write(_alias);
+            writer.Write(_emailAddress);
+            writer.Write(_creationTime);
+            writer.Write(_ranking);
+            writer.Write(_level);
+            writer.Write(_experience);
+        }
+
+
+        public void Read(BinaryReader reader)
+        {
+            _alias = reader.ReadString();
+            _emailAddress = reader.ReadString();
+            _creationTime = reader.ReadDateTime();
+            _ranking = reader.ReadInt32();
+            _level = reader.ReadInt32();
+            _experience = reader.ReadInt64();
         }
     }
 }

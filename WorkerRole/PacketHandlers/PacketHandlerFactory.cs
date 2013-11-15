@@ -1,27 +1,25 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
-using System.Xml.Serialization;
-
 using Shared;
+using Shared.Serialization;
 using WorkerRole.PacketHandlers;
 
 namespace WorkerRole
 {
     public static class PacketHandlerFactory
     {
-        public static PacketHandler GetPacketHandler(object data)
+        public static PacketHandler GetPacketHandler(PacketBase packetBase)
         {
             PacketHandler packetHandler = null;
-            PacketV1 packet;
 
-            var bytes = (byte[]) data;
+            var packet = packetBase.Data as PacketV1;
 
-            using (var stream = new MemoryStream(bytes))
+            if (null == packet)
             {
-                var ser = new XmlSerializer(typeof(PacketV1));
-
-                packet = (PacketV1)ser.Deserialize(stream);
+                return null;
             }
+
 
             switch (packet.PacketType)
             {
@@ -31,6 +29,7 @@ namespace WorkerRole
                 case PacketType.ClientLeaveRoom:
                 case PacketType.ClientInitiateGame:
                 case PacketType.ClientChat:
+                case PacketType.ClientReadyForGameStart:
                     packetHandler = new RoomPacketHandler(
                             packet.PacketType, 
                             packet.Sender, 
@@ -38,7 +37,6 @@ namespace WorkerRole
                             packet.Data);
                     break;
 
-                case PacketType.ClientStartGame:
                 case PacketType.ClientDump:
                 case PacketType.ClientPeel:
                 case PacketType.ClientVictory:

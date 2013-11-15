@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Net.Sockets;
+using System.Threading;
+using Ozwego.BuddyManagement;
 
 namespace WorkerRole
 {
@@ -9,16 +11,27 @@ namespace WorkerRole
     /// <summary>
     /// Represents a client instance with a TCP connection to the server.
     /// </summary>
-    public class Client
+    public class Client : IDisposable
     {
+        private const int TimerInterval = 10000;
+        private Timer _heartBeatTimer;
+
+        private object lockObject  = new object();
+
+        private bool _heartBeatReceived = true;
 
         private readonly Socket _socket;
         private readonly int _socketId;
+
         public Room Room;
+        public Friend UserInfo;
+
+        public event EventHandler OnDisconnected;
 
         public Client(Socket client)
         {
             _socket = client;
+
 
             //
             // Create a new room for the new connecting client.
@@ -26,25 +39,58 @@ namespace WorkerRole
 
             var roomManager = RoomManager.GetInstance();
             Room = roomManager.CreateNewRoom(this);
+
+
+            //
+            // Start the heartbeat timer.
+            //
+
+            _heartBeatTimer = new Timer(CheckHeartBeatTimer, null, 20000, TimerInterval);
         }
 
-        public string UserName;
+
+        private void CheckHeartBeatTimer(object state)
+        {
+            lock (lockObject)
+            {
+                if (!_heartBeatReceived)
+                {
+                    Trace.WriteLine(string.Format("Heart beat not received, disconnecting. {0}", System.DateTime.Now));
+
+                    //
+                    // Prevent this time out from happening while debugging.
+                    //
+#if !DEBUG
+                    Disconnect();
+#endif
+                }
+                else
+                {
+                    Trace.WriteLine(string.Format("Resetting Heart beat Timer. {0}", System.DateTime.Now));
+                    _heartBeatReceived = false;
+                }
+            }
+        }
 
 
         ~Client()
         {
-            if (_socket != null)
+            if (_socket == null) return;
+
+            try
             {
-                try
-                {
-                    Disconnect();
-                    _socket.Dispose();
-                }
-                catch (Exception e)
-                {
-                    Trace.WriteLine(e.ToString());
-                }
+                Disconnect();
+                _socket.Dispose();
             }
+            catch (Exception e)
+            {
+                Trace.WriteLine(string.Format("Exception in Client Destructor: {0}", e));
+            }
+        }
+
+        public void Dispose()
+        {
+            _heartBeatTimer.Dispose();
         }
 
 
@@ -54,7 +100,6 @@ namespace WorkerRole
             {
                 try
                 {
-                    //ToDo: Determine wtf this line of code is about:
                     return !(_socket.Poll(1, SelectMode.SelectRead) &&
                             _socket.Available == 0 ||
                             _socket.Connected == false);
@@ -90,26 +135,29 @@ namespace WorkerRole
                 {
                     _socket.Close();
                 }
+
+                OnDisconnected(this, new EventArgs());
             }
         }
 
 
         public void Send(byte[] data)
         {
-            if (IsConnected)
-            {
-                var sendArgs = new SocketAsyncEventArgs();
-                sendArgs.SetBuffer(data, 0, data.Length);
-                sendArgs.Completed += (obj, args) =>
-                    {
-                        if (args.BytesTransferred == 0 || args.SocketError != SocketError.Success)
-                        {
-                            Trace.WriteLine("TCP: : Error, Failed to send data!");
-                        }
-                    };
+            if (!IsConnected) return;
 
-                _socket.SendAsync(sendArgs);
-            }
+            var sendArgs = new SocketAsyncEventArgs();
+
+            sendArgs.SetBuffer(data, 0, data.Length);
+
+            sendArgs.Completed += (obj, args) =>
+                {
+                    if (args.BytesTransferred == 0 || args.SocketError != SocketError.Success)
+                    {
+                        Trace.WriteLine("TCP: Error, Failed to send data!");
+                    }
+                };
+
+            _socket.SendAsync(sendArgs);
         }
 
         #endregion
@@ -140,20 +188,43 @@ namespace WorkerRole
                 //
 
                 uint totalCount = BitConverter.ToUInt32(incomingMessageSizeArray, 0);
-                incomingMessageSizeArray = new byte[totalCount];
 
 
                 //
-                // Now, this loop is to parse out the actual message.
+                // If the total count is 0, then this is a client heart beat ping.
                 //
 
-                MessageReceiverLoop(incomingMessageSizeArray, 0, totalCount, (clientSocket, msgBytes) =>
+                if (totalCount == 0)
                 {
-                    var msgReceiver = MessageReceiver.GetInstance();
-                    msgReceiver.HandleMessage(ref clientSocket, msgBytes);
+                    OnHeartBeatReceived();
                     ReceiveAsync();
-                });
+                }
+                else
+                {
+                    incomingMessageSizeArray = new byte[totalCount];
+
+
+                    //
+                    // Now, this loop is to parse out the actual message.
+                    //
+
+                    MessageReceiverLoop(incomingMessageSizeArray, 0, totalCount, (clientSocket, msgBytes) =>
+                    {
+                        var msgReceiver = MessageReceiver.GetInstance();
+                        msgReceiver.HandleMessage(ref clientSocket, msgBytes);
+                        ReceiveAsync();
+                    });
+                }
             });
+        }
+
+        private void OnHeartBeatReceived()
+        {
+            lock (lockObject)
+            {
+                Trace.WriteLine(string.Format("Heart beat received by client. {0}", System.DateTime.Now));
+                _heartBeatReceived = true;
+            }
         }
 
 
@@ -261,10 +332,13 @@ namespace WorkerRole
                                 return;
                             }
 
-                            Trace.WriteLine(string.Format("TCPReceiveLoop: Client {0} has closed the connection.", UserName));
+                            Trace.WriteLine(string.Format("TCPReceiveLoop: Client {0} has closed the connection.", UserInfo.EmailAddress));
                         }
                         catch (Exception e)
                         {
+#if DEBUG
+                            throw;
+#endif
                             if (!IsConnected)
                             {
                                 Disconnect();

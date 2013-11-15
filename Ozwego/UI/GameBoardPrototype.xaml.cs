@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Ozwego.Common;
 using Ozwego.Gameplay;
+using Ozwego.Server;
+using Shared;
 using Windows.Foundation;
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -883,6 +885,15 @@ namespace Ozwego.UI
                 if (!gameController.GameStarted)
                 {
                     gameController.StartGame();
+                }
+            }
+            else
+            {
+                var serverProxy = ServerProxy.GetInstance();
+
+                if (serverProxy.messageSender != null)
+                {
+                    await serverProxy.messageSender.SendMessage(PacketType.ClientReadyForGameStart);
                 }
             }
         }

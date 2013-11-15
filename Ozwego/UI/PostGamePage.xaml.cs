@@ -114,7 +114,7 @@ namespace Ozwego.UI
 
         private void CalculatePlayerExperience()
         {
-            var localPlayer = _navigationArgs.GameData.Players.FirstOrDefault(p => p.Name == Settings.Alias);
+            var localPlayer = _navigationArgs.GameData.PlayerDictionary[Settings.Alias];
 
             var expEarned = ExperienceCalculator.GetGameExperienceEarned(localPlayer);
 

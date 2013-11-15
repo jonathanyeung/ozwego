@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Ozwego.BuddyManagement;
 using Ozwego.Server;
+using Ozwego.Server.MessageProcessors;
 using Ozwego.UI;
 using Shared;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -104,9 +105,9 @@ namespace Ozwego
                 RawGameData = new List<GameMoveDataPoint>() { new GameMoveDataPoint("abc@outlook.com", 1, MoveType.Peel) }
             };
 
-            var playerTuple = new PlayerTuple { Name = "abc@outlook.com", Stats = stats };
-            var tupleList = new List<PlayerTuple> { playerTuple };
-            dataSet1.Players = tupleList;
+            //var playerTuple = new PlayerTuple { Name = "abc@outlook.com", Stats = stats };
+            //var tupleList = new List<PlayerTuple> { playerTuple };
+            //dataSet1.Players = tupleList;
 
 
             //

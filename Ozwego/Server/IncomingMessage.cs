@@ -1,6 +1,9 @@
-﻿namespace Ozwego.Server
+﻿using Ozwego.Server.MessageProcessors;
+using Shared;
+
+namespace Ozwego.Server
 {
-    public class IncomingMessage : Message
+    public class IncomingMessage : PacketV1
     {
         /// <summary>
         /// Delegates message processing to ProcessMessage strategy.
@@ -24,7 +27,7 @@
         /// </summary>
         public void HandleMessage()
         {
-            ProcessMessage.DoActions(PacketType, MessageString, SenderEmailAddress);
+            ProcessMessage.DoActions(PacketType, Data, Sender);
         }
     }
 }

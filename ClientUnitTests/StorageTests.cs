@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Ozwego.Storage;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
@@ -41,26 +42,9 @@ namespace ClientUnitTests
             // Create 2 game data sets.
             //
 
-            var dataSet1 = new GameData {GameDuration = 50, GameHost = "AGameHost"};
+            var dataSet1 = CreateTestDataSet();
 
-            dataSet1.GameMoves.Add(new GameMoveDataPoint("Player", 5, MoveType.Peel));
-
-            var stats = new PlayerGameStats()
-                {
-                    AvgTimeBetweenDumps = 5,
-                    AvgTimeBetweenPeels = 5,
-                    NumberOfDumps = 3,
-                    NumberOfPeels = 3,
-                    PerformedFirstPeel = true,
-                    IsWinner = false,
-                    RawGameData = new List<GameMoveDataPoint>() {new GameMoveDataPoint("Me", 1, MoveType.Peel)}
-                };
-
-            var playerTuple = new PlayerTuple {Name = "NewPlayer", Stats = stats};
-            var tupleList = new List<PlayerTuple> {playerTuple};
-            dataSet1.Players = tupleList;
-
-            var dataSet2 = new GameData();
+            var dataSet2 = CreateTestDataSet();
 
 
             //
@@ -93,7 +77,7 @@ namespace ClientUnitTests
             // storage commit did not overwrite the first one.
             //
 
-            Assert.IsTrue(gamesList.Count == 2);
+            Assert.IsTrue(gamesList._GameData.Count == 2);
 
             t = _gameDataHistory.UploadPendingGameData();
             t.Wait();
@@ -108,13 +92,47 @@ namespace ClientUnitTests
             var gamesList = gamesListTask.Result;
         }
 
+
         [TestMethod]
-        public void SettingsTest()
+        public void 
+            SettingsTest()
         {
             var alias = Settings.Alias;
             var addr = Settings.EmailAddress;
 
             var exp = Settings.Experience;
+
+            var testTime = new DateTime(2013, 10, 30, 10, 50, 0, 0);
+
+            Settings.CreationTime = testTime;
+
+            var retrievedTime = Settings.CreationTime;
+
+            Assert.AreEqual(retrievedTime, testTime);
+
+
+        }
+
+
+        private static GameData CreateTestDataSet()
+        {
+            var dataSet = new GameData { GameDuration = 50, GameHost = "AGameHost", Winner = "NewPlayer" };
+
+            dataSet.GameMoves.Add(new GameMoveDataPoint("Player", 5, MoveType.Peel));
+
+            var stats = new PlayerGameStats()
+            {
+                AvgTimeBetweenDumps = 5,
+                AvgTimeBetweenPeels = 5,
+                NumberOfDumps = 3,
+                NumberOfPeels = 3,
+                PerformedFirstPeel = true,
+                IsWinner = false,
+                RawGameData = new List<GameMoveDataPoint>() { new GameMoveDataPoint("Me", 1, MoveType.Peel) }
+            };
+
+            dataSet.PlayerDictionary.Add("NewPlayer", stats);
+            return dataSet;
         }
     }
 }

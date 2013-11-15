@@ -36,6 +36,7 @@ namespace WorkerRole
                 {
                     var socket = await listener.AcceptSocketAsync();
                     var newClient = new Client(socket);
+                    newClient.OnDisconnected += OnClientDisconnected;
 
                     //WorkerRole.ClientManager.GlobalClientList.Add(newClient);
                     newClient.ReceiveAsync();
@@ -45,6 +46,17 @@ namespace WorkerRole
             {
                 Trace.WriteLine(string.Format("TCP: Caught exception!! '{0}'\n{1}", e.Message, e.StackTrace));
                 Trace.WriteLine("TcpListener shutting down.");
+            }
+        }
+
+        private static void OnClientDisconnected(object sender, EventArgs eventArgs)
+        {
+            Trace.WriteLine("Client Disconnected.  Disposing client object.");
+            var client = sender as Client;
+
+            if (client != null)
+            {
+                client.Dispose();
             }
         }
     }

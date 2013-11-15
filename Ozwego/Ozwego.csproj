@@ -22,7 +22,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;NETFX_CORE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;CLIENT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -31,14 +31,14 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NETFX_CORE</DefineConstants>
+    <DefineConstants>TRACE;NETFX_CORE;CLIENT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\ARM\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;NETFX_CORE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;CLIENT</DefineConstants>
     <NoWarn>;2008</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>ARM</PlatformTarget>
@@ -48,7 +48,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
     <OutputPath>bin\ARM\Release\</OutputPath>
-    <DefineConstants>TRACE;NETFX_CORE</DefineConstants>
+    <DefineConstants>TRACE;NETFX_CORE;CLIENT</DefineConstants>
     <Optimize>true</Optimize>
     <NoWarn>;2008</NoWarn>
     <DebugType>pdbonly</DebugType>
@@ -60,7 +60,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;NETFX_CORE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;CLIENT</DefineConstants>
     <NoWarn>;2008</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
@@ -70,7 +70,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE;NETFX_CORE</DefineConstants>
+    <DefineConstants>TRACE;NETFX_CORE;CLIENT</DefineConstants>
     <Optimize>true</Optimize>
     <NoWarn>;2008</NoWarn>
     <DebugType>pdbonly</DebugType>
@@ -82,7 +82,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;NETFX_CORE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;CLIENT</DefineConstants>
     <NoWarn>;2008</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
@@ -92,7 +92,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE;NETFX_CORE</DefineConstants>
+    <DefineConstants>TRACE;NETFX_CORE;CLIENT</DefineConstants>
     <Optimize>true</Optimize>
     <NoWarn>;2008</NoWarn>
     <DebugType>pdbonly</DebugType>
@@ -102,11 +102,23 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\ChatMessage.cs">
+      <Link>DataTypes\ChatMessage.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\DataPacket.cs">
       <Link>Server\DataPacket.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\Friend.cs">
+      <Link>BuddyManagement\Friend.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\FriendList.cs">
+      <Link>BuddyManagement\FriendList.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\GameData.cs">
       <Link>Storage\GameData.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\GameDataList.cs">
+      <Link>Storage\GameDataList.cs</Link>
     </Compile>
     <Compile Include="..\Shared\GameMoveDataPoint.cs">
       <Link>Storage\GameMoveDataPoint.cs</Link>
@@ -120,13 +132,15 @@
     <Compile Include="..\Shared\PlayerGameStats.cs">
       <Link>Storage\PlayerGameStats.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\PlayerTuple.cs">
-      <Link>Storage\PlayerTuple.cs</Link>
+    <Compile Include="..\Shared\Serialization\IBinarySerializable.cs">
+      <Link>Serialization\IBinarySerializable.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Serialization\Serializer.cs">
+      <Link>Serialization\Serializer.cs</Link>
     </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="BuddyManagement\Buddy.cs" />
     <Compile Include="PlayerStatistics\ExperienceCalculator.cs" />
     <Compile Include="PlayerStatistics\PlayerLevel.cs" />
     <Compile Include="BuddyManagement\FriendManager.cs" />
@@ -150,6 +164,10 @@
     <Compile Include="PlayerStatistics\PlayerRank.cs" />
     <Compile Include="Gameplay\Tile.cs" />
     <Compile Include="Server\IncomingMessageFactory.cs" />
+    <Compile Include="Server\MessageProcessors\DataBaseMessageProcessor.cs" />
+    <Compile Include="Server\MessageProcessors\GameMessageProcessor.cs" />
+    <Compile Include="Server\MessageProcessors\MatchmakingMessageProcessor.cs" />
+    <Compile Include="Server\MessageProcessors\RoomMessageProcessor.cs" />
     <Compile Include="Storage\GameDataHistory.cs" />
     <Compile Include="Storage\Settings.cs" />
     <Compile Include="UI\ColumnView\ColumnViewModel.cs" />
@@ -166,7 +184,7 @@
     <Compile Include="BuddyManagement\RoomManager.cs" />
     <Compile Include="Server\IncomingMessage.cs" />
     <Compile Include="Server\Message.cs" />
-    <Compile Include="Server\MessageProcessor.cs" />
+    <Compile Include="Server\MessageProcessors\MessageProcessor.cs" />
     <Compile Include="Server\MessageReceiver.cs" />
     <Compile Include="Server\MessageSender.cs" />
     <Compile Include="Server\ServerProxy.cs" />

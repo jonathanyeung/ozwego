@@ -4,14 +4,13 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using Ozwego.Storage;
+using Shared;
 
 namespace WorkerRole.Datacore
 {
     public class Database
     {
         private const string ConnectionString = "Server=tcp:blkp55bbj6.database.windows.net,1433;Database=ozwego-db;user ID=jonathanyeung@blkp55bbj6;Password=Jy121242121!;Trusted_Connection=False;Encrypt=True;Connection Timeout=30;";
-        //private SqlConnection connection;
-        //private OzwegoDataClassesDataContext db;
 
         private static Database _instance;
 
@@ -467,15 +466,15 @@ namespace WorkerRole.Datacore
                 return;
             }
 
-            foreach (PlayerTuple p in gameData.Players)
+            foreach (var kvp in gameData.PlayerDictionary)
             {
-                var player = GetUserFromEmailAddress(p.Name);
+                var player = GetUserFromEmailAddress(kvp.Key);
 
                 if (null == player)
                 {
                     Trace.WriteLine(string.Format(
                         "Invalid Game Data in Database.AddNewGameData!\n Player {0} not recognized.",
-                        p.Name));
+                        kvp.Key));
 
                     return;
                 }
@@ -527,16 +526,16 @@ namespace WorkerRole.Datacore
                         return;
                     }
 
-                    foreach (PlayerTuple p in gameData.Players)
+                    foreach (var kvp in gameData.PlayerDictionary)
                     {
                         var userGame = new user_game();
-                        userGame.avgTimeBetweenDumps = p.Stats.AvgTimeBetweenDumps;
-                        userGame.avgTimeBetweenPeels = p.Stats.AvgTimeBetweenPeels;
-                        userGame.isWinner = p.Stats.IsWinner;
-                        userGame.numberOfDumps = p.Stats.NumberOfDumps;
-                        userGame.numberOfPeels = p.Stats.NumberOfPeels;
-                        userGame.performedFirstPeel = p.Stats.PerformedFirstPeel;
-                        userGame.userID = GetUserFromEmailAddress(p.Name).ID;
+                        userGame.avgTimeBetweenDumps = kvp.Value.AvgTimeBetweenDumps;
+                        userGame.avgTimeBetweenPeels = kvp.Value.AvgTimeBetweenPeels;
+                        userGame.isWinner = kvp.Value.IsWinner;
+                        userGame.numberOfDumps = kvp.Value.NumberOfDumps;
+                        userGame.numberOfPeels = kvp.Value.NumberOfPeels;
+                        userGame.performedFirstPeel = kvp.Value.PerformedFirstPeel;
+                        userGame.userID = GetUserFromEmailAddress(kvp.Key).ID;
                         userGame.gameID = gameInstance.gameID;
 
                         db.user_games.InsertOnSubmit(userGame);

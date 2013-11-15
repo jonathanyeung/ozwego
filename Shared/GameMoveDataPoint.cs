@@ -1,11 +1,12 @@
-﻿using System.Xml.Serialization;
+﻿using System.IO;
+using Shared.Serialization;
 
 namespace Ozwego.Storage
 {
     /// <summary>
     /// Represents the types of moves that a player can perform during the game.
     /// </summary>
-    public enum MoveType
+    public enum MoveType : byte
     {
         Dump,
         Peel,
@@ -16,20 +17,17 @@ namespace Ozwego.Storage
     /// <summary>
     /// Represents a data point of a move performed by a player during a game.
     /// </summary>
-    public class GameMoveDataPoint
+    public class GameMoveDataPoint : IBinarySerializable
     {
         // The Name of the player making the move.
-        [XmlAttribute]
         public string Player { get; set; }
 
 
         // Time of Move in Seconds.
-        [XmlAttribute]
         public int TimeOfMove { get; set; }
 
 
         // The Type of Move
-        [XmlAttribute]
         public MoveType MoveType { get; set; }
 
 
@@ -42,6 +40,20 @@ namespace Ozwego.Storage
 
         public GameMoveDataPoint()
         {
+        }
+
+        public void Write(BinaryWriter writer)
+        {
+            writer.Write(Player);
+            writer.Write(TimeOfMove);
+            writer.Write((byte)MoveType);
+        }
+
+        public void Read(BinaryReader reader)
+        {
+            Player = reader.ReadString();
+            TimeOfMove = reader.ReadInt32();
+            MoveType = (MoveType) reader.ReadByte();
         }
     }
 }

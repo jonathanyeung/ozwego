@@ -1,26 +1,27 @@
 ﻿using Ozwego.Storage;
 using System;
+using Shared;
 
 namespace Ozwego.Gameplay.Ranking
 {
     public static class ExperienceCalculator
     {
-        public static int GetGameExperienceEarned(PlayerTuple player)
+        public static int GetGameExperienceEarned(PlayerGameStats stats)
         {
             // Add 1000 experience for a playing the game.
             int exp = 1000;
 
-            if (player.Stats.IsWinner)
+            if (stats.IsWinner)
             {
                 exp += 500;
             }
 
-            if (player.Stats.PerformedFirstPeel)
+            if (stats.PerformedFirstPeel)
             {
                 exp += 50;
             }
 
-            exp += player.Stats.NumberOfPeels * 20;
+            exp += stats.NumberOfPeels * 20;
 
             return exp;
         }
@@ -67,7 +68,7 @@ namespace Ozwego.Gameplay.Ranking
 
         public static PlayerRank GetCurrentPlayerRank()
         {
-
+            throw new NotImplementedException();
         }
 
 

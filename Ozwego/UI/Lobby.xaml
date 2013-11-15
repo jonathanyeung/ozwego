@@ -54,23 +54,7 @@
     <Grid Style="{StaticResource LayoutRootStyle}">
         <Grid.Resources>
             <converters:ColorConverter x:Key="CvtColor"/>
-        </Grid.Resources>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="140"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-
-        <!-- Back button and page title -->
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Button x:Name="backButton" Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}"/>
-            <TextBlock x:Name="pageTitle" Grid.Column="1" Text="Game Lobby" Style="{StaticResource PageHeaderTextStyle}" Margin="40,0,30,40"/>
-        </Grid>
-        
-        
+        </Grid.Resources>        
         
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -78,10 +62,8 @@
                 <ColumnDefinition Width="400"/>
             </Grid.ColumnDefinitions>
             
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+
+			<Button x:Name="backButton" Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}"/>
 
             <Grid Grid.Column="0" Grid.Row="0">
                 <Grid.RowDefinitions>
@@ -111,7 +93,7 @@
             </Grid>
 
             <!--Chat Window-->
-            <StackPanel  Grid.Row="1" VerticalAlignment="Bottom" Margin="20,0,0,0">
+            <StackPanel  Grid.Row="1" Grid.Column="1" VerticalAlignment="Bottom" Margin="0,0,0,0">
                 <ListBox Name="ChatWindow" Height="150" BorderThickness="2,2,2,2" BorderBrush="Azure" Margin="0" Background="Transparent" SelectionChanged="ChatWindow_OnSelectionChanged">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
@@ -121,7 +103,7 @@
                 </ListBox>
                 
                 <StackPanel Orientation="Horizontal">
-                    <TextBox Name="MessageChatBox" Margin="5" MinWidth="350" IsSpellCheckEnabled="True" 
+                    <TextBox Name="MessageChatBox" Margin="5" MinWidth="300" IsSpellCheckEnabled="True" 
                              IsTextPredictionEnabled="True" Background="Transparent" 
                              Foreground="White" KeyDown="MessageChatBox_OnKeyDown" ></TextBox>
                     <Button Name="SendButton" Click="SendButton_OnClick">Send</Button>
@@ -130,7 +112,7 @@
 
 
             <!--Buddy List UI-->
-            <StackPanel Grid.Column="2" Margin="0, 0, 0, 0" Grid.RowSpan="2" >
+            <StackPanel Grid.Column="2" Margin="0,20,0,0" Grid.RowSpan="2" >
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button Height="40" Width="200" Content="Friends" Tapped="FriendsColumnView_OnTapped" ></Button>
                     <Button Height="40" Width="200" Content="Requests" Tapped="RequestsColumnView_OnTapped"></Button>

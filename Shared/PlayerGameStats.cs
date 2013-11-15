@@ -1,32 +1,26 @@
 ﻿using System.Collections.Generic;
-using System.Xml.Serialization;
+using System.IO;
+using Shared.Serialization;
 
 namespace Ozwego.Storage
 {
     /// <summary>
     /// Represents the stats for a single game by a single player
     /// </summary>
-    public class PlayerGameStats
+    public class PlayerGameStats : IBinarySerializable
     {
-        [XmlAttribute]
         public int NumberOfPeels;
 
-        [XmlAttribute]
         public bool PerformedFirstPeel;
 
-        [XmlAttribute]
         public int AvgTimeBetweenPeels;
 
-        [XmlAttribute]
         public int NumberOfDumps;
 
-        [XmlAttribute]
         public int AvgTimeBetweenDumps;
 
-        [XmlAttribute]
         public bool IsWinner;
 
-        [XmlElement("RawGameData")]
         public List<GameMoveDataPoint> RawGameData;
 
         public PlayerGameStats()
@@ -38,6 +32,28 @@ namespace Ozwego.Storage
             AvgTimeBetweenDumps = 0;
             IsWinner = false;
             RawGameData = new List<GameMoveDataPoint>();
+        }
+
+        public void Write(BinaryWriter writer)
+        {
+            writer.Write(NumberOfPeels);
+            writer.Write(PerformedFirstPeel);
+            writer.Write(AvgTimeBetweenPeels);
+            writer.Write(NumberOfDumps);
+            writer.Write(AvgTimeBetweenDumps);
+            writer.Write(IsWinner);
+            writer.WriteList(RawGameData);
+        }
+
+        public void Read(BinaryReader reader)
+        {
+            NumberOfPeels = reader.ReadInt32();
+            PerformedFirstPeel = reader.ReadBoolean();
+            AvgTimeBetweenPeels = reader.ReadInt32();
+            NumberOfDumps = reader.ReadInt32();
+            AvgTimeBetweenDumps = reader.ReadInt32();
+            IsWinner = reader.ReadBoolean();
+            RawGameData = reader.ReadList<GameMoveDataPoint>();
         }
     }
 }

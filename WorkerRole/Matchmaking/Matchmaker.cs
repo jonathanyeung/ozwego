@@ -1,22 +1,25 @@
-﻿using System;
+﻿using Shared;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Timers;
 using System.Diagnostics;
-using Shared;
+using System.Linq;
+using System.Timers;
 
 namespace WorkerRole.Matchmaking
 {
     internal struct ClientPair
     {
-        public Client client;
-        public int IntervalsInQueue;
+        public readonly Client client;
+        public readonly int IntervalsInQueue;
 
-        public ClientPair(Client _client, int currentInterval)
+        public ClientPair(Client client, int currentInterval)
         {
-            client = _client;
+            if (client == null)
+            {
+                throw new ArgumentNullException("client");
+            }
+
+            this.client = client;
             IntervalsInQueue = currentInterval;
         }
     }
@@ -26,6 +29,13 @@ namespace WorkerRole.Matchmaking
     /// </summary>
     public class Matchmaker
     {
+        private static Matchmaker _instance;
+        private Queue<ClientPair> _queue;
+        private readonly object _queueLock;
+        private readonly Timer _timer;
+        private int _currentInterval = 0;
+        private const int QueueExaminationInterval = 5000;
+
         #region Public Methods
 
         public static Matchmaker GetInstance()
@@ -40,14 +50,28 @@ namespace WorkerRole.Matchmaking
         public void JoinMatchmakingQueue(Client client)
         {
             var cp = new ClientPair(client, _currentInterval);
-            _queue.Enqueue(cp);
+
+            lock (_queueLock)
+            {
+                _queue.Enqueue(cp);
+            }
         }
 
 
         public void RemoveFromMatchmakingQueue(Client client)
         {
-            var cp = _queue.First(c => c.client.UserName == client.UserName);
+            lock (_queueLock)
+            {
+                var cp = _queue.First(c => c.client.UserInfo.EmailAddress == client.UserInfo.EmailAddress);
+            }
+
             throw new NotImplementedException();
+        }
+
+
+        public int MaxClientWaitTime
+        {
+            get { return QueueExaminationInterval * ClientDequeuer.MaximumWaitInterval; }
         }
 
         #endregion
@@ -55,25 +79,12 @@ namespace WorkerRole.Matchmaking
 
         #region Privates
 
-        private static Matchmaker _instance;
-        private Queue<ClientPair> _queue;
-        private Timer _timer;
-        private int _currentInterval = 0;
-
-        private const int queueExaminationInterval = 5000;
-
-
-        public int MaxClientWaitTime
-        {
-            get { return queueExaminationInterval * ClientDequeuer.MaximumWaitInterval; }
-        }
-
-
         private Matchmaker()
         {
             _queue = new Queue<ClientPair>();
+            _queueLock = new object();
 
-            _timer = new Timer(queueExaminationInterval);
+            _timer = new Timer(QueueExaminationInterval);
             _timer.Elapsed += ExamineQueue;
             _timer.Start();
         }
@@ -105,13 +116,23 @@ namespace WorkerRole.Matchmaking
             _currentInterval++;
             _currentInterval = _currentInterval % ClientDequeuer.MaximumWaitInterval;
 
-            var clientGroups = ClientDequeuer.GenerateGroups(ref _queue, _currentInterval);
+            List<ClientGroup> clientGroups;
 
-            foreach (ClientGroup group in clientGroups)
+            lock (_queueLock)
             {
-                var messageSender = MessageSender.GetInstance();
+                clientGroups = ClientDequeuer.GenerateGroups(ref _queue, _currentInterval);
+            }
 
+            if (null == clientGroups)
+            {
+#if DEBUG
+                throw new NullReferenceException();
+#endif
+                return;
+            }
 
+            foreach (var group in clientGroups)
+            {
                 //
                 // If client2 (or 3 & 4) are null, this means that a game could not be found for
                 // the client.  Send them a message to tell the client to start a game with bots.
@@ -120,10 +141,10 @@ namespace WorkerRole.Matchmaking
                 if (group.client2 == null)
                 {
 
-                    messageSender.SendMessage(
+                    MessageSender.SendMessage(
                             group.client1, 
                             PacketType.ServerMatchmakingGameNotFound, 
-                            "");
+                            null);
                 }
                 else
                 {
@@ -140,32 +161,32 @@ namespace WorkerRole.Matchmaking
                     roomManager.AddMemberToRoom(group.client1, ref tempClient);
 
                     tempClient = group.client1;
-                    messageSender.SendMessage(
+                    MessageSender.SendMessage(
                             tempClient,
                             PacketType.ServerMatchmakingGameFound,
-                            "");
+                            null);
 
                     tempClient = group.client2;
-                    messageSender.SendMessage(
+                    MessageSender.SendMessage(
                             tempClient,
                             PacketType.ServerMatchmakingGameFound,
-                            "");
+                            null);
 
                     /* ToDo: Re-enable this code if the group size goes back up to 4.  Better yet,
                      * refactor this so that it scales with group # const change.
                     tempClient = group.client3;
                     roomManager.AddMemberToRoom(group.client1, ref tempClient);
-                    messageSender.SendMessage(
+                    MessageSender.SendMessage(
                             tempClient,
                             Ozwego.Shared.PacketType.ServerMatchmakingGameFound,
-                            "");
+                            null);
 
                     tempClient = group.client4;
                     roomManager.AddMemberToRoom(group.client1, ref tempClient);
-                    messageSender.SendMessage(
+                    MessageSender.SendMessage(
                             tempClient,
                             Ozwego.Shared.PacketType.ServerMatchmakingGameFound,
-                            "");
+                            null);
                      * */
                 }
             }
@@ -177,7 +198,6 @@ namespace WorkerRole.Matchmaking
         }
 
 
-
         /// <summary>
         /// Generates a game room from a given list of clients
         /// </summary>
@@ -187,13 +207,6 @@ namespace WorkerRole.Matchmaking
             throw new NotImplementedException();
         }
 
-        // Idea: Have a dispatch timer here.  Every 10 seconds, call the clientdequeuer.  If unable to dequeue after 3 cycles, then do a brute force pairing or return with bots.
-
-        
-
-
         #endregion
-
-
     }
 }

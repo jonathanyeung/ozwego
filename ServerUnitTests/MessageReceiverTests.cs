@@ -26,8 +26,8 @@ namespace ServerUnitTests
 
             for (int i = 0; i < k_clientCount; i++)
             {
-                Client newClient = new Client(null);
-                newClient.UserName = "TestUser" + i.ToString();
+                var newClient = new Client(null);
+                newClient.UserInfo.EmailAddress = "TestUser" + i.ToString();
 
                 clientManager.AddClient(newClient);
             }

@@ -1,50 +1,69 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.IO;
 using Shared;
-using WorkerRole.Datacore;
 
 namespace WorkerRole
 {
-    public class MessageSender
+    public static class MessageSender
     {
-        // Singleton
-        private static MessageSender _instance;
-
-        private MessageSender() { }
+        private const string ServerName = "Ozwego_Server_V1";
 
 
-        public static MessageSender GetInstance()
-        {
-            return _instance ?? (_instance = new MessageSender());
-        }
-
-
-        private void SendMessage(Client recipient, PacketType packetType, Dictionary<string, string> arguments)
-        {
-            SendMessageInternal(recipient, packetType, CreateUrlQueryString(arguments));
-        }
-
-
-        public void SendMessage(Client recipient, PacketType packetType, string arguments)
-        {
-            var msgFields = new Dictionary<string, string> {{"message", arguments}};
-
-            string messageToSend = CreateUrlQueryString(msgFields);
-
-            SendMessageInternal(recipient, packetType, messageToSend);
-        }
-
-
-        private static void SendMessageInternal(Client recipient, PacketType packetType, string messageToSend)
+        public static void SendMessage(Client recipient, PacketType packetType, object data)
         {
             if (recipient == null)
             {
                 return;
             }
 
-            var messageSize = (uint) (1 + Encoding.UTF8.GetByteCount(messageToSend));
+            
+#if DEBUG
+            //
+            // If we're debugging, make sure that the data type matches that required by the packetType, or else throw an exception.
+            //
+
+            var type = DataPacket.PacketTypeMap[packetType];
+
+            if (type != null)
+            {
+                var testObject = Convert.ChangeType(data, type);
+            }
+            else
+            {
+                if (data != null)
+                {
+                    throw new ArgumentException("Data from this packet type was expected to be null, but wasn't.");
+                }
+            }
+#endif
+
+            // ToDo: Don't hardcode Packet Version 1 here.  Instead, add a packet version property to Client, and switch on that.
+            var packetBase = new PacketBase {PacketVersion = PacketVersion.Version1};
+
+            var packetV1 = new PacketV1
+            {
+                PacketType = packetType,
+                Data = data,
+                Sender = ServerName
+            };
+
+            packetV1.Recipients.Add(recipient.UserInfo.EmailAddress);
+
+            packetBase.Data = packetV1;
+
+            dynamic baseBuffer;
+
+            using (var stream = new MemoryStream())
+            {
+                var binaryWriter = new BinaryWriter(stream);
+
+                packetBase.Write(binaryWriter);
+
+                baseBuffer = stream.ToArray();
+            }
+
+            var messageSize = baseBuffer.Length;
 
             byte[] bytes = BitConverter.GetBytes(messageSize);
 
@@ -53,18 +72,16 @@ namespace WorkerRole
                 Array.Reverse(bytes);
             }
 
-            int offset = 0;
-            var messageBuffer = new byte[sizeof (uint) + sizeof (PacketType) + messageToSend.Length];
+
+            var offset = 0;
+
+            var messageBuffer = new byte[sizeof(uint) + messageSize];
+
             bytes.CopyTo(messageBuffer, offset);
 
-            offset += sizeof (uint);
+            offset += sizeof(uint);
 
-            messageBuffer[offset] = (byte) packetType;
-
-            offset += sizeof (PacketType);
-
-            byte[] newBytes = Encoding.UTF8.GetBytes(messageToSend);
-            newBytes.CopyTo(messageBuffer, offset);
+            baseBuffer.CopyTo(messageBuffer, offset);
 
             recipient.Send(messageBuffer);
         }
@@ -76,31 +93,20 @@ namespace WorkerRole
         /// </summary>
         /// <param name="recipients"></param>
         /// <param name="packetType"></param>
-        /// <param name="arguments"></param>
+        /// <param name="data"></param>
         /// <param name="sender">Client that is sending this message, set to null if this is not a
         /// user-initiated message</param>
-        public void BroadcastMessage(IEnumerable<Client> recipients, PacketType packetType, string arguments, Client sender)
+        public static void BroadcastMessage(IEnumerable<Client> recipients, PacketType packetType, object data, Client sender)
         {
-            foreach (Client c in recipients)
+            foreach (var c in recipients)
             {
                 if (c != sender)
                 {
-                    SendMessage(c, packetType, arguments);
+                    SendMessage(c, packetType, data);
                 }
             }
         }
 
-
-        public void BroadcastMessage(IEnumerable<Client> recipients, PacketType packetType, Dictionary<string, string> arguments, Client sender)
-        {
-            foreach (Client c in recipients)
-            {
-                if (c != sender)
-                {
-                    SendMessage(c, packetType, arguments);
-                }
-            }
-        }
 
         /// <summary>
         /// In this version, the message gets broadcasted to everyone, including the client who
@@ -108,79 +114,13 @@ namespace WorkerRole
         /// </summary>
         /// <param name="recipients"></param>
         /// <param name="packetType"></param>
-        /// <param name="arguments"></param>
-        public void BroadcastMessage(IEnumerable<Client> recipients, PacketType packetType, string arguments)
+        /// <param name="data"></param>
+        public static void BroadcastMessage(IEnumerable<Client> recipients, PacketType packetType, object data)
         {
-            foreach (Client c in recipients)
+            foreach (var c in recipients)
             {
-                SendMessage(c, packetType, arguments);
+                SendMessage(c, packetType, data);
             }
-        }
-
-
-        /// <summary>
-        /// Takes in a list of clients who are the intended recipients of a message.
-        /// It then returns a properly formatted string containing those recipients
-        /// that can be used as the string argument in the message.
-        /// </summary>
-        /// <param name="recipients"></param>
-        /// <returns></returns>
-        public string GetRecipientListFormattedString(IEnumerable<Client> recipients)
-        {
-            const char delimiter = ',';
-
-            string returnString = "";
-
-            foreach (var client in recipients)
-            {
-                if (null != client)
-                {
-                    returnString += client.UserName;
-                    returnString += delimiter;
-                }
-            }
-
-            return returnString.TrimEnd(delimiter);
-        }
-
-
-        public string GetRecipientListFormattedString(IEnumerable<user> recipients)
-        {
-            const char delimiter = ',';
-
-            string returnString = "";
-
-            foreach (var client in recipients)
-            {
-                returnString += client.email;
-                returnString += delimiter;
-            }
-
-            return returnString.TrimEnd(delimiter);
-        }
-
-        /// <summary>
-        /// Creates a www url querable string
-        /// </summary>
-        /// <param name="fields"></param>
-        /// <param name="delimitingCharacter">The character used to separate the string instances.
-        /// This defaults to the standard '&', but a unique character needs to be used when a 
-        /// multiple type message needs to be sent to the client.  For example:
-        /// sender=foo&message=typeA=typeAData|typeB=typeBData|typeC=typeCData&recipient=blah</param>
-        /// <returns></returns>
-        public static string CreateUrlQueryString(Dictionary<string, string> fields, char delimitingCharacter = '&')
-        {
-            string returnString = "";
-
-            foreach (KeyValuePair<string, string> kvp in fields)
-            {
-                returnString += kvp.Key;
-                returnString += '=';
-                returnString += kvp.Value;
-                returnString += delimitingCharacter;
-            }
-
-            return returnString.TrimEnd(delimitingCharacter);
         }
     }
 }

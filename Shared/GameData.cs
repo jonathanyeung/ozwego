@@ -1,32 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Xml.Serialization;
+using Shared.Serialization;
 
 
 namespace Ozwego.Storage
 {
-    public class GameData
+    public class GameData : IBinarySerializable
     {
-        private Dictionary<string, PlayerGameStats> PlayerDictionary { get; set; }
-
-        [XmlAttribute]
         public string GameHost { get; set; }
 
-        [XmlElement("Players")]
-        public List<PlayerTuple> Players { get; set; }
-
-        [XmlElement("GameMoves")]
         public List<GameMoveDataPoint> GameMoves { get; private set; }
 
-        [XmlAttribute]
         public string Winner { get; set; }
 
-        [XmlAttribute]
         public int GameDuration { get; set; }
 
-        [XmlAttribute]
         public DateTime GameStartTime { get; set; }
+
+        // <Player's Alias, PlayerGameStats>.  It has to be alias because bots have no email address.
+        public Dictionary<string, PlayerGameStats> PlayerDictionary { get; set; }
 
 
         /// <summary>
@@ -62,16 +56,6 @@ namespace Ozwego.Storage
         {
             var activePlayers = new List<string>();
             var isFirstPeel = true;
-
-
-            //
-            // Populate the dictionary.
-            //
-
-            foreach (var playerTuple in Players)
-            {
-                PlayerDictionary.Add(playerTuple.Name, playerTuple.Stats);
-            }
 
             GameDuration = GameMoves.Last().TimeOfMove;
 
@@ -118,6 +102,7 @@ namespace Ozwego.Storage
 
                         case MoveType.Victory:
                             PlayerDictionary[activePlayer].IsWinner = true;
+                            Winner = activePlayer;
                             break;
                     }
                 }
@@ -129,25 +114,36 @@ namespace Ozwego.Storage
                         PlayerDictionary[activePlayer].NumberOfPeels / GameDuration;
             }
 
-
-            //
-            //Store back the dictionary data to the Player object.
-            //ToDo: Figure out what to do with the data types here, and maybe remove the dictionary.
-            //
-
-            foreach (var playerTuple in Players)
-            {
-                playerTuple.Stats = PlayerDictionary[playerTuple.Name];
-
+                //ToDo: Make sure that the scenario mentioned below cannot be hit.
                 //The code below solves the problem of when a player doesn't make any moves during the game (no peel or dumps).
                 //ToDo: Remove this workaround code.  This is hacky.
-                if (playerTuple.Stats == null)
-                {
-                    playerTuple.Stats = new PlayerGameStats();
-                }
-                
-            }
+                //if (playerTuple.Stats == null)
+                //{
+                //    playerTuple.Stats = new PlayerGameStats();
+                //}
 
+        }
+
+
+        public void Write(BinaryWriter writer)
+        {
+            writer.Write(GameHost);
+            writer.WriteList(GameMoves);
+            writer.Write(Winner);
+            writer.Write(GameDuration);
+            writer.Write(GameStartTime);
+            writer.WriteDictionary(PlayerDictionary);
+        }
+
+
+        public void Read(BinaryReader reader)
+        {
+            GameHost = reader.ReadString();
+            GameMoves = reader.ReadList<GameMoveDataPoint>();
+            Winner = reader.ReadString();
+            GameDuration = reader.ReadInt32();
+            GameStartTime = reader.ReadDateTime();
+            PlayerDictionary = reader.ReadPlayerDictionary<PlayerGameStats>();
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Ozwego.BuddyManagement;
 using Ozwego.Gameplay;
 using System;
+using Ozwego.Server;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Core;
@@ -17,7 +18,7 @@ namespace Ozwego
     sealed partial class App : Application
     {
         //ToDo: Remove this.
-        public static Buddy ClientBuddyInstance = new Buddy();
+        public static Friend ClientBuddyInstance = new Friend();
 
 
         public static CoreDispatcher Dispatcher;
@@ -44,7 +45,7 @@ namespace Ozwego
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs args)
         {
-            Frame rootFrame = Window.Current.Content as Frame;
+            var rootFrame = Window.Current.Content as Frame;
 
             // Do not repeat app initialization when the Window already has content,
             // just ensure that the window is active
@@ -76,6 +77,7 @@ namespace Ozwego
             Window.Current.Activate();
             Dispatcher = Window.Current.Dispatcher;
         }
+
 
         /// <summary>
         /// Invoked when application execution is being suspended.  Application state is saved

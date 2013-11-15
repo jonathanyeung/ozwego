@@ -4,6 +4,7 @@ using System.IO;
 
 namespace Shared.Serialization
 {
+
     public static class BinarySerializerExtensions
     {
         public static void WriteList<T>(this BinaryWriter writer, List<T> list) where T : IBinarySerializable
@@ -234,6 +235,50 @@ namespace Shared.Serialization
                     for (var i = 0; i < count; i++)
                     {
                         dictionary.Add(reader.ReadInt32(), reader.ReadInt32());
+                    }
+                }
+                return dictionary;
+            }
+
+            return null;
+        }
+
+        public static void WriteDictionary<U>(this BinaryWriter writer, Dictionary<string, U> dictionary)
+            where U : IBinarySerializable
+        {
+            if (dictionary != null)
+            {
+                writer.Write(1);
+                writer.Write(dictionary.Count);
+                foreach (var pair in dictionary)
+                {
+                    writer.Write(pair.Key);
+                    pair.Value.Write(writer);
+                }
+            }
+            else
+            {
+                writer.Write(0);
+            }
+        }
+
+        public static Dictionary<string, T> ReadPlayerDictionary<T>(this BinaryReader reader)
+            where T : IBinarySerializable, new()
+        {
+            int hasInstance = reader.ReadInt32();
+            if (hasInstance == 1)
+            {
+                var dictionary = new Dictionary<string, T>();
+                var count = reader.ReadInt32();
+                if (count > 0)
+                {
+                    for (var i = 0; i < count; i++)
+                    {
+                        var key = reader.ReadString();
+
+                        var value = new T();
+                        value.Read(reader);
+                        dictionary.Add(key, value);
                     }
                 }
                 return dictionary;

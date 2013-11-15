@@ -1,13 +1,27 @@
-﻿using System.Xml.Serialization;
+﻿using System;
+using System.IO;
+using System.Xml.Serialization;
+using Ozwego.Storage;
+using Shared.Serialization;
 
-namespace Ozwego.Storage
+namespace Shared
 {
-    public class PlayerTuple
+    public class PlayerTuple : IBinarySerializable
     {
-        [XmlAttribute]
         public string Name { get; set; }
 
-        [XmlElement("Stats")]
         public PlayerGameStats Stats { get; set; }
+
+        public void Write(BinaryWriter writer)
+        {
+            writer.Write(Name);
+            writer.Write(Stats);
+        }
+
+        public void Read(BinaryReader reader)
+        {
+            Name = reader.ReadString();
+            Stats.Read(reader);
+        }
     }
 }

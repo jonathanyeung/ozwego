@@ -2,75 +2,75 @@
 <ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 11, 9.375" name="OzwegoDataClasses">
   <DataContextMoniker Name="/OzwegoDataClassesDataContext" />
   <nestedChildShapes>
-    <classShape Id="61706489-ced9-4533-a0a6-2d43f9acccb8" absoluteBounds="5.125, 3.25, 2, 2.1554996744791666">
-      <DataClassMoniker Name="/OzwegoDataClassesDataContext/user" />
-      <nestedChildShapes>
-        <elementListCompartment Id="0e3d7225-2e4c-4e59-9181-f9f84cc15d66" absoluteBounds="5.14, 3.71, 1.9700000000000002, 1.5954996744791665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
-      </nestedChildShapes>
-    </classShape>
     <classShape Id="f2e8474e-2259-416f-b547-34866b9b5fd4" absoluteBounds="1.625, 1.875, 2, 1.3862939453125">
       <DataClassMoniker Name="/OzwegoDataClassesDataContext/friendRequest" />
       <nestedChildShapes>
         <elementListCompartment Id="f4fa1b4d-eeb5-45f3-8536-2a1860171d0f" absoluteBounds="1.6400000000000001, 2.335, 1.9700000000000002, 0.8262939453125" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
       </nestedChildShapes>
     </classShape>
-    <associationConnector edgePoints="[(5.125 : 4.33339730989583); (3.23958583333333 : 4.33339730989583 : JumpStart); (3.07291916666667 : 4.33339730989583 : JumpEnd); (2.625 : 4.33339730989583); (2.625 : 3.2612939453125)]" fixedFrom="Algorithm" fixedTo="Algorithm">
-      <AssociationMoniker Name="/OzwegoDataClassesDataContext/user/user_friendRequest" />
-      <nodes>
-        <classShapeMoniker Id="61706489-ced9-4533-a0a6-2d43f9acccb8" />
-        <classShapeMoniker Id="f2e8474e-2259-416f-b547-34866b9b5fd4" />
-      </nodes>
-    </associationConnector>
-    <associationConnector edgePoints="[(5.125 : 4.9007009921875); (3.1562525 : 4.9007009921875); (3.1562525 : 3.2612939453125)]" fixedFrom="Algorithm" fixedTo="Algorithm">
-      <AssociationMoniker Name="/OzwegoDataClassesDataContext/user/user_friendRequest1" />
-      <nodes>
-        <classShapeMoniker Id="61706489-ced9-4533-a0a6-2d43f9acccb8" />
-        <classShapeMoniker Id="f2e8474e-2259-416f-b547-34866b9b5fd4" />
-      </nodes>
-    </associationConnector>
     <classShape Id="3239517f-1179-4737-8682-51db22a0ca99" absoluteBounds="6.625, 1.125, 2, 1.3862939453125">
       <DataClassMoniker Name="/OzwegoDataClassesDataContext/friendship" />
       <nestedChildShapes>
         <elementListCompartment Id="da2bb0f3-d4ea-461f-a7e3-e5d0d4b892e8" absoluteBounds="6.6400000000000006, 1.585, 1.9700000000000002, 0.8262939453125" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
       </nestedChildShapes>
     </classShape>
-    <associationConnector edgePoints="[(6.875 : 3.25); (6.875 : 2.5112939453125)]" fixedFrom="NotFixed" fixedTo="NotFixed">
-      <AssociationMoniker Name="/OzwegoDataClassesDataContext/user/user_friendship" />
-      <nodes>
-        <classShapeMoniker Id="61706489-ced9-4533-a0a6-2d43f9acccb8" />
-        <classShapeMoniker Id="3239517f-1179-4737-8682-51db22a0ca99" />
-      </nodes>
-    </associationConnector>
-    <associationConnector edgePoints="[(7.0625 : 3.25); (7.0625 : 2.5112939453125)]" fixedFrom="NotFixed" fixedTo="NotFixed">
-      <AssociationMoniker Name="/OzwegoDataClassesDataContext/user/user_friendship1" />
-      <nodes>
-        <classShapeMoniker Id="61706489-ced9-4533-a0a6-2d43f9acccb8" />
-        <classShapeMoniker Id="3239517f-1179-4737-8682-51db22a0ca99" />
-      </nodes>
-    </associationConnector>
     <classShape Id="de3a9d0e-c4b0-4259-aabb-0fca2a10523e" absoluteBounds="5.125, 6.75, 2, 2.3478011067708335">
       <DataClassMoniker Name="/OzwegoDataClassesDataContext/user_game" />
       <nestedChildShapes>
         <elementListCompartment Id="cb0ecf3d-4389-401b-90d3-fb3de728b8d6" absoluteBounds="5.1400000000000006, 7.2100000000000009, 1.9700000000000002, 1.7878011067708335" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
       </nestedChildShapes>
     </classShape>
-    <associationConnector edgePoints="[(6.125 : 5.40549967447917); (6.125 : 6.75)]" fixedFrom="Algorithm" fixedTo="Algorithm">
-      <AssociationMoniker Name="/OzwegoDataClassesDataContext/user/user_user_game" />
-      <nodes>
-        <classShapeMoniker Id="61706489-ced9-4533-a0a6-2d43f9acccb8" />
-        <classShapeMoniker Id="de3a9d0e-c4b0-4259-aabb-0fca2a10523e" />
-      </nodes>
-    </associationConnector>
     <classShape Id="78257f9a-c3d2-4741-b4f5-b0530420a06b" absoluteBounds="1.75, 7.25, 2, 1.7708968098958331">
       <DataClassMoniker Name="/OzwegoDataClassesDataContext/game" />
       <nestedChildShapes>
         <elementListCompartment Id="7e5f3672-08c2-4edf-ac05-cc868c4f18a7" absoluteBounds="1.7650000000000001, 7.71, 1.9700000000000002, 1.2108968098958333" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
       </nestedChildShapes>
     </classShape>
-    <associationConnector edgePoints="[(3.75 : 8.13544840494792); (5.125 : 8.13544840494792)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+    <associationConnector edgePoints="[(3.75 : 8.13544840494792); (5.125 : 8.13544840494792)]" fixedFrom="NotFixed" fixedTo="NotFixed">
       <AssociationMoniker Name="/OzwegoDataClassesDataContext/game/game_user_game" />
       <nodes>
         <classShapeMoniker Id="78257f9a-c3d2-4741-b4f5-b0530420a06b" />
+        <classShapeMoniker Id="de3a9d0e-c4b0-4259-aabb-0fca2a10523e" />
+      </nodes>
+    </associationConnector>
+    <classShape Id="0fd4f6ff-5e33-41c2-ba06-61b0d32daf37" absoluteBounds="5.125, 3.625, 2, 2.3478011067708335">
+      <DataClassMoniker Name="/OzwegoDataClassesDataContext/user" />
+      <nestedChildShapes>
+        <elementListCompartment Id="919f9292-1cb1-4454-8f18-2048aca98c96" absoluteBounds="5.14, 4.085, 1.9700000000000002, 1.7878011067708335" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(5.125 : 4.79890055338542); (2.625 : 4.79890055338542); (2.625 : 3.2612939453125)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/OzwegoDataClassesDataContext/user/user_friendRequest" />
+      <nodes>
+        <classShapeMoniker Id="0fd4f6ff-5e33-41c2-ba06-61b0d32daf37" />
+        <classShapeMoniker Id="f2e8474e-2259-416f-b547-34866b9b5fd4" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(5.125 : 4.18069777669271); (3.1562525 : 4.18069777669271); (3.1562525 : 3.2612939453125)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/OzwegoDataClassesDataContext/user/user_friendRequest1" />
+      <nodes>
+        <classShapeMoniker Id="0fd4f6ff-5e33-41c2-ba06-61b0d32daf37" />
+        <classShapeMoniker Id="f2e8474e-2259-416f-b547-34866b9b5fd4" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(6.875 : 3.625); (6.875 : 2.5112939453125)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/OzwegoDataClassesDataContext/user/user_friendship" />
+      <nodes>
+        <classShapeMoniker Id="0fd4f6ff-5e33-41c2-ba06-61b0d32daf37" />
+        <classShapeMoniker Id="3239517f-1179-4737-8682-51db22a0ca99" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(7.0625 : 3.625); (7.0625 : 2.5112939453125)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/OzwegoDataClassesDataContext/user/user_friendship1" />
+      <nodes>
+        <classShapeMoniker Id="0fd4f6ff-5e33-41c2-ba06-61b0d32daf37" />
+        <classShapeMoniker Id="3239517f-1179-4737-8682-51db22a0ca99" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(6.125 : 5.97280110677083); (6.125 : 6.75)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/OzwegoDataClassesDataContext/user/user_user_game" />
+      <nodes>
+        <classShapeMoniker Id="0fd4f6ff-5e33-41c2-ba06-61b0d32daf37" />
         <classShapeMoniker Id="de3a9d0e-c4b0-4259-aabb-0fca2a10523e" />
       </nodes>
     </associationConnector>

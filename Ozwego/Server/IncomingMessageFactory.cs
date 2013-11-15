@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Ozwego.Server.MessageProcessors;
 using Shared;
 
 namespace Ozwego.Server
 {
     public class IncomingMessageFactory
     {
-        public static IncomingMessage GetMessage(PacketType packetType, string message, string senderEmailAddress)
+        public static IncomingMessage GetMessage(PacketV1 packet)
         {
             var newIncomingMessage = new IncomingMessage()
             {
-                PacketType = packetType,
-                MessageString = message,
-                SenderEmailAddress = senderEmailAddress
+                PacketType = packet.PacketType,
+                Sender = packet.Sender,
+                Data = packet.Data,
             };
 
             CreateMessageProcessor(ref newIncomingMessage);
@@ -36,8 +36,8 @@ namespace Ozwego.Server
                 case PacketType.UserLeftRoom:
                 case PacketType.ServerChat:
                 case PacketType.HostTransfer:
-                case PacketType.ServerInitiateGame:
                 case PacketType.ServerRoomList:
+                case PacketType.ServerBeginGameInitialization:
                     newIncomingMessage.SetMessageProcessor(new RoomMessageProcessor());
                     break;
 

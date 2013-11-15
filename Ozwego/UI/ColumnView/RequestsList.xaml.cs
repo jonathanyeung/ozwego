@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Ozwego.Server;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -50,10 +51,10 @@ namespace Ozwego.UI
         private void OnYesTapped(object sender, TappedRoutedEventArgs e)
         {
             var pressedButton = sender as Button;
-            var selectedBuddy = pressedButton.DataContext as Buddy;
+            var selectedFriend = pressedButton.DataContext as Friend;
 
             var requestManager = RequestManager.GetInstance();
-            requestManager.AcceptFriendRequest(selectedBuddy);
+            requestManager.AcceptFriendRequest(selectedFriend);
         }
 
         private void OnQsnTapped(object sender, TappedRoutedEventArgs e)
@@ -64,10 +65,10 @@ namespace Ozwego.UI
         private void OnNoTapped(object sender, TappedRoutedEventArgs e)
         {
             var pressedButton = sender as Button;
-            var selectedBuddy = pressedButton.DataContext as Buddy;
+            var selectedFriend = pressedButton.DataContext as Friend;
 
             var requestManager = RequestManager.GetInstance();
-            requestManager.RejectFriendRequest(selectedBuddy);
+            requestManager.RejectFriendRequest(selectedFriend);
         }
     }
 }

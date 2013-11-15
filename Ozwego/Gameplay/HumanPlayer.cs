@@ -38,11 +38,6 @@ namespace Ozwego.Gameplay
         {
             var gameController = GameController.GetInstance();
 
-            // ToDo: Remove this shit:
-            if (_alias == null)
-            {
-                _alias = "Temporary Alias";
-            }
             gameController.PeelActionReceived(_alias);
         }
 

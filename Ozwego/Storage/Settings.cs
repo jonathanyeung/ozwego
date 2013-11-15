@@ -1,4 +1,5 @@
 ﻿using System;
+using Ozwego.BuddyManagement;
 using Windows.Storage;
 
 namespace Ozwego.Storage
@@ -14,6 +15,26 @@ namespace Ozwego.Storage
         private const long DefaultExpCount = 0;
         private const int DefaultRanking = 1;
         private static readonly DateTime DefaultCreationTime = new DateTime(9999, 9, 9);
+
+
+        public static Friend userInstance
+        {
+            get
+            {
+                var user = new Friend
+                    {
+                        Alias = Alias,
+                        EmailAddress = EmailAddress,
+                        Experience = Experience,
+                        Level = Level,
+                        Ranking = Ranking,
+                        CreationTime = CreationTime
+                    };
+
+                return user;
+            }
+        }
+
 
         public static string Alias
         {
@@ -34,6 +55,7 @@ namespace Ozwego.Storage
                 localSettings.Values["alias"] = value;
             }
         }
+
 
         public static string EmailAddress
         {
@@ -134,19 +156,19 @@ namespace Ozwego.Storage
         {
             get
             {
-                var creationTime = localSettings.Values["creationTime"];
+                var ticks = localSettings.Values["creationTime"];
 
-                if (null == creationTime)
+                if (null == ticks)
                 {
                     return DefaultCreationTime;
                 }
 
-                return (DateTime)creationTime;
+                return new DateTime((long)ticks);
             }
 
             set
             {
-                localSettings.Values["creationTime"] = value;
+                localSettings.Values["creationTime"] = value.Ticks;
             }
         }
     }

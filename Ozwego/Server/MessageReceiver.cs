@@ -1,4 +1,5 @@
 ﻿
+using System.IO;
 using Ozwego.ViewModels;
 using System;
 using System.Threading.Tasks;
@@ -32,6 +33,54 @@ namespace Ozwego.Server
         }
 
 
+        //public async Task OldWaitForData()
+        //{
+        //    var mainPageViewModel = MainPageViewModel.GetInstance();
+
+        //    using (var dr = new DataReader(ServerProxy.TcpSocket.InputStream))
+        //    {
+        //        while (mainPageViewModel.ConnectionStatus)
+        //        {
+        //            var stringHeader = await dr.LoadAsync(4);
+
+        //            if (stringHeader == 0)
+        //            {
+        //                mainPageViewModel.ConnectionStatus = false;
+        //                return;
+        //            }
+
+        //            int messageLength = dr.ReadInt32();
+        //            uint numStrBytes = await dr.LoadAsync((uint)messageLength);
+        //            var packetType = (PacketType)dr.ReadByte();
+
+        //            string msg = dr.ReadString(numStrBytes - 1);
+
+        //            //ToDo: Potentially need to modify this delimiter. (Probably do).
+
+        //            var decoder = new WwwFormUrlDecoder(msg);
+
+        //            string message = decoder.GetFirstValueByName("message");
+        //            string senderAccountAddress = "";
+
+        //            try
+        //            {
+        //                senderAccountAddress = decoder.GetFirstValueByName("sender");
+        //            }
+        //            catch (Exception)
+        //            {
+        //            }
+
+        //            var incomingMessage = IncomingMessageFactory.GetMessage(
+        //                    packetType,
+        //                    message,
+        //                    senderAccountAddress);
+
+        //            incomingMessage.HandleMessage();
+        //        }
+        //    }
+        //}
+
+
         public async Task WaitForData()
         {
             var mainPageViewModel = MainPageViewModel.GetInstance();
@@ -49,30 +98,38 @@ namespace Ozwego.Server
                     }
 
                     int messageLength = dr.ReadInt32();
-                    uint numStrBytes = await dr.LoadAsync((uint)messageLength);
-                    var packetType = (PacketType)dr.ReadByte();
+                    uint numBytes = await dr.LoadAsync((uint)messageLength);
 
-                    string msg = dr.ReadString(numStrBytes - 1);
+                    var packetBaseBuffer = new byte[numBytes];
 
-                    //ToDo: Potentially need to modify this delimiter. (Probably do).
+                    dr.ReadBytes(packetBaseBuffer);
 
-                    var decoder = new WwwFormUrlDecoder(msg);
+                    var packetBase = new PacketBase();
 
-                    string message = decoder.GetFirstValueByName("message");
-                    string senderAccountAddress = "";
-
-                    try
+                    using (var stream = new MemoryStream(packetBaseBuffer))
                     {
-                        senderAccountAddress = decoder.GetFirstValueByName("sender");
+                        try
+                        {
+                            var reader = new BinaryReader(stream);
+
+                            packetBase.Read(reader);
+                        }
+                        catch (Exception e)
+                        {
+#if DEBUG
+                            throw;
+#else
+                            Trace.WriteLine(string.Format("[MessageReceiver.WaitForData] - " +
+                                    "Invalid packet from client! Deserialization failed: {0}, Trace: {1}",
+                                    e.Message,
+                                    e.StackTrace));
+#endif
+                        }
                     }
-                    catch (Exception)
-                    {
-                    }
+
 
                     var incomingMessage = IncomingMessageFactory.GetMessage(
-                            packetType,
-                            message,
-                            senderAccountAddress);
+                        packetBase.Data as PacketV1);
 
                     incomingMessage.HandleMessage();
                 }

@@ -73,7 +73,7 @@ namespace Ozwego.Server
                 messageReceiver = MessageReceiver.GetInstance();
                 messageSender = MessageSender.GetInstance();
 
-                await messageSender.SendMessage(PacketType.ClientLogIn, Settings.EmailAddress);
+                await messageSender.SendMessage(PacketType.ClientLogIn, Settings.userInstance);
 
 
                 //
@@ -84,15 +84,23 @@ namespace Ozwego.Server
             }
             catch (Exception e)
             {
-                //
-                // If this is an unknown status, it means that the error is fatal and retry will
-                // likely fail.
-                //
+                //ToDo: Re-enable the code below.
+//#if DEBUG
+//                // Throw an exception if it's not due to the server not running.
+//                if (e.HResult != -2147014835)
+//                {
+//                    throw;
+//                }
+//#endif
+//                //
+//                // If this is an unknown status, it means that the error is fatal and retry will
+//                // likely fail.
+//                //
 
-                if (SocketError.GetStatus(e.HResult) == SocketErrorStatus.Unknown)
-                {
-                    throw;
-                }
+//                if (SocketError.GetStatus(e.HResult) == SocketErrorStatus.Unknown)
+//                {
+//                    throw;
+//                }
 
                 // ToDo: Retry the connection here.
 
@@ -156,8 +164,8 @@ namespace Ozwego.Server
                         Settings.EmailAddress = email;
 
                         var roomManager = RoomManager.GetInstance();
-                        roomManager.AddMemberToRoom(email);
-                        roomManager.ChangeRoomHost(email);
+                        roomManager.AddMemberToRoom(Settings.userInstance);
+                        roomManager.ChangeRoomHost(Settings.userInstance);
                     }
                     catch
                     {

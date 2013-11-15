@@ -59,6 +59,7 @@ namespace Ozwego.UI
         {
             var roomManager = RoomManager.GetInstance();
             roomManager.LeaveRoom();
+            roomManager.ChangeRoomHost(Settings.userInstance);
         }
 
 
@@ -68,26 +69,26 @@ namespace Ozwego.UI
             // Only allow the room host to initiate a game.
             //
 
-            var mainPageViewModel = MainPageViewModel.GetInstance();
+            var roomManager = RoomManager.GetInstance();
 
-            if (mainPageViewModel.RoomHost != Settings.EmailAddress)
+            if (roomManager.Host.EmailAddress != Settings.EmailAddress)
             {
                 return;
             }
 
-            GameBoardNavigationArgs args = new GameBoardNavigationArgs()
+            var args = new GameBoardNavigationArgs()
             {
                 GameConnectionType = GameConnectionType.Online,
                 BotCount = 0
             };
-
-            Frame.Navigate(typeof(GameBoardPrototype), args);
 
             var serverProxy = ServerProxy.GetInstance();
             if (serverProxy.messageSender != null)
             {
                 await serverProxy.messageSender.SendMessage(PacketType.ClientInitiateGame);
             }
+
+            Frame.Navigate(typeof(GameBoardPrototype), args);
         }
 
 

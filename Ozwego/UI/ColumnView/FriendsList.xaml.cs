@@ -1,4 +1,5 @@
-﻿using Ozwego.BuddyManagement;
+﻿using System;
+using Ozwego.BuddyManagement;
 using Ozwego.Server;
 using Shared;
 using Windows.UI.Xaml;
@@ -61,6 +62,8 @@ namespace Ozwego.UI
 
             if (null != serverProxy.messageSender)
             {
+                //ToDo: Get this data as a Friend type and use that in the SendMessage.
+                throw new NotImplementedException();
                 await serverProxy.messageSender.SendMessage(PacketType.ClientSendFriendRequest, SearchBar.Text);
             }
         }
@@ -75,8 +78,10 @@ namespace Ozwego.UI
         {
             var textBlock = sender as TextBlock;
 
+            var friend = textBlock.DataContext as Friend;
             var roomManager = RoomManager.GetInstance();
-            roomManager.JoinRoom(textBlock.Text);
+
+            roomManager.JoinRoom(friend);
         }
     }
 }

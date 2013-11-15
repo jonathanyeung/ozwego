@@ -57,11 +57,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\ChatMessage.cs">
+      <Link>DataTypes\ChatMessage.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\DataPacket.cs">
       <Link>DataPacket.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\Friend.cs">
+      <Link>DataTypes\Friend.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\FriendList.cs">
+      <Link>DataTypes\FriendList.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\GameData.cs">
       <Link>DataTypes\GameData.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\GameDataList.cs">
+      <Link>DataTypes\GameDataList.cs</Link>
     </Compile>
     <Compile Include="..\Shared\GameMoveDataPoint.cs">
       <Link>DataTypes\GameMoveDataPoint.cs</Link>
@@ -75,8 +87,11 @@
     <Compile Include="..\Shared\PlayerGameStats.cs">
       <Link>DataTypes\PlayerGameStats.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\PlayerTuple.cs">
-      <Link>DataTypes\PlayerTuple.cs</Link>
+    <Compile Include="..\Shared\Serialization\IBinarySerializable.cs">
+      <Link>Serialization\IBinarySerializable.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Serialization\Serializer.cs">
+      <Link>Serialization\Serializer.cs</Link>
     </Compile>
     <Compile Include="ClientManager.cs" />
     <Compile Include="Datacore\Database.cs" />
@@ -93,7 +108,7 @@
     <Compile Include="PacketHandlers\GamePacketHandler.cs" />
     <Compile Include="PacketHandlers\MatchmakingPacketHandler.cs" />
     <Compile Include="PacketHandlers\PacketHandler.cs" />
-    <Compile Include="PacketHandlerFactory.cs" />
+    <Compile Include="PacketHandlers\PacketHandlerFactory.cs" />
     <Compile Include="PacketHandlers\RoomPacketHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Client.cs" />

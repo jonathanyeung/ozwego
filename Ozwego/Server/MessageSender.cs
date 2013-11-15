@@ -1,14 +1,14 @@
 ﻿using System.IO;
-using System.Xml.Serialization;
 using Ozwego.BuddyManagement;
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
+using Ozwego.Storage;
 using Ozwego.ViewModels;
 using Shared;
 using Windows.Storage.Streams;
+using Windows.UI.Xaml;
 
 namespace Ozwego.Server
 {
@@ -16,12 +16,27 @@ namespace Ozwego.Server
     {
         private static MessageSender _instance;
 
+        private DispatcherTimer _timer;
+
 
         /// <summary>
         /// Private Constructor
         /// </summary>
         private MessageSender()
         {
+            _timer = new DispatcherTimer();
+            _InitializeTimer();
+        }
+
+
+        /// <summary>
+        /// TCP Heart beat timer.
+        /// </summary>
+        private void _InitializeTimer()
+        {
+            _timer.Interval = new TimeSpan(0, 0, 5);
+            _timer.Tick += async (s, e) => { await SendMessage(PacketType.ClientHeartBeat, null, null); };
+            _timer.Start();
         }
 
 
@@ -37,42 +52,19 @@ namespace Ozwego.Server
 
         public async Task SendMessage(PacketType packetType)
         {
-            var recipientList = new List<Buddy>();
-            await SendMessage(packetType, recipientList, ""); //ToDo: Change this from "" to null
+            var recipientList = new List<Friend>();
+            await SendMessage(packetType, recipientList, null);
         }
 
 
-        public async Task SendMessage(PacketType packetType, string messageString)
+        public async Task SendMessage(PacketType packetType, object data)
         {
-            var recipientList = new List<Buddy>();
-            await SendMessage(packetType, recipientList, messageString);
+            var recipientList = new List<Friend>();
+            await SendMessage(packetType, recipientList, data);
         }
 
 
-        public async Task SendMessage(PacketType packetType, byte[] buffer)
-        {
-            var recipientList = new List<Buddy>();
-            await SendMessage(packetType, recipientList, buffer);
-        }
-
-
-        public async Task SendMessage(PacketType packetType, List<Buddy> recipientList)
-        {
-            foreach (var b in recipientList)
-            {
-                await SendMessage(packetType, "", b);
-            }
-        }
-
-
-        public async Task SendMessage(PacketType packetType, string messageString, Buddy buddy)
-        {
-            var recipientList = new List<Buddy> {buddy};
-            await SendMessage(packetType, recipientList, messageString);
-        }
-
-
-        private async Task SendMessage(PacketType packetType, IEnumerable<Buddy> recipientList, object data)
+        private async Task SendMessage(PacketType packetType, IEnumerable<Friend> recipientList, object data)
         {
             var mainPageViewModel = MainPageViewModel.GetInstance();
 
@@ -81,92 +73,91 @@ namespace Ozwego.Server
                 return;
             }
 
+#if DEBUG
+            //
+            // If we're debugging, make sure that the data type matches that required by the packetType, or else throw an exception.
+            //
+
+            var type = DataPacket.PacketTypeMap[packetType];
+
+            if (type != null)
+            {
+                var testObject = Convert.ChangeType(data, type);
+            }
+            else
+            {
+                if (data != null)
+                {
+                    throw new ArgumentException("Data from this packet type was expected to be null, but wasn't.");
+                }
+            }
+#endif
+
             using (var dataWriter = new DataWriter(ServerProxy.TcpSocket.OutputStream))
             {
-                //
-                // Generate the recipient list string.
-                //
+                byte[] msgSizeBuffer;
+                dynamic baseBuffer = null;
 
-                var packetBase = new PacketBase {PacketVersion = PacketVersion.Version1};
-
-                var packetV1 = new PacketV1();
-
-                foreach (Buddy b in recipientList)
+                if (PacketType.ClientHeartBeat == packetType)
                 {
-                    packetV1.Recipients.Add(b.EmailAddress);
+                    // Message Size is specified by the size of an int.
+                    msgSizeBuffer = new byte[] {0, 0, 0, 0};
                 }
-
-                packetV1.PacketType = packetType;
-
-                packetV1.Data = data;
-
-
-
-                //ToDo: Does 3000 need to be adjusted?  Max seen value is 750.  Should handle an exception for buffer over run. Find a way to make these buffers dynamic.
-                var buffer = new byte[3000];
-
-                using (var stream = new MemoryStream(buffer))
+                else
                 {
-                    var ser = new XmlSerializer(typeof(PacketV1));
+                    var packetBase = new PacketBase {PacketVersion = PacketVersion.Version1};
 
-                    ser.Serialize(stream, packetV1);
-                }
+                    var packetV1 = new PacketV1
+                        {
+                            PacketType = packetType,
+                            Data = data,
+                            Sender = Settings.EmailAddress
+                        };
 
-                packetBase.Data = buffer;
+                    foreach (var b in recipientList)
+                    {
+                        packetV1.Recipients.Add(b.EmailAddress);
+                    }
 
-                // ToDo: Adjust this value.  Find a way to make these buffers dynamic.
-                var baseBuffer = new byte[10000];
+                    packetBase.Data = packetV1;
 
-                using (var stream = new MemoryStream(baseBuffer))
-                {
-                    var ser = new XmlSerializer(typeof(PacketBase));
+                    using (var stream = new MemoryStream())
+                    {
+                        var binaryWriter = new BinaryWriter(stream);
 
-                    ser.Serialize(stream, packetBase);
-                }
+                        packetBase.Write(binaryWriter);
+
+                        baseBuffer = stream.ToArray();
+                    }
 
 
-                //
-                // 1 represents the size of the PacketType enum.
-                //
+                    var messageSize = baseBuffer.Length;
 
-                var messageSize = baseBuffer.Length;
+                    msgSizeBuffer = BitConverter.GetBytes(messageSize);
 
-                byte[] bytes = BitConverter.GetBytes(messageSize);
-
-                if (!BitConverter.IsLittleEndian)
-                {
-                    Array.Reverse(bytes);
+                    if (!BitConverter.IsLittleEndian)
+                    {
+                        Array.Reverse(msgSizeBuffer);
+                    }
                 }
 
 
                 //
                 // 1. Write the message size
-                // 2. Write the object buffer.
+                // 2. Write the object buffer (unless it's a heartbeat)
                 //
 
-                dataWriter.WriteBytes(bytes);
-                dataWriter.WriteBytes(baseBuffer);
+                dataWriter.WriteBytes(msgSizeBuffer);
+
+                if (baseBuffer != null)
+                {
+                    dataWriter.WriteBytes(baseBuffer);
+                }
 
                 await dataWriter.StoreAsync();
 
                 dataWriter.DetachStream();
             }
-        }
-
-
-        public string CreateUrlQueryString(Dictionary<string, string> fields)
-        {
-            string returnString = "";
-
-            foreach (KeyValuePair<string, string> kvp in fields)
-            {
-                returnString += kvp.Key;
-                returnString += '=';
-                returnString += kvp.Value;
-                returnString += '&';
-            }
-
-            return returnString.TrimEnd('&');
         }
     }
 }

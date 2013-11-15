@@ -9,19 +9,19 @@ namespace Ozwego.ViewModels
     {
         private static MainPageViewModel _instance;
 
-        //public ObservableCollection<Buddy> BuddyList;
+        //public ObservableCollection<Friend> BuddyList;
 
         public ObservableCollection<string> ChatMessages = new ObservableCollection<string>();
 
         /// <summary>
         /// A list of all of the people in the room.
         /// </summary>
-        //public ObservableCollection<Buddy> RoomMembers;
+        //public ObservableCollection<Friend> RoomMembers;
 
         private MainPageViewModel()
         {
-            //FriendListManager = new ObservableCollection<Buddy>();
-            //RoomMembers = new ObservableCollection<Buddy>();
+            //FriendListManager = new ObservableCollection<Friend>();
+            //RoomMembers = new ObservableCollection<Friend>();
 
             //ToDo: Remove these temporary names:
 

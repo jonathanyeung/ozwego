@@ -14,7 +14,7 @@ namespace Ozwego.BuddyManagement
     {
         private static RequestManager _instance;
 
-        public readonly ObservableCollection<Buddy> PendingFriendRequests;
+        public readonly ObservableCollection<Friend> PendingFriendRequests;
         
         //ToDo: Complete this collection.
         //public readonly ObservableCollection<?> PendingGameRequests();
@@ -24,19 +24,7 @@ namespace Ozwego.BuddyManagement
         /// </summary>
         private RequestManager()
         {
-            PendingFriendRequests = new ObservableCollection<Buddy>();
-
-            //ToDo: Remove temporary code.
-            //for (int i = 0; i < 10; i++)
-            //{
-            //    var tempBuddy = new Buddy()
-            //    {
-            //        Alias = "IncomingFriendlyUser" + i.ToString(),
-            //        EmailAddress = "IncomingFriendlyUser" + i.ToString() + "@address.com"
-            //    };
-
-            //    PendingFriendRequests.Add(tempBuddy);
-            //}
+            PendingFriendRequests = new ObservableCollection<Friend>();
         }
 
 
@@ -50,15 +38,15 @@ namespace Ozwego.BuddyManagement
         }
 
 
-        public void NewFriendRequest(Buddy buddy)
+        public void NewFriendRequest(Friend friend)
         {
-            PendingFriendRequests.Add(buddy);
+            PendingFriendRequests.Add(friend);
         }
 
 
-        public async void AcceptFriendRequest(Buddy buddy)
+        public async void AcceptFriendRequest(Friend friend)
         {
-            PendingFriendRequests.Remove(buddy);
+            PendingFriendRequests.Remove(friend);
 
             //ToDo: This null check is no bueno.  This needs to get sent at some point, 
             // this call will make the packet never get sent to the server.
@@ -68,13 +56,13 @@ namespace Ozwego.BuddyManagement
             {
                 await serverProxy.messageSender.SendMessage(
                         PacketType.ClientAcceptFriendRequest,
-                        buddy.EmailAddress);
+                        friend);
             }
         }
 
-        public async void RejectFriendRequest(Buddy buddy)
+        public async void RejectFriendRequest(Friend friend)
         {
-            PendingFriendRequests.Remove(buddy);
+            PendingFriendRequests.Remove(friend);
 
             //ToDo: This null check is no bueno.  This needs to get sent at some point, 
             // this call will make the packet never get sent to the server.
@@ -83,7 +71,7 @@ namespace Ozwego.BuddyManagement
             {
                 await serverProxy.messageSender.SendMessage(
                         PacketType.ClientRejectFriendRequest,
-                        buddy.EmailAddress);
+                        friend);
             }
         }
     }

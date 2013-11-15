@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Ozwego.Storage;
+using Ozwego.BuddyManagement;
 
 namespace Ozwego.Gameplay
 {
@@ -18,10 +19,25 @@ namespace Ozwego.Gameplay
         {
             _gameData = new GameData {GameHost = gameHost};
 
-            var nameList = players.Select(player
-                    => new PlayerTuple() {Name = player.Alias, Stats = null}).ToList();
+            foreach (var p in players)
+            {
+                _gameData.PlayerDictionary.Add(p.Alias, null);
+            }
+        }
 
-            _gameData.Players = nameList;
+        //ToDo: Refactor IPlayer and get rid of this overload.
+        /// <summary>
+        /// Method called to initialize the Game Data Logger for a new game
+        /// </summary>
+        public void BeginLoggingSession(string gameHost, IEnumerable<Friend> players)
+        {
+            _gameData = new GameData { GameHost = gameHost };
+
+            foreach (var p in players)
+            {
+                //ToDo: Caution, this has been switched to email address already instead of alias
+                _gameData.PlayerDictionary.Add(p.EmailAddress, null);
+            }
         }
 
 

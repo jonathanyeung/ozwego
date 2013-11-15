@@ -13,32 +13,30 @@ namespace WorkerRole.PacketHandlers
 
         public override void DoActions(ref Client client)
         {
-            var messageSender = MessageSender.GetInstance();
-
             switch (PacketType)
             {
-                case PacketType.ClientStartGame:
+                case PacketType.ClientInitiateGame:
 
                     //
                     // Only allow the room host to start the game.
                     //
 
-                    if (client.Room.Host.UserName == client.UserName)
+                    if (client.Room.GetHostAddress() == client.UserInfo.EmailAddress)
                     {
-                        messageSender.BroadcastMessage(client.Room.Members, PacketType.ServerGameStart, "");
+                        MessageSender.BroadcastMessage(client.Room.Members, PacketType.ServerBeginGameInitialization, null);
                     }
                     break;
 
                 case PacketType.ClientDump:
-                    messageSender.BroadcastMessage(client.Room.Members, PacketType.ServerDump, "", client);
+                    MessageSender.BroadcastMessage(client.Room.Members, PacketType.ServerDump, client.UserInfo, client);
                     break;
 
                 case PacketType.ClientPeel:
-                    messageSender.BroadcastMessage(client.Room.Members, PacketType.ServerPeel, "", client);
+                    MessageSender.BroadcastMessage(client.Room.Members, PacketType.ServerPeel, client.UserInfo, client);
                     break;
 
                 case PacketType.ClientVictory:
-                    messageSender.BroadcastMessage(client.Room.Members, PacketType.ServerGameOver, "", client);
+                    MessageSender.BroadcastMessage(client.Room.Members, PacketType.ServerGameOver, client.UserInfo, client);
                     break;
 
                 default:

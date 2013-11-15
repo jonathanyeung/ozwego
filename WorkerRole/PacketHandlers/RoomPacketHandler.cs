@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Ozwego.BuddyManagement;
 using Shared;
 using WorkerRole.Datacore;
 
@@ -15,17 +17,19 @@ namespace WorkerRole.PacketHandlers
 
         public override void DoActions(ref Client client)
         {
-            var messageSender = MessageSender.GetInstance();
             var clientManager = ClientManager.GetInstance();
             var roomManager = RoomManager.GetInstance();
-            
-            //ToDo: Do a dictionary look up for casting type instead of doing a hardcoded cast here:
-            var message = (string) Data;
+            Friend friend;
 
             switch (PacketType)
             {
                 case PacketType.ClientLogIn:
-                    ProcessLogInPacket(client, message);
+                    friend = Data as Friend;
+
+                    if (null != friend)
+                    {
+                        ProcessLogInPacket(client, friend);
+                    }
                     break;
 
                 case PacketType.ClientLogOut:
@@ -33,11 +37,26 @@ namespace WorkerRole.PacketHandlers
                     break;
 
                 case PacketType.ClientJoinRoom:
-                    client = ProcessJoinRoomPacket(client, message);
+                    friend = Data as Friend;
+
+                    if (null != friend)
+                    {
+                        client = ProcessJoinRoomPacket(client, friend);
+                    }
                     break;
 
                 case PacketType.ClientLeaveRoom:
                     roomManager.RemoveMemberfromRoom(client.Room.Host, client);
+
+
+                    //
+                    //  Add the user to a newly createad room.
+                    //
+
+                    var newRoom = roomManager.CreateNewRoom(client);
+
+                    client.Room = newRoom;
+
                     break;
 
                 case PacketType.ClientInitiateGame:
@@ -46,20 +65,28 @@ namespace WorkerRole.PacketHandlers
                     // Only allow the room host to initiate a game.
                     //
 
-                    if (client.Room.Host.UserName == client.UserName)
+                    if (client.Room.GetHostAddress() == client.UserInfo.EmailAddress)
                     {
-                        messageSender.BroadcastMessage(
+                        MessageSender.BroadcastMessage(
                             client.Room.Members,
-                            PacketType.ServerInitiateGame,
-                            "",
+                            PacketType.ServerBeginGameInitialization,
+                            null,
                             client);
                     }
 
                     break;
 
                 case PacketType.ClientChat:
-                    var arguments = new Dictionary<string, string> { { "sender", Sender }, { "message", message } };
-                    messageSender.BroadcastMessage(client.Room.Members, PacketType.ServerChat, arguments, client);
+                    var arguments = Data as ChatMessage;
+
+                    if (arguments != null)
+                    {
+                        MessageSender.BroadcastMessage(client.Room.Members, PacketType.ServerChat, arguments, client);
+                    }
+                    break;
+
+                case PacketType.ClientReadyForGameStart:
+                    client.Room.SignalClientIsReadyForGame(client);
                     break;
 
                 default:
@@ -69,11 +96,11 @@ namespace WorkerRole.PacketHandlers
             }
         }
 
-        private Client ProcessJoinRoomPacket(Client client, string message)
+        private Client ProcessJoinRoomPacket(Client client, Friend joiner)
         {
             var clientManager = ClientManager.GetInstance();
-            Client clientToJoin = clientManager.GetClientList().FirstOrDefault(
-                myClient => myClient.UserName == message);
+            var clientToJoin = clientManager.GetClientList().FirstOrDefault(
+                myClient => myClient.UserInfo.EmailAddress == joiner.EmailAddress);
 
             if (clientToJoin != null)
             {
@@ -85,7 +112,7 @@ namespace WorkerRole.PacketHandlers
         }
 
 
-        private void ProcessLogInPacket(Client client, string message)
+        private void ProcessLogInPacket(Client client, Friend friend)
         {
             //
             // Sign out anyone who is using the same user name.
@@ -93,14 +120,14 @@ namespace WorkerRole.PacketHandlers
 
             var clientManager = ClientManager.GetInstance();
             var duplicateClient = clientManager.GetClientList()
-                .FirstOrDefault(c => c.UserName == message);
+                .FirstOrDefault(c => c.UserInfo.EmailAddress == friend.EmailAddress);
 
             if (duplicateClient != null)
             {
                 duplicateClient.Disconnect();
             }
 
-            client.UserName = message;
+            client.UserInfo = friend;
 
             clientManager.AddClient(client);
 
@@ -110,28 +137,26 @@ namespace WorkerRole.PacketHandlers
             //
 
             var db = Database.GetInstance();
-            var user = db.GetUserByEmail(client.UserName);
+            var user = db.GetUserByEmail(client.UserInfo.EmailAddress);
 
             if (user == null)
             {
-                // ToDo: In the line below, add an alias instead of replicating the email address.
-                db.AddNewUser(client.UserName, client.UserName);
+                db.AddNewUser(client.UserInfo.EmailAddress, client.UserInfo.Alias);
             }
 
-            user = db.GetUserByEmail(client.UserName);
+            user = db.GetUserByEmail(client.UserInfo.EmailAddress);
+
+            var userAsFriend = MessageReceiver.GetFriendFromUser(user);
 
 
             //
             // Send the user a copy of his/her stats.
             //
 
-            var userStatsString = MessageReceiver.CreateUrlStringFromUserList(new List<user> { user });
-
-            var messageSender = MessageSender.GetInstance();
-            messageSender.SendMessage(
+            MessageSender.SendMessage(
                 client,
                 PacketType.ServerUserStats,
-                userStatsString);
+                userAsFriend);
 
 
             //
@@ -145,16 +170,16 @@ namespace WorkerRole.PacketHandlers
             // Send pending friend requests to user.
             //
 
-            var pendingRequests = db.GetPendingFriendRequests(client.UserName);
+            var pendingRequests = db.GetPendingFriendRequests(client.UserInfo.EmailAddress);
 
             if (null != pendingRequests)
             {
-                var pendingRequestsString = MessageReceiver.CreateUrlStringFromUserList(pendingRequests);
+                var pendingFriendRequests = MessageReceiver.CreateFriendListFromUserList(pendingRequests);
 
-                messageSender.SendMessage(
-                    client,
-                    PacketType.ServerFriendRequests,
-                    pendingRequestsString);
+                MessageSender.SendMessage(
+                        client,
+                        PacketType.ServerFriendRequests,
+                        pendingFriendRequests);
             }
         }
     }

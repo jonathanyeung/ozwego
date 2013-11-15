@@ -11,7 +11,7 @@ namespace Ozwego.Server
     {
         public PacketType PacketType { get; set; }
 
-        public string MessageString { get; set; }
+        public object Data { get; set; }
 
         public string SenderEmailAddress { get; set; }
     }

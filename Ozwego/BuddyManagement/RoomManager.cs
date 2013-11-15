@@ -12,18 +12,19 @@ namespace Ozwego.BuddyManagement
 {
     public class RoomManager
     {
-
+        public Friend Host;
+        private object RoomMemberListLock = new object();
         private static RoomManager _instance;
 
-        public ObservableCollection<Buddy> RoomMembers;
+        public ObservableCollection<Friend> RoomMembers;
 
         /// <summary>
         /// Private Constructor
         /// </summary>
         private RoomManager()
         {
-            RoomMembers = new ObservableCollection<Buddy>();
-            AddMemberToRoom(Settings.EmailAddress);
+            RoomMembers = new ObservableCollection<Friend>();
+            AddMemberToRoom(Settings.userInstance);
         }
 
 
@@ -41,24 +42,22 @@ namespace Ozwego.BuddyManagement
         /// This method is called when a server notification is received saying that someone has
         /// joined your current room.
         /// </summary>
-        /// <param name="buddyAccountAddress">buddy that is joining the room</param>
-        public async void AddMemberToRoom(string buddyAccountAddress)
+        public async void AddMemberToRoom(Friend newMember)
         {
             //
             // First check to make sure that the buddy doesn't already exist in the room.  If
             // not, then add the buddy.
             //
-
-            Buddy budref = RoomMembers.FirstOrDefault(
-                    b => b.EmailAddress == buddyAccountAddress);
-
-            if (budref == null)
-            {
                 await App.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    RoomMembers.Add(new Buddy(buddyAccountAddress));
+                    var budref = RoomMembers.FirstOrDefault(
+                        b => b.EmailAddress == newMember.EmailAddress);
+
+                    if (budref == null)
+                    {
+                        RoomMembers.Add(newMember);
+                    }
                 });
-            }
         }
 
 
@@ -67,12 +66,12 @@ namespace Ozwego.BuddyManagement
         /// left your current room.
         /// </summary>
         /// <param name="buddyAccountAddress">buddy that is leaving the room</param>
-        public async void RemoveMemberFromRoom(string buddyAccountAddress)
+        public async void RemoveMemberFromRoom(Friend leavingMember)
         {
             var roomManager = RoomManager.GetInstance();
 
-            Buddy budref = roomManager.RoomMembers.FirstOrDefault(
-                b => b.EmailAddress == buddyAccountAddress);
+            Friend budref = roomManager.RoomMembers.FirstOrDefault(
+                b => b.EmailAddress == leavingMember.EmailAddress);
 
             await App.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
@@ -81,7 +80,7 @@ namespace Ozwego.BuddyManagement
                 //
 
                 if ((budref != null) &&
-                    (buddyAccountAddress != Settings.EmailAddress))
+                    (leavingMember.EmailAddress != Settings.EmailAddress))
                 {
                     roomManager.RoomMembers.Remove(budref);
                 }
@@ -89,22 +88,22 @@ namespace Ozwego.BuddyManagement
         }
 
 
-        public async void JoinRoom(Buddy buddyToJoin)
+        public async void JoinRoom(Friend buddyToJoin)
         {
             var serverProxy = ServerProxy.GetInstance();
             await serverProxy.messageSender.SendMessage(
                     PacketType.ClientJoinRoom,
-                    buddyToJoin.EmailAddress);
+                    buddyToJoin);
         }
 
 
-        public async void JoinRoom(string accountAddress)
-        {
-            var serverProxy = ServerProxy.GetInstance();
-            await serverProxy.messageSender.SendMessage(
-                    PacketType.ClientJoinRoom,
-                    accountAddress);
-        }
+        //public async void JoinRoom(string accountAddress)
+        //{
+        //    var serverProxy = ServerProxy.GetInstance();
+        //    await serverProxy.messageSender.SendMessage(
+        //            PacketType.ClientJoinRoom,
+        //            accountAddress);
+        //}
 
 
         public async void LeaveRoom()
@@ -126,20 +125,22 @@ namespace Ozwego.BuddyManagement
 
             var roomManager = RoomManager.GetInstance();
             roomManager.RoomMembers.Clear();
-            AddMemberToRoom(Settings.EmailAddress);
+            AddMemberToRoom(Settings.userInstance);
         }
 
 
-        public async void ChangeRoomHost(string newHostName)
+        public async void ChangeRoomHost(Friend newHost)
         {
+            Host = newHost;
+
             var mainPageViewModel = MainPageViewModel.GetInstance();
 
             await App.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                mainPageViewModel.RoomHost = newHostName;
+                mainPageViewModel.RoomHost = newHost.Alias;
             });
             
-            if (newHostName != Settings.EmailAddress)
+            if (newHost.EmailAddress != Settings.EmailAddress)
             {
                 //ToDO: Disable Start Game with Room Button.
             }
@@ -149,16 +150,19 @@ namespace Ozwego.BuddyManagement
         public async void InitiateMessageSend(string message)
         {
             var serverProxy = ServerProxy.GetInstance();
+
+            var chat = new ChatMessage {Message = message, Sender = Settings.Alias};
+
             if (serverProxy.messageSender != null)
             {
-                await serverProxy.messageSender.SendMessage(PacketType.ClientChat, message);
+                await serverProxy.messageSender.SendMessage(PacketType.ClientChat, chat);
             }
         }
 
 
-        public async void ChatMessageReceived(string senderName, string message)
+        public async void ChatMessageReceived(ChatMessage message)
         {
-            string formattedMessage = String.Format("{0}: {1}", senderName, message);
+            string formattedMessage = String.Format("{0}: {1}", message.Sender, message.Message);
 
             var mainPageViewModel = MainPageViewModel.GetInstance();
 

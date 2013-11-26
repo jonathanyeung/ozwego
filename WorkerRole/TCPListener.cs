@@ -25,7 +25,7 @@ namespace WorkerRole
                 //listener.ExclusiveAddressUse = false;
 
 
-                const int port = 4029;
+                const int port = 4032;
                 var addr = new IPAddress(new byte[] { 192, 168, 1, 2 });
                 var listener = new TcpListener(addr, port);
                 Trace.WriteLine(string.Format("TCP: Listening on {0}:{1}...", addr, port));

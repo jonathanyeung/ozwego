@@ -2,6 +2,8 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Ozwego.BuddyManagement;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 
 namespace Ozwego.ViewModels
 {
@@ -33,6 +35,8 @@ namespace Ozwego.ViewModels
             //RoomMembers.Add(new Buddy("Metta World Peace"));
         }
 
+        
+
         /// <summary>
         /// Public method to instantiate ServerMessageReceiver singleton.
         /// </summary>
@@ -40,6 +44,21 @@ namespace Ozwego.ViewModels
         public static MainPageViewModel GetInstance()
         {
             return _instance ?? (_instance = new MainPageViewModel());
+        }
+
+        public double ScreenWidth
+        {
+            get { return Window.Current.Bounds.Width; }
+        }
+
+        public double NegScreenWidth
+        {
+            get { return -1 * Window.Current.Bounds.Width; }
+        }
+
+        public double ScreenHeight
+        {
+            get { return Window.Current.Bounds.Height; }
         }
 
         //

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Ozwego.Common;
 using Ozwego.Server.MessageProcessors;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -119,5 +120,12 @@ namespace Ozwego.UI
         protected override void SaveState(Dictionary<String, Object> pageState)
         {
         }
+
+        private void OnMainMenuTappedFromMatchmakingPane(object sender, TappedRoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+
     }
 }

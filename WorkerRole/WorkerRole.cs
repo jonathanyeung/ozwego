@@ -14,18 +14,21 @@ namespace WorkerRole
 
         public override void Run()
         {
-            // This is a sample worker implementation. Replace with your logic.
-            Trace.WriteLine("WorkerRole entry point called", "Information");
+            Trace.WriteLine("++WorkerRole.Run", "Information");
 
             while (true)
             {
                 Thread.Sleep(30000);
-                Trace.WriteLine("Server Hearbeat", "Information");
+                Trace.WriteLine("Server Heartbeat", "Information");
             }
+
+            Trace.WriteLine("--WorkerRole.Run", "Information");
         }
 
         public override bool OnStart()
         {
+            Trace.WriteLine("++WorkerRole.OnStart", "Information");
+
             // Set the maximum number of concurrent connections 
             //ToDo: Increase this number? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             ServicePointManager.DefaultConnectionLimit = 12;
@@ -36,15 +39,20 @@ namespace WorkerRole
             StartListenerThread();
 
             return base.OnStart();
+            Trace.WriteLine("--WorkerRole.OnStart", "Information");
         }
 
         private void StartListenerThread()
         {
+            Trace.WriteLine("++WorkerRole.StartListenerThread", "Information");
+
             _listenerThread = null;
             _listenerThread = new Thread(TCPListener.TcpListenerProcess);
             _listenerThread.TrySetApartmentState(ApartmentState.STA);
             _listenerThread.Name = "Server TCP Listener";
             _listenerThread.Start();
+
+            Trace.WriteLine("--WorkerRole.StartListenerThread", "Information");
         }
     }
 }

@@ -141,6 +141,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\ConnectionStringConverter.cs" />
     <Compile Include="PlayerStatistics\ExperienceCalculator.cs" />
     <Compile Include="PlayerStatistics\PlayerLevel.cs" />
     <Compile Include="BuddyManagement\FriendManager.cs" />
@@ -170,9 +171,15 @@
     <Compile Include="Server\MessageProcessors\RoomMessageProcessor.cs" />
     <Compile Include="Storage\GameDataHistory.cs" />
     <Compile Include="Storage\Settings.cs" />
+    <Compile Include="UI\Background\BackgroundGrid.cs" />
+    <Compile Include="UI\Background\ColorGenerator.cs" />
+    <Compile Include="UI\Background\Polygon.cs" />
     <Compile Include="UI\ColumnView\ColumnViewModel.cs" />
     <Compile Include="UI\ColumnView\FriendsList.xaml.cs">
       <DependentUpon>FriendsList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\DesignSandbox.xaml.cs">
+      <DependentUpon>DesignSandbox.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\GameBoardPrototype.xaml.cs">
       <DependentUpon>GameBoardPrototype.xaml</DependentUpon>
@@ -219,6 +226,7 @@
     <None Include="Ozwego_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\appbar.add.png" />
     <Content Include="Assets\GameBackground.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -231,6 +239,7 @@
     <Content Include="Gameplay\2of12inf.data">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Gameplay\DebuggingTileSet.xml" />
     <Content Include="Gameplay\ReducedTileSet.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -254,6 +263,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="UI\ColumnView\FriendsList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\DesignSandbox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

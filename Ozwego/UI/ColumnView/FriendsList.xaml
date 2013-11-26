@@ -20,19 +20,20 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Row ="0">
-                    <TextBlock Text="Friends" Style="{StaticResource SubheaderTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Players Online:  " Style="{StaticResource SubtitleTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
-                        <TextBlock Text="View Not Implemented" Style="{StaticResource SubtitleTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <Button Height="50" Width="50" Content="+" FontSize="14.667" Tapped="AddFriendButtonTapped"></Button>
-                        <TextBox x:Name="SearchBar" Width="200" Margin="20,0,0,10" VerticalAlignment="Bottom"/>
+                        <TextBox x:Name="SearchBar" Width="200" Margin="10,10,0,10" VerticalAlignment="Bottom"/>
+                        <Border BorderThickness="2" CornerRadius="25" Width="32" Height="32" BorderBrush="White" Margin="5,0,0,0">
+                            <Ellipse Tapped="AddFriendButtonTapped">
+                                <Ellipse.Fill>
+                                    <ImageBrush ImageSource="ms-appx:///Assets/appbar.add.png"/>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                        </Border>
                     </StackPanel>
                 </StackPanel>
 
                 <StackPanel Grid.Row="1">
-                    <TextBlock Text="Online" Style="{StaticResource SubheaderTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
+                    <TextBlock Text="online" Style="{StaticResource SubheaderTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
                     <ListBox Name="OnlineFriendsListUI" Background="Transparent">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
@@ -42,8 +43,8 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    
-                    <TextBlock Text="Offline" Style="{StaticResource SubheaderTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
+
+                    <TextBlock Text="offline" Style="{StaticResource SubheaderTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
                     <ListBox Name="OfflineFriendsListUI" Background="Transparent">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
@@ -53,8 +54,8 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    
-                    <TextBlock Text="Recent" Style="{StaticResource SubheaderTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
+
+                    <TextBlock Text="recent" Style="{StaticResource SubheaderTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
                     <TextBlock Text="Not Implemented Yet" Style="{StaticResource SubtitleTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
                 </StackPanel>
 
@@ -70,9 +71,9 @@
 
 
             </Grid>
-            
-            
+
+
         </Grid>
-        
+
     </Grid>
 </Page>

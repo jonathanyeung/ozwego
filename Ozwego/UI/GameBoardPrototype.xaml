@@ -69,10 +69,9 @@
 
     
     <Grid Style="{StaticResource LayoutRootStyle}">
-        <Grid.Background>
-            <ImageBrush ImageSource="/Assets/GameBackground.jpg"
-                    Stretch="UniformToFill" />
-        </Grid.Background>
+    	<Grid.Background>
+    		<ImageBrush ImageSource="ms-appx:/Assets/GameBackground.jpg" Stretch="UniformToFill"/>
+    	</Grid.Background>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="*"/>
@@ -84,7 +83,7 @@
         
         <!--Left Hand Column-->
         <StackPanel Grid.Row="1" Grid.Column="0"  HorizontalAlignment="Center">
-            <Button x:Name="StartGame" Content="Start Game"   Grid.Row="1" VerticalAlignment="Top" Width="200" Tapped="StartGame_OnTapped" Margin="0, 10, 0, 0"/>
+            <!--<Button x:Name="StartGame" Content="Start Game"   Grid.Row="1" VerticalAlignment="Top" Width="200" Tapped="StartGame_OnTapped" Margin="0, 10, 0, 0"/>-->
 
             <ItemsControl x:Name="PlayerPanel" Background="Transparent">
                 <ItemsControl.ItemTemplate>
@@ -160,7 +159,7 @@
         </Grid>
         
         <!--Starting Game Animation Resources-->
-        <Grid x:Name="grid" Background="#CC1B0202" Grid.ColumnSpan="3">
+        <Grid x:Name="grid" Background="#CC1B0202" Grid.ColumnSpan="3" d:IsHidden="True">
             <TextBlock x:Name="textBlock" HorizontalAlignment="Center" Margin="0" TextWrapping="Wrap" Text="3" VerticalAlignment="Center" Grid.ColumnSpan="3" FontSize="200"/>
         </Grid>
 

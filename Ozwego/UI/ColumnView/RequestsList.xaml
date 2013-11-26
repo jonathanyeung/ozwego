@@ -14,8 +14,7 @@
         </Grid.RowDefinitions>
         <Grid x:Name="ColumnContent" Grid.Row="0">
             <StackPanel>
-                <TextBlock Text="Requests" Style="{StaticResource SubheaderTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
-                <TextBlock Text="Friend Requests" Style="{StaticResource SubtitleTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
+                <TextBlock Text="friend requests" Style="{StaticResource SubheaderTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
 
                 <!--<StackPanel Orientation="Horizontal" DoubleTapped="OnFriendRequestDoubleTapped">
                     <Button Height="45" Width="45" Content="Y" FontSize="10.667" Tapped="OnYesTapped"/>
@@ -37,7 +36,7 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <TextBlock Text="Game Requests" Style="{StaticResource SubtitleTextStyle}" Margin="0, 0, 0, 10"/>
+                <TextBlock Text="game requests" Style="{StaticResource SubheaderTextStyle}" Margin="0, 0, 0, 10"/>
                 <ListBox Name="GameRequestListUI" Background="Transparent">
                     <ListBox.ItemTemplate>
                         <DataTemplate>

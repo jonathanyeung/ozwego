@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Ozwego.BuddyManagement;
 using Ozwego.Server;
 using Ozwego.Server.MessageProcessors;
 using Ozwego.UI;
+using Ozwego.UI.Background;
 using Shared;
+using Windows.System;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
@@ -24,11 +29,14 @@ namespace Ozwego
     {
         public MainPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
 
             var mainPageViewModel = MainPageViewModel.GetInstance();
             DataContext = mainPageViewModel;
             UserStatsUI.DataContext = App.ClientBuddyInstance;
+
+            var gameBoardViewModel = GameBoardViewModel.GetInstance();
+            MatchmakingPane.DataContext = gameBoardViewModel;
         }
 
 
@@ -54,9 +62,41 @@ namespace Ozwego
                 //ToDo: This has thrown a LiveConnectException during debugging.  Need to handle it properly here.
                 throw;
             }
+
+
+            //
+            // Background grid initialization
+            //
+
+            var background = BackgroundGrid.GetInstance();
+
+            RootGrid.Children.Insert(0, background.PolygonGrid);
+
+            background.BeginSubtleAnimation();
+
+            //
+            // Friend Lobby Initialization
+            //
+
+            var roomManager = RoomManager.GetInstance();
+            RoomListUI.ItemsSource = roomManager.RoomMembers;
+
+            var mainPageViewModel = MainPageViewModel.GetInstance();
+            ChatWindow.ItemsSource = mainPageViewModel.ChatMessages;
+            DataContext = mainPageViewModel;
+
+
+            // This frame is hidden, meaning it is never shown.  It is simply used to load
+            // each scenario page and then pluck out the input and output sections and
+            // place them into the UserControls on the main page.
+            HiddenFrame = new Windows.UI.Xaml.Controls.Frame();
+            HiddenFrame.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+            //ContentRoot.Children.Add(HiddenFrame);
+
+            LoadColumnView(typeof(FriendsList));
         }
 
-        #region Button EH
+        #region Main Menu
 
         private void LogInButton_OnTapped(object sender, TappedRoutedEventArgs e)
         {
@@ -83,14 +123,15 @@ namespace Ozwego
 
         private void OnMultiPlayerButtonTapped(object sender, TappedRoutedEventArgs e)
         {
-            Frame.Navigate(typeof(Lobby));
+            MainToFriendChallenge.Begin();
+            //Frame.Navigate(typeof(Lobby));
         }
 
         private async void GameHistoryButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
             var gdh = GameDataHistory.GetInstance();
 
-            var dataSet1 = new GameData { GameDuration = 50, GameHost = "abc@outlook.com", Winner = "abc@outlook.com", GameStartTime = new DateTime(2013, 10, 14)};
+            var dataSet1 = new GameData { GameDuration = 50, GameHost = "abc@outlook.com", Winner = "abc@outlook.com", GameStartTime = new DateTime(2013, 10, 14) };
 
             dataSet1.GameMoves.Add(new GameMoveDataPoint("abc@outlook.com", 5, MoveType.Peel));
 
@@ -117,48 +158,156 @@ namespace Ozwego
             await gdh.ClearAllStoredData();
 
             await gdh.StoreGameData(dataSet1);
-            
+
 
             var crap = await gdh.RetrieveGameData();
 
             await gdh.UploadPendingGameData();
         }
 
+
+        #endregion
+
+        #region Matchmaking
+
+        private DispatcherTimer _matchmakingTimer;
+
         private async void OnMatchmakingButtonTapped(object sender, TappedRoutedEventArgs e)
         {
+            //
+            // Navigate to the page.
+            //
+
+            MainToMatchmaking.Begin();
+
+            OnNavigatedToMatchmakingPane();
+
+
+            //
+            // Send the matchmaking begin packets to the server if connected.
+            //
+
             var serverProxy = ServerProxy.GetInstance();
 
+            // ToDo: Replace all of these null check calls of messageSender with checks to the connection status.
             if (serverProxy.messageSender != null)
             {
                 await serverProxy.messageSender.SendMessage(PacketType.ClientStartingMatchmaking);
-                Frame.Navigate(typeof(MatchmakingWaitPage));
             }
             else
             {
+
                 GameBoardNavigationArgs args = new GameBoardNavigationArgs()
                 {
                     GameConnectionType = GameConnectionType.Local,
                     BotCount = 1
                 };
 
-                Frame.Navigate(typeof(GameBoardPrototype), args);
+                // ToDo: If the user navigates away from this page, then the navigation to the gameboard needs to be cancelled.
+                await Task.Delay(5000);
+
+                // ToDo: Re-enable.
+                //Frame.Navigate(typeof(GameBoardPrototype), args);
             }
+        }
+
+
+        private void OnMainMenuTappedFromMatchmakingPane(object sender, TappedRoutedEventArgs e)
+        {
+            MatchmakingToMain.Begin();
+
+            OnNavigatedFromMatchmakingPane();
+        }
+
+
+        private async void OnNavigatedToMatchmakingPane()
+        {
+            //
+            // Set up Timer UI.
+            //
+            var viewModel = GameBoardViewModel.GetInstance();
+            viewModel.MatchmakingWaitTime = 0;
+            _matchmakingTimer = new DispatcherTimer();
+            _matchmakingTimer.Interval = new TimeSpan(0, 0, 1);
+            _matchmakingTimer.Tick += OnTimerTick;
+            _matchmakingTimer.Start();
+
+
+            //
+            // Hook up the Matchmaking Message Processor Events
+            //
+            MatchmakingMessageProcessor.GameFoundEvent += OnGameFoundEvent;
+            MatchmakingMessageProcessor.GameNotFoundEvent += OnGameNotFoundEvent;
+
+
+            //
+            // Change the background animation style
+            //
+
+            await Task.Delay(1000);
+
+            var background = BackgroundGrid.GetInstance();
+            background.BeginFlashAnimation();
+        }
+
+
+        private void OnGameNotFoundEvent(object sender)
+        {
+            GameBoardNavigationArgs args = new GameBoardNavigationArgs()
+            {
+                GameConnectionType = GameConnectionType.Local,
+                BotCount = 1
+            };
+
+            Frame.Navigate(typeof(GameBoardPrototype), args);
+        }
+
+
+        private void OnGameFoundEvent(object sender)
+        {
+            GameBoardNavigationArgs args = new GameBoardNavigationArgs()
+            {
+                GameConnectionType = GameConnectionType.Online,
+                BotCount = 0
+            };
+
+            Frame.Navigate(typeof(GameBoardPrototype), args);
+        }
+
+
+        void OnTimerTick(object sender, object e)
+        {
+            var viewModel = GameBoardViewModel.GetInstance();
+            viewModel.MatchmakingWaitTime++;
+        }
+
+
+        private void OnNavigatedFromMatchmakingPane()
+        {
+            _matchmakingTimer.Stop();
+            _matchmakingTimer.Tick -= OnTimerTick;
+            MatchmakingMessageProcessor.GameFoundEvent -= OnGameFoundEvent;
+            MatchmakingMessageProcessor.GameNotFoundEvent -= OnGameNotFoundEvent;
+
+            //
+            // Change the background animation style
+            //
+
+            var background = BackgroundGrid.GetInstance();
+            background.BeginSubtleAnimation();
         }
 
         #endregion
 
-        private void ShowPopupOffsetClicked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
-        {
-            // open the Popup if it isn't open already 
-            if (!StandardPopup.IsOpen) { StandardPopup.IsOpen = true; }
-        }
-
-        private void CloseButtonClicked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
-        {
-            if (StandardPopup.IsOpen) { StandardPopup.IsOpen = false; }
-        }
+        #region Friend Lobby
 
         private string _enteredAlias;
+        private Frame HiddenFrame = null;
+
+        private void OnNavigatedToFriendLobby()
+        {
+        }
+
 
         private async void CheckIfAvailableClicked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
@@ -173,7 +322,7 @@ namespace Ozwego
                 await serverProxy.messageSender.SendMessage(PacketType.ClientQueryIfAliasAvailable, _enteredAlias);
             }
         }
-        
+
 
         private void AliasAvailableCallback(object sender, string message)
         {
@@ -189,5 +338,137 @@ namespace Ozwego
 
             // ToDo: Once the alias has been accepted, then upload it to the server.
         }
+
+
+        private void OnMainMenuTappedFromFriendChallengePane(object sender, TappedRoutedEventArgs e)
+        {
+            FriendChallengeToMain.Begin();
+        }
+
+
+        private void LeaveRoomButton_OnTapped(object sender, TappedRoutedEventArgs e)
+        {
+            var roomManager = RoomManager.GetInstance();
+            roomManager.LeaveRoom();
+            roomManager.ChangeRoomHost(Settings.userInstance);
+        }
+
+
+        private async void StartGame_OnTapped(object sender, TappedRoutedEventArgs e)
+        {
+            //
+            // Only allow the room host to initiate a game.
+            //
+
+            var roomManager = RoomManager.GetInstance();
+
+            if (roomManager.Host.EmailAddress != Settings.EmailAddress)
+            {
+                return;
+            }
+
+            var args = new GameBoardNavigationArgs()
+            {
+                GameConnectionType = GameConnectionType.Online,
+                BotCount = 0
+            };
+
+            var serverProxy = ServerProxy.GetInstance();
+            if (serverProxy.messageSender != null)
+            {
+                await serverProxy.messageSender.SendMessage(PacketType.ClientInitiateGame);
+            }
+
+            Frame.Navigate(typeof(GameBoardPrototype), args);
+        }
+
+
+        private void MessageChatBox_OnKeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            var roomManager = RoomManager.GetInstance();
+
+            // ToDo: Routing of the unused e is a bit hacky.
+            if ((e.Key == VirtualKey.Enter) && MessageChatBox.Text != "")
+            {
+                string messageToSend = MessageChatBox.Text;
+                MessageChatBox.Text = "";
+
+                var mainPageViewModel = MainPageViewModel.GetInstance();
+                mainPageViewModel.ChatMessages.Add("me: " + messageToSend);
+
+                roomManager.InitiateMessageSend(messageToSend);
+            }
+        }
+
+
+        private void ChatWindow_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ChatWindow.SelectedIndex = -1;
+        }
+
+
+        private void LoadColumnView(Type columnViewType)
+        {
+            // Load the ScenarioX.xaml file into the Frame.
+            HiddenFrame.Navigate(columnViewType, this);
+
+            // Get the top element, the Page, so we can look up the elements
+            // that represent the input and output sections of the ScenarioX file.
+            Page hiddenPage = HiddenFrame.Content as Page;
+
+            UIElement columnContent = hiddenPage.FindName("ColumnContent") as UIElement;
+
+            if (columnContent == null)
+            {
+                throw new ArgumentException("The column content could not be found in LoadColumnView()");
+            }
+
+            // Find the LayoutRoot which parents the input and output sections in the main page.
+            Panel panel = hiddenPage.FindName("LayoutRoot") as Panel;
+
+            if (panel != null)
+            {
+                // Get rid of the content that is currently in the intput and output sections.
+                panel.Children.Remove(columnContent);
+
+                // Populate the column content sections with the newly loaded content.
+                ColumnContentSection.Content = columnContent;
+            }
+            else
+            {
+                throw new ArgumentException("The loaded layoutRoot could not be found in LoadColumnView()");
+            }
+        }
+
+
+        private void FriendsColumnView_OnTapped(object sender, TappedRoutedEventArgs e)
+        {
+            FriendsColumnFocus.Begin();
+            LoadColumnView(typeof(FriendsList));
+        }
+
+
+        private void RequestsColumnView_OnTapped(object sender, TappedRoutedEventArgs e)
+        {
+            RequestsColumnFocus.Begin();
+            LoadColumnView(typeof(RequestsList));
+        }
+
+
+        #endregion
+
+        private void ShowPopupOffsetClicked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            // open the Popup if it isn't open already 
+            if (!StandardPopup.IsOpen) { StandardPopup.IsOpen = true; }
+        }
+
+
+        private void CloseButtonClicked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            if (StandardPopup.IsOpen) { StandardPopup.IsOpen = false; }
+        }
+
+
     }
 }

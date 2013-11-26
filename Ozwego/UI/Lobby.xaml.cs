@@ -44,6 +44,30 @@ namespace Ozwego.UI
             LoadColumnView(typeof(FriendsList));
         }
 
+
+        /// <summary>
+        /// Populates the page with content passed during navigation.  Any saved state is also
+        /// provided when recreating a page from a prior session.
+        /// </summary>
+        /// <param name="navigationParameter">The parameter value passed to
+        /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested.
+        /// </param>
+        /// <param name="pageState">A dictionary of state preserved by this page during an earlier
+        /// session.  This will be null the first time a page is visited.</param>
+        protected override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
+        {
+        }
+
+        /// <summary>
+        /// Preserves state associated with this page in case the application is suspended or the
+        /// page is discarded from the navigation cache.  Values must conform to the serialization
+        /// requirements of <see cref="SuspensionManager.SessionState"/>.
+        /// </summary>
+        /// <param name="pageState">An empty dictionary to be populated with serializable state.</param>
+        protected override void SaveState(Dictionary<String, Object> pageState)
+        {
+        }
+
         private void JoinButton_OnTapped(object sender, TappedRoutedEventArgs e)
         {
             //ToDo: Re-enable
@@ -92,42 +116,6 @@ namespace Ozwego.UI
         }
 
 
-        private void SendButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            string messageToSend = MessageChatBox.Text;
-            MessageChatBox.Text = "";
-
-            var mainPageViewModel = MainPageViewModel.GetInstance();
-            mainPageViewModel.ChatMessages.Add("me:" + messageToSend);
-
-            var roommanager = RoomManager.GetInstance();
-            roommanager.InitiateMessageSend(messageToSend);
-        }
-
-
-        /// <summary>
-        /// Populates the page with content passed during navigation.  Any saved state is also
-        /// provided when recreating a page from a prior session.
-        /// </summary>
-        /// <param name="navigationParameter">The parameter value passed to
-        /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested.
-        /// </param>
-        /// <param name="pageState">A dictionary of state preserved by this page during an earlier
-        /// session.  This will be null the first time a page is visited.</param>
-        protected override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
-        {
-        }
-
-        /// <summary>
-        /// Preserves state associated with this page in case the application is suspended or the
-        /// page is discarded from the navigation cache.  Values must conform to the serialization
-        /// requirements of <see cref="SuspensionManager.SessionState"/>.
-        /// </summary>
-        /// <param name="pageState">An empty dictionary to be populated with serializable state.</param>
-        protected override void SaveState(Dictionary<String, Object> pageState)
-        {
-        }
-
         private void MessageChatBox_OnKeyDown(object sender, KeyRoutedEventArgs e)
         {
             var roomManager = RoomManager.GetInstance();
@@ -154,7 +142,7 @@ namespace Ozwego.UI
 
         private Frame HiddenFrame = null;
 
-        public void LoadColumnView(Type columnViewType)
+        private void LoadColumnView(Type columnViewType)
         {
             // Load the ScenarioX.xaml file into the Frame.
             HiddenFrame.Navigate(columnViewType, this);
@@ -190,21 +178,22 @@ namespace Ozwego.UI
 
         private void FriendsColumnView_OnTapped(object sender, TappedRoutedEventArgs e)
         {
+            FriendsColumnFocus.Begin();
             LoadColumnView(typeof(FriendsList));
         }
 
 
         private void RequestsColumnView_OnTapped(object sender, TappedRoutedEventArgs e)
         {
+            RequestsColumnFocus.Begin();
             LoadColumnView(typeof(RequestsList));
         }
 
-        private async void Matchmaking_OnTapped(object sender, TappedRoutedEventArgs e)
-        {
-            var messageSender = MessageSender.GetInstance();
-            await messageSender.SendMessage(PacketType.ClientStartingMatchmaking);
-        }
-
         #endregion
+
+        private void OnMainMenuTappedFromFriendChallengePane(object sender, TappedRoutedEventArgs e)
+        {
+
+        }
     }
 }

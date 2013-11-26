@@ -213,6 +213,7 @@ namespace Shared.Serialization
                 writer.Write(dictionary.Count);
                 foreach (var pair in dictionary)
                 {
+                    //ToDo: For all of these dictionaries, do a null check on both Key and Value; Find a way to bail gracefully if they are null.
                     writer.Write(pair.Key);
                     writer.Write(pair.Value);
                 }

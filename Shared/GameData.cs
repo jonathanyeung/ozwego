@@ -114,13 +114,19 @@ namespace Ozwego.Storage
                         PlayerDictionary[activePlayer].NumberOfPeels / GameDuration;
             }
 
-                //ToDo: Make sure that the scenario mentioned below cannot be hit.
-                //The code below solves the problem of when a player doesn't make any moves during the game (no peel or dumps).
-                //ToDo: Remove this workaround code.  This is hacky.
-                //if (playerTuple.Stats == null)
-                //{
-                //    playerTuple.Stats = new PlayerGameStats();
-                //}
+
+            //
+            // Create a blank PlayerGameStats object for all inactive players
+            //
+
+            var inactivePlayerKeys = PlayerDictionary
+                    .Where(kvp => kvp.Value == null)
+                    .Select(kvp => kvp.Key).ToList();
+
+            foreach (var key in inactivePlayerKeys)
+            {
+                PlayerDictionary[key] = new PlayerGameStats();
+            }
 
         }
 

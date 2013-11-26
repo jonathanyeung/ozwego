@@ -7,52 +7,309 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:Ozwego.Converters" mc:Ignorable="d">
+    <common:LayoutAwarePage.Resources>
+        <Storyboard x:Name="MainToMatchmaking">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="MatchmakingPane">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Visible</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
+                	<DiscreteObjectKeyFrame.Value>
+                		<Visibility>Visible</Visibility>
+                	</DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="MatchmakingPane">
+                <EasingDoubleKeyFrame KeyTime="0" Value="{Binding NegScreenWidth}"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuinticEase EasingMode="EaseInOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimation Duration="0:0:0.5" To="{Binding ScreenWidth}" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="MainMenu" d:IsOptimized="True">
+                <DoubleAnimation.EasingFunction>
+            		<QuinticEase EasingMode="EaseInOut"/>
+            	</DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="MainMenu">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
+                    <DiscreteObjectKeyFrame.Value>
+                		<Visibility>Visible</Visibility>
+                	</DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
 
-    <Grid Style="{StaticResource LayoutRootStyle}">
+        <Storyboard x:Name="MatchmakingToMain">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="MainMenu">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Visible</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="MainMenu">
+                <EasingDoubleKeyFrame KeyTime="0" Value="{Binding ScreenWidth}"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuinticEase EasingMode="EaseInOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="MatchmakingPane">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Visible</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Collapsed</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="MatchmakingPane">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="{Binding NegScreenWidth}">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuinticEase EasingMode="EaseInOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard x:Name="FriendChallengeToMain">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="FriendChallengePane">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Visible</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Collapsed</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="MainMenu">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Visible</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="MainMenu">
+                <EasingDoubleKeyFrame KeyTime="0" Value="{Binding NegScreenWidth}"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuinticEase EasingMode="EaseInOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Projection).(PlaneProjection.RotationX)" Storyboard.TargetName="FriendChallengePane">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="FriendChallengePane">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="{Binding ScreenWidth}">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuinticEase EasingMode="EaseInOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard x:Name="MainToFriendChallenge">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="FriendChallengePane">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Visible</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation Duration="0" To="0" Storyboard.TargetProperty="(UIElement.Projection).(PlaneProjection.RotationX)" Storyboard.TargetName="FriendChallengePane" d:IsOptimized="True"/>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="FriendChallengePane">
+                <EasingDoubleKeyFrame KeyTime="0" Value="{Binding ScreenWidth}"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuinticEase EasingMode="EaseInOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimation Duration="0:0:0.5" To="{Binding NegScreenWidth}" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="MainMenu" d:IsOptimized="True">
+                <DoubleAnimation.EasingFunction>
+            		<QuinticEase EasingMode="EaseInOut"/>
+            	</DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="MainMenu">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Collapsed</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!--Resources For LobbyPage-->
+        <DataTemplate x:Key="GameRoomPlayerTileTemplate">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                
+                <Rectangle Fill="Green" Height="160" Width="200" VerticalAlignment="Top" 
+                           HorizontalAlignment="Left" Grid.Row="1"/>
+                
+                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource ApplicationForegroundThemeBrush}" 
+                           Style="{StaticResource TitleTextStyle}" VerticalAlignment="Center" 
+                           HorizontalAlignment="Left" FontFamily="Segoe UI" Margin="5,0,0,0" 
+                           Text="{Binding Alias}" FontSize="24" Canvas.ZIndex="1"/>
+                
+                <Rectangle Fill="LimeGreen" Height="40" Width="200" 
+                           VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                
+                <StackPanel Margin="0,5,0,0" Orientation="Vertical" Grid.Row="1">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock TextWrapping="Wrap" Foreground="{StaticResource ApplicationForegroundThemeBrush}" 
+                                   MaxHeight="20" VerticalAlignment="Center" Text="Ranking: " HorizontalAlignment="Left" 
+                                   Margin="5,0,0,3" FontSize="13.333"/>
+                        <TextBlock TextWrapping="Wrap" Foreground="{StaticResource ApplicationForegroundThemeBrush}" 
+                                   MaxHeight="20" VerticalAlignment="Center" Text="{Binding Ranking}" HorizontalAlignment="Left" 
+                                   Margin="5,0,0,3" FontSize="13.333"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock TextWrapping="Wrap" Foreground="{StaticResource ApplicationForegroundThemeBrush}" 
+                                   MaxHeight="20" VerticalAlignment="Center" Text="Level: " HorizontalAlignment="Left" 
+                                   Margin="5,0,0,3" FontSize="13.333"/>
+                        <TextBlock TextWrapping="Wrap" Foreground="{StaticResource ApplicationForegroundThemeBrush}" 
+                                   MaxHeight="20" VerticalAlignment="Center" Text="{Binding Level}" HorizontalAlignment="Left" 
+                                   Margin="5,0,0,3" FontSize="13.333"/>
+                    </StackPanel>
+
+                    <TextBlock TextWrapping="Wrap" Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                               Width="100" MaxHeight="20" VerticalAlignment="Center" Text="[Picture Icon]" 
+                               HorizontalAlignment="Left" Margin="5,20,0,0" FontStyle="Italic" FontSize="13.333"/>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
+        <Style x:Key="StoreFrontTileStyle"  TargetType="GridViewItem">
+            <Setter Property="FontFamily" Value="Segoe UI" />
+            <!--<Setter Property="Height" Value="80" />
+            <Setter Property="Width" Value="292" />-->
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0,0,8,8" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="VerticalContentAlignment" Value="Top" />
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="TabNavigation" Value="Local" />
+        </Style>
+
+        <ItemsPanelTemplate x:Key="GameRoomPlayersItemsPanelTemplate">
+            <WrapGrid MaximumRowsOrColumns="6" VerticalChildrenAlignment="Top" HorizontalChildrenAlignment="Left" Orientation="Horizontal" />
+        </ItemsPanelTemplate>
+        <Storyboard x:Name="RequestsColumnFocus">
+            <DoubleAnimation Duration="0:0:0.5" To="0.2" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="FriendsTextBlock" d:IsOptimized="True">
+                <DoubleAnimation.EasingFunction>
+                    <QuarticEase/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <ColorAnimation Duration="0:0:0.5" To="White" Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" Storyboard.TargetName="RequestsTextBlock" d:IsOptimized="True"/>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="RequestsTextBlock">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0.2"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard x:Name="FriendsColumnFocus">
+            <ColorAnimation Duration="0:0:0.5" To="White" Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" Storyboard.TargetName="FriendsTextBlock" d:IsOptimized="True"/>
+            <DoubleAnimation Duration="0:0:0.5" To="0.2" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="RequestsTextBlock" d:IsOptimized="True">
+                <DoubleAnimation.EasingFunction>
+                    <QuarticEase/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="FriendsTextBlock">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0.2"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+        <!--End Resources For LobbyPage-->
+
+    </common:LayoutAwarePage.Resources>
+
+    <Grid Name="RootGrid" Style="{StaticResource LayoutRootStyle}" RenderTransformOrigin="0.5,0.5">
         <Grid.Resources>
             <converters:ColorConverter x:Key="CvtColor"/>
+            <converters:ConnectionStringConverter x:Key="CvtConnectionString"/>
         </Grid.Resources>
+        <Grid.RenderTransform>
+            <CompositeTransform/>
+        </Grid.RenderTransform>
         
-        <Grid>
+
+        <Grid x:Name="MainMenu" RenderTransformOrigin="0.5,0.5" d:IsHidden="True">
+            <Grid.RenderTransform>
+                <CompositeTransform/>
+            </Grid.RenderTransform>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-			<!-- Connection Status -->
-			<StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,20,0" >
-				<TextBlock Text="connected to ozwego.net" Style="{StaticResource SubheaderTextStyle}"></TextBlock>
-				<Ellipse Width="20" Height="20" Fill="{Binding ConnectionStatus,Converter={StaticResource CvtColor}}" Margin="10,0,0,0" VerticalAlignment="Bottom" />
-			</StackPanel>
+            <!-- Connection Status -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,20,0" >
+                <TextBlock Text="{Binding ConnectionStatus,Converter={StaticResource CvtConnectionString}}" Style="{StaticResource SubheaderTextStyle}"></TextBlock>
+                <Ellipse Width="20" Height="20" Fill="{Binding ConnectionStatus,Converter={StaticResource CvtColor}}" Margin="10,0,0,0" VerticalAlignment="Bottom" />
+            </StackPanel>
 
-				<!-- Connection Status -->
-			<StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20" >
-				<TextBlock Text="Mobius Studios" Style="{StaticResource SubheaderTextStyle}"></TextBlock>
-			</StackPanel>
+            <!-- Connection Status -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20" >
+                <TextBlock Text="Mobius Studios" Style="{StaticResource SubheaderTextStyle}"></TextBlock>
+            </StackPanel>
 
-			<!-- Debug Menu (Not intended for release versions) -->
+            <!-- Debug Menu (Not intended for release versions) -->
             <StackPanel HorizontalAlignment="Left" Height="Auto" Grid.Column="0" VerticalAlignment="Top" Width="400" Margin="20, 0, 0, 0">
-			    <TextBlock Text="debug menu" Style="{StaticResource SubheaderTextStyle}"></TextBlock>
+                <TextBlock Text="debug menu" Style="{StaticResource SubheaderTextStyle}"></TextBlock>
                 <Button Name="LogInButton"  Content="Log In" HorizontalAlignment="Left"  Grid.Row="1" VerticalAlignment="Top" Width="250" Tapped="LogInButton_OnTapped"/>
                 <Button Name="LogOutButton" Content="Log Out" HorizontalAlignment="Left"  Grid.Row="1" VerticalAlignment="Top" Width="250" Tapped="LogOutButton_OnTapped"/>
                 <Button Name="GameHistoryButton" Content="Retrieve Game History" HorizontalAlignment="Left"  Grid.Row="1" VerticalAlignment="Top" Width="250" Tapped="GameHistoryButton_Tapped" />
                 <Button Width="250" Content="Game Debug" Tapped="OnSinglePlayerButtonTapped" Margin="0, 0, 0, 20"></Button>
-			</StackPanel>
-            
-			<!-- Center Column : Main Content -->
+            </StackPanel>
+
+            <!-- Center Column : Main Content -->
             <StackPanel Name="UserStatsUI"  Grid.Column="1" VerticalAlignment="Center">
-                <TextBlock Text="ozwego" HorizontalAlignment="Center" FontSize="96"></TextBlock> <!-- ToDo: Replace this with an animating picture resource-->
+                <TextBlock Text="ozwego" HorizontalAlignment="Center" FontSize="96"></TextBlock>
+                <!-- ToDo: Replace this with an animating picture resource-->
                 <TextBlock Name="UserNameUI" Text="{Binding Alias}" HorizontalAlignment="Center" Style="{StaticResource PageSubheaderTextStyle}"></TextBlock>
                 <TextBlock Text="{Binding Ranking}" HorizontalAlignment="Center" Style="{StaticResource TitleTextStyle}"></TextBlock>
                 <TextBlock Text="{Binding CreationTime}" HorizontalAlignment="Center" Style="{StaticResource TitleTextStyle}"></TextBlock>
-                
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 100, 0, 0">
+
+                <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 100, 0, 0">
                     <Button Width="150" Content="Friend Challenge" Tapped="OnMultiPlayerButtonTapped" Margin="5,0,0,0">
                     </Button>
                     <Button Width="150" Content="Matchmaking" Tapped="OnMatchmakingButtonTapped" Margin="5,0,0,0"></Button>
-                </StackPanel>
+                </StackPanel>-->
             </StackPanel>
+            <TextBlock Margin="0" TextWrapping="Wrap" Text="friend challenge" FontSize="48" 
+                       RenderTransformOrigin="0.9,0.5" UseLayoutRounding="False" d:LayoutRounding="Auto"
+                       Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center"
+                       Tapped="OnMultiPlayerButtonTapped">
+                <TextBlock.RenderTransform>
+                    <CompositeTransform Rotation="90" TranslateY="134"/>
+                </TextBlock.RenderTransform>
+            </TextBlock>
+            <TextBlock Margin="0" TextWrapping="Wrap" Text="matchmaking" FontSize="48" 
+                       RenderTransformOrigin="0.1,0.5" UseLayoutRounding="False" 
+                       d:LayoutRounding="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"
+                       Tapped="OnMatchmakingButtonTapped">
+                <TextBlock.RenderTransform>
+                    <CompositeTransform Rotation="-90" TranslateY="113"/>
+                </TextBlock.RenderTransform>
+            </TextBlock>
         </Grid>
 
         <Grid x:Name="PopUp" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2">
@@ -74,6 +331,119 @@
             </Popup>
         </Grid>
 
+        <Grid x:Name="MatchmakingPane" RenderTransformOrigin="0.5,0.5" Visibility="Collapsed">
+            <Grid.RenderTransform>
+                <CompositeTransform/>
+            </Grid.RenderTransform>
+            <TextBlock x:Name="pageTitle" Style="{StaticResource PageHeaderTextStyle}" Margin="30,30,0,0" VerticalAlignment="Top" Text="matchmaking"/>
+
+            <Grid Grid.Row="1">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock HorizontalAlignment="Center" Style="{StaticResource TitleTextStyle}" Text="Finding Game..." FontSize="56" FontWeight="Normal"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,0">
+                        <TextBlock Style="{StaticResource PageHeaderTextStyle}" FontSize="21.333" Text="Wait Time:"/>
+                        <TextBlock Style="{StaticResource PageHeaderTextStyle}" Text="{Binding MatchmakingWaitTime}" FontSize="21.333"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+            <TextBlock x:Name="textBlock" Margin="0" TextWrapping="Wrap" Text="main menu" FontSize="48" 
+            	RenderTransformOrigin="0.9,0.5" UseLayoutRounding="False" 
+            	d:LayoutRounding="Auto" HorizontalAlignment="Right" VerticalAlignment="Center"
+            	Tapped="OnMainMenuTappedFromMatchmakingPane">
+            	<TextBlock.RenderTransform>
+            		<CompositeTransform Rotation="90" TranslateY="95"/>
+            	</TextBlock.RenderTransform>
+            </TextBlock>
+        </Grid>
+
+        <Grid x:Name="FriendChallengePane" RenderTransformOrigin="0.5,0.5" Visibility="Collapsed">
+            <Grid.RenderTransform>
+                <CompositeTransform/>
+            </Grid.RenderTransform>
+            <Grid.Projection>
+                <PlaneProjection/>
+            </Grid.Projection>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="400"/>
+            </Grid.ColumnDefinitions>
+
+            <!--<Button x:Name="backButton" Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}" Margin="20,0,0,20"/>-->
+
+            <Grid Grid.Column="0" Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <StackPanel  Margin="20, 0, 0, 0" Orientation="Horizontal" Grid.ColumnSpan="2">
+                    <StackPanel Margin="0,30,30,0">
+                        <TextBlock Text="Game Room" Style="{StaticResource SubheaderTextStyle}" Margin="0,0,0,5" Foreground="#DEFFFFFF" FontSize="40"></TextBlock>
+                        <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
+                            <TextBlock Text="Host:  " Style="{StaticResource SubtitleTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
+                            <TextBlock Text="{Binding RoomHost}" Style="{StaticResource SubtitleTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                    <Button Name="LeaveRoomButton" Content="Leave Room" VerticalAlignment="Bottom" Width="200" Tapped="LeaveRoomButton_OnTapped" Margin="0, 0, 10, 0" HorizontalAlignment="Center"/>
+                    <Button Name="StartGame" Content="Start Game with Room"  VerticalAlignment="Bottom" Width="200" Tapped="StartGame_OnTapped" Margin="0" HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <GridView x:Name="RoomListUI" Grid.Row="1" Grid.Column="1"
+                    ItemTemplate="{StaticResource GameRoomPlayerTileTemplate}"
+                    ItemContainerStyle="{StaticResource StoreFrontTileStyle}"
+                    ItemsPanel="{StaticResource GameRoomPlayersItemsPanelTemplate}"
+                    VerticalAlignment="Top" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                    ScrollViewer.HorizontalScrollBarVisibility="Auto" SelectionMode="None" Margin="20,30,0,0"/>
+
+                <TextBlock x:Name="textBlock2"  TextWrapping="Wrap" Text="main menu" FontSize="48"
+                    RenderTransformOrigin="0.1,0.5" UseLayoutRounding="False" 
+                    d:LayoutRounding="Auto"
+                    Tapped="OnMainMenuTappedFromFriendChallengePane" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.ColumnSpan="2" Grid.Row="1" Width="Auto">
+                    <TextBlock.RenderTransform >
+                        <CompositeTransform Rotation="-90"/>
+                    </TextBlock.RenderTransform>
+                </TextBlock>
+            </Grid>
+
+
+
+            <!--Buddy List UI-->
+            <StackPanel Grid.Column="1" Margin="0,10,0,0" Background="Black">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Name="FriendsTextBlock" Text="Friends" FontSize="26.667" Height="40" Width="200" 
+                               VerticalAlignment="Center" HorizontalAlignment="Center" 
+                               TextAlignment="Center" FontFamily="Segoe UI" Tapped="FriendsColumnView_OnTapped" Foreground="#DEFFFFFF"/>
+                    <TextBlock Name="RequestsTextBlock" Text="Requests" FontSize="26.667" Height="40" Width="200" 
+                               VerticalAlignment="Center" HorizontalAlignment="Center" 
+                               TextAlignment="Center" FontFamily="Segoe UI" Tapped="RequestsColumnView_OnTapped" Foreground="#DEFFFFFF"/>
+                </StackPanel>
+
+                <UserControl x:Name="ColumnContentSection"></UserControl>
+            </StackPanel>
+
+            <!--Chat Window-->
+            <StackPanel  Grid.Row="1" Grid.Column="1" VerticalAlignment="Bottom" Margin="0,0,0,0">
+                <ListBox Name="ChatWindow" Height="200" BorderThickness="3" BorderBrush="Azure" Margin="10,0" Background="Transparent" SelectionChanged="ChatWindow_OnSelectionChanged">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" Style="{StaticResource BodyTextStyle}"></TextBlock>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBox Name="MessageChatBox" Margin="5" Width="Auto" IsSpellCheckEnabled="True" 
+                             IsTextPredictionEnabled="True" Background="Transparent" 
+                             Foreground="White" KeyDown="MessageChatBox_OnKeyDown" MinWidth="380"></TextBox>
+                    <!--<Button Name="SendButton" Click="SendButton_OnClick" HorizontalAlignment="Left">Send</Button>-->
+                </StackPanel>
+            </StackPanel>
+
+        </Grid>
 
         <VisualStateManager.VisualStateGroups>
 
@@ -105,4 +475,7 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
     </Grid>
+
+
+
 </common:LayoutAwarePage>

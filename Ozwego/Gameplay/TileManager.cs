@@ -34,8 +34,14 @@ namespace Ozwego.Gameplay
         #region Privates
 
         private readonly List<Tile> _pile;
-        private const string Filename = @"ms-appx:///Gameplay/ReducedTileSet.xml";
-        //private const string Filename = @"ms-appx:///Gameplay/TileSet.xml";
+
+#if DEBUG
+        private const string Filename = @"ms-appx:///Gameplay/DebuggingTileSet.xml";
+#else
+        private const string Filename = @"ms-appx:///Gameplay/TileSet.xml";
+#endif
+
+        // private const string Filename = @"ms-appx:///Gameplay/ReducedTileSet.xml";
 
         #endregion
 

@@ -50,15 +50,15 @@ namespace Ozwego.Server
                 return;
             }
 
-            var localPort = "4029";
+            var localPort = "4032";
             var localHostName = new HostName("192.168.1.2");
 
             // Currently doesn't work.
             var OzwegoProduction = new HostName("138.91.91.144");
-            var OzwegoPort = "4029";
+            var OzwegoPort = "4032";
 
             var OzwegoStaging = new HostName("138.91.89.40");
-            var OzwegoStagingPort = "4029";
+            var OzwegoStagingPort = "4032";
 
             TcpSocket = new StreamSocket();
 

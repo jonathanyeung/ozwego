@@ -22,32 +22,33 @@
         * Row 1 contains the rest of the page layout
     -->
     <Grid Style="{StaticResource LayoutRootStyle}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="140"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
 
-        <!-- Back button and page title -->
         <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="pageTitle" Style="{StaticResource PageHeaderTextStyle}" Margin="30,30,0,0" VerticalAlignment="Top" Text="matchmaking"/>
             <Button x:Name="backButton" Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}"/>
-            <TextBlock x:Name="pageTitle" Grid.Column="1" Text="{StaticResource AppName}" Style="{StaticResource PageHeaderTextStyle}"/>
-        </Grid>
         
-        <Grid Grid.Row="1">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock Style="{StaticResource PageHeaderTextStyle}">Wait Time: </TextBlock>
-                    <TextBlock Style="{StaticResource PageHeaderTextStyle}" Text="{Binding MatchmakingWaitTime}"></TextBlock>
+            <Grid Grid.Row="1">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock HorizontalAlignment="Center" Style="{StaticResource TitleTextStyle}" Text="Finding Game..." FontSize="56" FontWeight="Normal"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,0">
+                        <TextBlock Style="{StaticResource PageHeaderTextStyle}" FontSize="21.333">
+                    	    <Run Text="Wait Time:"/>
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource PageHeaderTextStyle}" Text="{Binding MatchmakingWaitTime}" FontSize="21.333"/>
+                    </StackPanel>
                 </StackPanel>
-                <TextBlock HorizontalAlignment="Center" Style="{StaticResource TitleTextStyle}" Text="[Sexy Animation Playing]"/>
-            </StackPanel>
+                <TextBlock x:Name="textBlock" Margin="1127.52,355.2,0,355.2" TextWrapping="Wrap" Text="main menu" FontSize="48" 
+                	RenderTransformOrigin="0.9,0.5" UseLayoutRounding="False" 
+                	d:LayoutRounding="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"
+                	Tapped="OnMainMenuTappedFromMatchmakingPane">
+                	<TextBlock.RenderTransform>
+                		<CompositeTransform Rotation="90" TranslateY="95"/>
+                	</TextBlock.RenderTransform>
+                </TextBlock>
+            </Grid>
         </Grid>
 
-        <VisualStateManager.VisualStateGroups>
+                <VisualStateManager.VisualStateGroups>
 
             <!-- Visual states reflect the application's view state -->
             <VisualStateGroup x:Name="ApplicationViewStates">

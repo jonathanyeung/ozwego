@@ -13,8 +13,12 @@ namespace Ozwego.Gameplay
     public class HandTileSet
     {
         private List<Tile> _currentHand;
+
+#if DEBUG
+        private const int _startingHandSize = 5;
+#else
         private const int _startingHandSize = 21;
-        //private const int _startingHandSize = 5;
+#endif
 
         public HandTileSet()
         {

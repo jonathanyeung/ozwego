@@ -159,8 +159,8 @@
                     <RowDefinition Height="40"/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
-                
-                <Rectangle Fill="Green" Height="160" Width="200" VerticalAlignment="Top" 
+
+                <Rectangle Fill="#15178F" Height="160" Width="200" VerticalAlignment="Top" 
                            HorizontalAlignment="Left" Grid.Row="1"/>
                 
                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource ApplicationForegroundThemeBrush}" 
@@ -168,7 +168,7 @@
                            HorizontalAlignment="Left" FontFamily="Segoe UI" Margin="5,0,0,0" 
                            Text="{Binding Alias}" FontSize="24" Canvas.ZIndex="1"/>
                 
-                <Rectangle Fill="LimeGreen" Height="40" Width="200" 
+                <Rectangle Fill="#15548F" Height="40" Width="200" 
                            VerticalAlignment="Top" HorizontalAlignment="Left"/>
                 
                 <StackPanel Margin="0,5,0,0" Orientation="Vertical" Grid.Row="1">
@@ -287,12 +287,6 @@
                 <TextBlock Name="UserNameUI" Text="{Binding Alias}" HorizontalAlignment="Center" Style="{StaticResource PageSubheaderTextStyle}"></TextBlock>
                 <TextBlock Text="{Binding Ranking}" HorizontalAlignment="Center" Style="{StaticResource TitleTextStyle}"></TextBlock>
                 <TextBlock Text="{Binding CreationTime}" HorizontalAlignment="Center" Style="{StaticResource TitleTextStyle}"></TextBlock>
-
-                <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 100, 0, 0">
-                    <Button Width="150" Content="Friend Challenge" Tapped="OnMultiPlayerButtonTapped" Margin="5,0,0,0">
-                    </Button>
-                    <Button Width="150" Content="Matchmaking" Tapped="OnMatchmakingButtonTapped" Margin="5,0,0,0"></Button>
-                </StackPanel>-->
             </StackPanel>
             <TextBlock Margin="0" TextWrapping="Wrap" Text="friend challenge" FontSize="48" 
                        RenderTransformOrigin="0.9,0.5" UseLayoutRounding="False" d:LayoutRounding="Auto"
@@ -367,8 +361,6 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="400"/>
             </Grid.ColumnDefinitions>
-
-            <!--<Button x:Name="backButton" Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}" Margin="20,0,0,20"/>-->
 
             <Grid Grid.Column="0" Grid.Row="0">
                 <Grid.ColumnDefinitions>

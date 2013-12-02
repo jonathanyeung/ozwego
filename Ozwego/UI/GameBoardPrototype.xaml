@@ -15,18 +15,6 @@
         <!-- TODO: Delete this line if the key AppName is declared in App.xaml -->
         <x:String x:Key="AppName">Game Board Prototype</x:String>
 
-        <Storyboard x:Name="GridFadeOut">
-            <!--<DoubleAnimation
-                  Storyboard.TargetProperty="Opacity"
-                  From="1.0" To="0.0" Duration="0:0:1" />-->
-        </Storyboard>
-        <!--Storyboard.TargetProperty="Opacity"-->
-        <Storyboard x:Name="GridFadeIn">
-            <!--<DoubleAnimation
-                  Storyboard.TargetProperty="Opacity"
-                  From="0.0" To="1.0" Duration="0:0:1" />-->
-        </Storyboard>
-
         <Storyboard x:Name="ColorCircle">
             <ColorAnimation
                 EnableDependentAnimation="true"
@@ -65,13 +53,32 @@
         		</DiscreteObjectKeyFrame>
         	</ObjectAnimationUsingKeyFrames>
         </Storyboard>
+
+        <!--Resources For LobbyPage-->
+        <DataTemplate x:Key="GameBoardPlayerTileTemplate">
+            <Grid Margin="10, 10, 10, 10">
+                <Rectangle Fill="#15178F" Height="100" Width="150" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                <Rectangle Fill="#15548F" Height="30" Width="150" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                <StackPanel Margin="0,0,0,0" Orientation="Vertical">
+                    <TextBlock TextWrapping="Wrap" Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                                    Style="{StaticResource TitleTextStyle}" VerticalAlignment="Center" Text="{Binding PlayerName}"
+                                    HorizontalAlignment="Left" FontFamily="Segoe UI" Margin="5, 0, 0, 20"/>
+                    <TextBlock TextWrapping="Wrap" Foreground="{StaticResource ApplicationForegroundThemeBrush}" 
+                                    Width="100" MaxHeight="20" VerticalAlignment="Center" Text="Action:" 
+                                    HorizontalAlignment="Left" Margin="5, 0, 0, 0"/>
+                    <TextBlock Foreground="{StaticResource ApplicationForegroundThemeBrush}" Width="100" MaxHeight="20"
+                                    VerticalAlignment="Center" Text="{Binding ActionString}" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+        
     </Page.Resources>
 
-    
-    <Grid Style="{StaticResource LayoutRootStyle}">
-    	<Grid.Background>
+    <!--ToDo: Change this from the LayoutRootStyle to prevent the funky page load animation.-->
+    <Grid Name="RootGrid" Style="{StaticResource LayoutRootStyle}">
+    	<!--<Grid.Background>
     		<ImageBrush ImageSource="ms-appx:/Assets/GameBackground.jpg" Stretch="UniformToFill"/>
-    	</Grid.Background>
+    	</Grid.Background>-->
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="*"/>
@@ -85,26 +92,7 @@
         <StackPanel Grid.Row="1" Grid.Column="0"  HorizontalAlignment="Center">
             <!--<Button x:Name="StartGame" Content="Start Game"   Grid.Row="1" VerticalAlignment="Top" Width="200" Tapped="StartGame_OnTapped" Margin="0, 10, 0, 0"/>-->
 
-            <ItemsControl x:Name="PlayerPanel" Background="Transparent">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Rectangle Fill="DarkBlue" Height="100" Width="150" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-                            <Rectangle Fill="DodgerBlue" Height="30" Width="150" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-                            <StackPanel Margin="0,0,0,0" Orientation="Vertical">
-                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource ApplicationForegroundThemeBrush}"
-                                           Style="{StaticResource TitleTextStyle}" VerticalAlignment="Center" Text="{Binding PlayerName}"
-                                           HorizontalAlignment="Left" FontFamily="Segoe UI" Margin="5, 0, 0, 20"/>
-                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource ApplicationForegroundThemeBrush}" 
-                                           Width="100" MaxHeight="20" VerticalAlignment="Center" Text="Action:" 
-                                           HorizontalAlignment="Left" Margin="5, 0, 0, 0"/>
-                                <TextBlock Foreground="{StaticResource ApplicationForegroundThemeBrush}" Width="100" MaxHeight="20"
-                                           VerticalAlignment="Center" Text="{Binding ActionString}" HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <ItemsControl x:Name="PlayerPanel" Background="Transparent" ItemTemplate="{StaticResource GameBoardPlayerTileTemplate}"/>
         </StackPanel>
 
         <!--<Canvas Grid.Column="1" Height="Auto" Width="Auto" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">-->
@@ -113,7 +101,7 @@
                           HorizontalScrollBarVisibility="Hidden" IsHorizontalRailEnabled="True" IsVerticalRailEnabled="True" 
                           MaxZoomFactor="2.5" MinZoomFactor=".5"
                           IsHorizontalScrollChainingEnabled="True"
-                          DoubleTapped="GameBoardScrollViewer_OnDoubleTapped">
+                          DoubleTapped="GameBoardScrollViewer_OnDoubleTapped" Background="Transparent">
                       
             <Grid Name="GameBoard" VerticalAlignment="Center" HorizontalAlignment="Center" />
         </ScrollViewer>
@@ -137,7 +125,15 @@
             </Grid>
             
             <!--Tile Rack-->
-            <Grid Grid.Row="1" x:Name="TileRackUi">
+            <ItemsControl Name="TileRackUi" Grid.Row="1"> <!--ItemTemplate="{StaticResource LetterTileTemplate}"-->
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3" VerticalChildrenAlignment="Stretch" HorizontalChildrenAlignment="Stretch" Margin="1,0,-1,0"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+
+            <!--<Grid Grid.Row="1" x:Name="TileRackUi">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
@@ -154,7 +150,7 @@
                     <RowDefinition Height="50"/>
                     <RowDefinition Height="50"/>
                 </Grid.RowDefinitions>
-            </Grid>
+            </Grid>-->
             
         </Grid>
         

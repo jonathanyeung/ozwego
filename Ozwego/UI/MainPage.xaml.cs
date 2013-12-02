@@ -27,6 +27,8 @@ namespace Ozwego
     /// </summary>
     public sealed partial class MainPage : Ozwego.Common.LayoutAwarePage
     {
+        private BackgroundGrid _background;
+
         public MainPage()
         {
             InitializeComponent();
@@ -37,6 +39,8 @@ namespace Ozwego
 
             var gameBoardViewModel = GameBoardViewModel.GetInstance();
             MatchmakingPane.DataContext = gameBoardViewModel;
+
+            _background = new BackgroundGrid();
         }
 
 
@@ -68,11 +72,9 @@ namespace Ozwego
             // Background grid initialization
             //
 
-            var background = BackgroundGrid.GetInstance();
+            RootGrid.Children.Insert(0, _background.PolygonGrid);
 
-            RootGrid.Children.Insert(0, background.PolygonGrid);
-
-            background.BeginSubtleAnimation();
+            _background.BeginSubtleAnimation();
 
             //
             // Friend Lobby Initialization
@@ -115,7 +117,8 @@ namespace Ozwego
             GameBoardNavigationArgs args = new GameBoardNavigationArgs()
             {
                 GameConnectionType = GameConnectionType.Local,
-                BotCount = 1
+                BotCount = 0
+                //BotCount = 1
             };
 
             Frame.Navigate(typeof(GameBoardPrototype), args);
@@ -246,8 +249,7 @@ namespace Ozwego
 
             await Task.Delay(1000);
 
-            var background = BackgroundGrid.GetInstance();
-            background.BeginFlashAnimation();
+            _background.BeginFlashAnimation();
         }
 
 
@@ -293,8 +295,7 @@ namespace Ozwego
             // Change the background animation style
             //
 
-            var background = BackgroundGrid.GetInstance();
-            background.BeginSubtleAnimation();
+            _background.BeginSubtleAnimation();
         }
 
         #endregion

@@ -110,6 +110,20 @@ namespace Ozwego.Gameplay
         }
 
 
+        public delegate void ValidWordUiUpdateHandler(object sender, List<Point> ValidWordCoordinates);
+        public event ValidWordUiUpdateHandler ValidWordUiUpdateEvent;
+
+        private void OnValidWordUiUpdate(List<Point> args)
+        {
+            ValidWordUiUpdateHandler handler = ValidWordUiUpdateEvent;
+
+            if (handler != null)
+            {
+                handler(this, args);
+            }
+        }
+
+
         public delegate void GameStartedHandler(object sender);
         public event GameStartedHandler GameStartedEvent;
 
@@ -312,8 +326,8 @@ namespace Ozwego.Gameplay
             bool isValid = true;
 
             var wordList = _gameBoard.GetWordList();
-            var invalidWords = new List<GameBoard.WordCoordinate>();
 
+            var invalidWords = new List<GameBoard.WordCoordinate>();
 
             //
             // 0 here means that the board was invalid (tiles not properly placed).
@@ -375,6 +389,7 @@ namespace Ozwego.Gameplay
                         }
                     }
                 }
+
                 OnInvalidWordUiUpdate(invalidPoints);
             }
 

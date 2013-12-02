@@ -17,13 +17,13 @@ namespace Ozwego.UI.Background
 
         private Storyboard colorStoryboard;
 
-        private static BackgroundGrid _instance;
+        //private static BackgroundGrid _instance;
 
 
-        public static BackgroundGrid GetInstance()
-        {
-            return _instance ?? (_instance = new BackgroundGrid());
-        }
+        //public static BackgroundGrid GetInstance()
+        //{
+        //    return _instance ?? (_instance = new BackgroundGrid());
+        //}
 
 
         public void BeginSubtleAnimation()
@@ -40,21 +40,21 @@ namespace Ozwego.UI.Background
         }
 
 
-        private BackgroundGrid()
+        public BackgroundGrid()
         {
             InitializeTimer();
 
             colorStoryboard = new Storyboard();
 
             //ToDo: Re-enable this.  Currently this is causing memory leaks.
-            //colorStoryboard.Completed += (sender, o) =>
-            //{
-            //    foreach (var child in colorStoryboard.Children)
-            //    {
-            //        (child as ColorAnimation).To = ColorGenerator.GetRandomColor(ColorScheme.Purple).Color;
-            //    }
-            //    colorStoryboard.Begin();
-            //};
+            colorStoryboard.Completed += (sender, o) =>
+            {
+                foreach (var child in colorStoryboard.Children)
+                {
+                    (child as ColorAnimation).To = ColorGenerator.GetRandomColor(ColorScheme.Purple).Color;
+                }
+                colorStoryboard.Begin();
+            };
 
             PolygonGrid = GenerateGrid();
 

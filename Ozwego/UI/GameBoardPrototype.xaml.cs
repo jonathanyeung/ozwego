@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Shapes;
 using Ozwego.ViewModels;
 using Ozwego.Storage;
+using Ozwego.UI.Background;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -24,6 +25,8 @@ namespace Ozwego.UI
     /// </summary>
     public sealed partial class GameBoardPrototype
     {
+        private BackgroundGrid _background;
+
         private const int BorderWidth = 2;
 
         private const int BoxWidth = 50 - 2 * BorderWidth;
@@ -55,6 +58,7 @@ namespace Ozwego.UI
 
             DataContext = GameBoardViewModel.GetInstance();
 
+
             _tileRack = new TileRack(ref TileRackUi);
             
             _playerPane = new PlayerPane();
@@ -67,6 +71,18 @@ namespace Ozwego.UI
             _playedTiles = new List<Grid>();
 
             UiTester();
+
+
+            //
+            // Background grid initialization
+            //
+
+            _background = new BackgroundGrid();
+            _background.PolygonGrid.SetValue(Grid.ColumnSpanProperty, 3);
+
+            RootGrid.Children.Insert(0, _background.PolygonGrid);
+
+            //_background.BeginSubtleAnimation();
         }
 
 
@@ -91,6 +107,8 @@ namespace Ozwego.UI
         {
             var fadeIncorrectWordsToRed = new Storyboard();
 
+            List<Rectangle> animationTargets = new List<Rectangle>(); 
+
             foreach (var point in invalidPoints)
             {
                 Rectangle rect = null;
@@ -100,31 +118,42 @@ namespace Ozwego.UI
                     rect = _gameBoardArray[(int)point.X, (int)point.Y].Children[0] as Rectangle;
                 }
 
-                if (rect != null)
+                if ((rect != null) && (!animationTargets.Contains(rect)))
                 {
-                    rect.Fill = new SolidColorBrush(Colors.Crimson);
+                    //
+                    // Make sure to not add the same target twice, or else the animation will throw
+                    // an exception.
+                    //
 
-                    //ToDo: Make this fucking animation not throw an exception.
-                    //var fadeToRedAnimation = new ColorAnimation();
-                    //fadeToRedAnimation.To = (Colors.Red);
-                    //fadeToRedAnimation.Duration = TimeSpan.FromSeconds(1);
-                    //fadeToRedAnimation.EnableDependentAnimation = true;
-                    //Storyboard.SetTarget(FadeIncorrectWordsToRed, rect);
-                    //try
-                    //{
-                    //    Storyboard.SetTargetProperty(fadeToRedAnimation, "(Rectangle.Fill).(SolidColorBrush.Color)");
-                    //}
-                    //catch (Exception)
-                    //{
+                    animationTargets.Add(rect);
 
-                    //}
-                    //FadeIncorrectWordsToRed.Children.Add(fadeToRedAnimation);
+                    var animation = CreateInvalidWordColorAnimation();
+
+                    Storyboard.SetTarget(animation, rect);
+
+                    Storyboard.SetTargetProperty(animation, "(Rectangle.Fill).(SolidColorBrush.Color)");
+
+                    fadeIncorrectWordsToRed.Children.Add(animation);
 
                     _dirtyTiles.Add(rect);
                 }
             }
 
             fadeIncorrectWordsToRed.Begin();
+        }
+
+
+        private ColorAnimation CreateInvalidWordColorAnimation()
+        {
+            var animation = new ColorAnimation
+            {
+                AutoReverse = false,
+                EnableDependentAnimation = true,
+                Duration = TimeSpan.FromMilliseconds(1000),
+                To = (Colors.Red)
+            };
+
+            return animation;
         }
 
 
@@ -160,13 +189,6 @@ namespace Ozwego.UI
             DumpCircle.Fill.Opacity = .7f;
             //TileRackUi.Background = new SolidColorBrush(Colors.MediumVioletRed);
             //TileRackUi.Background.Opacity = .4f;
-
-            //Storyboard.SetTarget(GridFadeIn, TestRect);
-            //Storyboard.SetTarget(GridFadeOut, TestRect);
-
-
-            //Storyboard.SetTargetProperty(GridFadeIn, "(Fill.Opacity)");
-            //Storyboard.SetTargetProperty(GridFadeOut, "(Fill.Opacity)");
 
             //TilePoolCountUI.SetBinding(TextBlock.TextProperty, 
 
@@ -279,31 +301,6 @@ namespace Ozwego.UI
                 for (var j = 0; j < StartingBoardDimension; j++)
                 {
                     CreateBorder(i, j);
-
-                    /* Animation Code:
-                    Storyboard.SetTarget(GridFadeOut, border);
-                    Storyboard.SetTarget(GridFadeIn, border);
-
-
-                    var newFadeOutAnimation = new DoubleAnimation();
-                    newFadeOutAnimation.From = 1.0f;
-                    newFadeOutAnimation.To = 0.0f;
-                    newFadeOutAnimation.Duration = TimeSpan.FromSeconds(.25);
-
-                    var newFadeInAnimation = new DoubleAnimation();
-                    newFadeInAnimation.From = 0.0f;
-                    newFadeInAnimation.To = 1.0f;
-                    newFadeInAnimation.Duration = TimeSpan.FromSeconds(.25);
-
-                    Storyboard.SetTarget(newFadeInAnimation, border);
-                    Storyboard.SetTarget(newFadeOutAnimation, border);
-
-                    Storyboard.SetTargetProperty(newFadeInAnimation, "(BorderBrush.Opacity)");
-                    Storyboard.SetTargetProperty(newFadeOutAnimation, "(BorderBrush.Opacity)");
-
-                    GridFadeIn.Children.Add(newFadeInAnimation);
-                    GridFadeOut.Children.Add(newFadeOutAnimation);
-                    */
                 }
             }
 
@@ -606,7 +603,6 @@ namespace Ozwego.UI
         private async void BoxOnManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
         {
             var gameController = GameController.GetInstance();
-            //GridFadeOut.Begin();
 
             double smallestDistance = 0;
             int closestGridRow = 0;
@@ -628,12 +624,6 @@ namespace Ozwego.UI
             var translateTransform = box.RenderTransform as TranslateTransform;
 
             rect.Fill = new SolidColorBrush(Colors.DodgerBlue);
-
-
-            //foreach (var border in _gridBorders)
-            //{
-            //    border.Visibility = Visibility.Collapsed;
-            //}
 
 
             //
@@ -816,34 +806,6 @@ namespace Ozwego.UI
             GameBoardScrollViewer.ScrollToVerticalOffset(zoomPoint.Y);
 
             GameBoardScrollViewer.ZoomToFactor(GameBoardScrollViewer.ZoomFactor > 1.5f ? .5f : 2.0f);
-        }
-
-        #endregion
-
-
-        #region Button EH
-
-        private void StartGame_OnTapped(object sender, TappedRoutedEventArgs e)
-        {
-            //PlayActionStringAnimation();
-            //var gameController = GameController.GetInstance();
-
-            //if (!gameController.GameStarted)
-            //{
-            //    gameController.StartGame();
-            //}
-        }
-
-
-        private void UIElement_OnTapped(object sender, TappedRoutedEventArgs e)
-        {
-            GridFadeOut.Begin();
-        }
-
-
-        private void UIElement_OnTapped2(object sender, TappedRoutedEventArgs e)
-        {
-            GridFadeIn.Begin();
         }
 
         #endregion

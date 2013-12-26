@@ -18,7 +18,7 @@ namespace Ozwego
     sealed partial class App : Application
     {
         //ToDo: Remove this.
-        public static Friend ClientBuddyInstance = new Friend();
+        //public static Friend ClientBuddyInstance = new Friend();
 
 
         public static CoreDispatcher Dispatcher;

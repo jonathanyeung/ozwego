@@ -23,11 +23,13 @@ namespace Ozwego.Server.MessageProcessors
 
                     if (null != friend)
                     {
-                        gameController.DumpActionReceivedFromServer(friend.EmailAddress);
+                        gameController.DumpActionReceivedFromServer(friend.Alias);
                     }
                     else
                     {
-                        //ToDo: throw debug exception.
+#if DEBUG
+                        throw new ArgumentNullException("Invalid data from server: PacketType.ServerDump");
+#endif
                     }
                     
                     break;
@@ -37,7 +39,7 @@ namespace Ozwego.Server.MessageProcessors
 
                     if (null != friend)
                     {
-                        gameController.PeelActionReceived(friend.EmailAddress, false);
+                        gameController.PeelActionReceived(friend.Alias, false);
                     }
                     else
                     {
@@ -51,7 +53,7 @@ namespace Ozwego.Server.MessageProcessors
 
                     if (null != friend)
                     {
-                        gameController.EndGame(friend.EmailAddress);
+                        gameController.EndGame(friend.Alias);
                     }
                     else
                     {

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
-  <Identity Name="538MobiusStudios.Ozwego" Publisher="CN=F9493291-87B8-406A-8A39-24B918572F99" Version="1.0.0.3" />
+  <Identity Name="538MobiusStudios.Ozwego" Publisher="CN=F9493291-87B8-406A-8A39-24B918572F99" Version="1.0.0.6" />
   <Properties>
     <DisplayName>Ozwego</DisplayName>
     <PublisherDisplayName>Mobius Studios</PublisherDisplayName>
@@ -16,7 +16,7 @@
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="Ozwego.App">
       <VisualElements DisplayName="Ozwego" Logo="Assets\Logo.png" SmallLogo="Assets\SmallLogo.png" Description="Ozwego" ForegroundText="light" BackgroundColor="#464646">
-        <DefaultTile ShowName="allLogos" />
+        <DefaultTile ShowName="logoOnly" />
         <SplashScreen Image="Assets\OzwegoSplashScreen.png" BackgroundColor="darkSlateBlue" />
       </VisualElements>
       <Extensions>

@@ -66,68 +66,77 @@ namespace Ozwego.Storage
                         GameDuration));
             }
 
-            foreach (var dataPoint in GameMoves)
+            try
             {
-                var curPlayer = dataPoint.Player;
 
-                if (PlayerDictionary[curPlayer] == null)
+                foreach (var dataPoint in GameMoves)
                 {
-                    PlayerDictionary[curPlayer] = new PlayerGameStats();
-                    activePlayers.Add(curPlayer);
-                }
+                    var curPlayer = dataPoint.Player;
 
-                PlayerDictionary[curPlayer].RawGameData.Add(dataPoint);
-
-                if ((dataPoint.MoveType == MoveType.Peel) && isFirstPeel)
-                {
-                    isFirstPeel = false;
-                    PlayerDictionary[curPlayer].PerformedFirstPeel = true;
-                }
-            }
-
-            foreach (var activePlayer in activePlayers)
-            {
-                // Iterate through the player's game moves.
-                foreach (var dataPoint in PlayerDictionary[activePlayer].RawGameData)
-                {
-                    switch (dataPoint.MoveType)
+                    if (PlayerDictionary[curPlayer] == null)
                     {
-                        case MoveType.Dump:
-                            PlayerDictionary[activePlayer].NumberOfDumps++;
-                            break;
+                        PlayerDictionary[curPlayer] = new PlayerGameStats();
+                        activePlayers.Add(curPlayer);
+                    }
 
-                        case MoveType.Peel:
-                            PlayerDictionary[activePlayer].NumberOfPeels++;
-                            break;
+                    PlayerDictionary[curPlayer].RawGameData.Add(dataPoint);
 
-                        case MoveType.Victory:
-                            PlayerDictionary[activePlayer].IsWinner = true;
-                            Winner = activePlayer;
-                            break;
+                    if ((dataPoint.MoveType == MoveType.Peel) && isFirstPeel)
+                    {
+                        isFirstPeel = false;
+                        PlayerDictionary[curPlayer].PerformedFirstPeel = true;
                     }
                 }
 
-                PlayerDictionary[activePlayer].AvgTimeBetweenDumps = 
-                        PlayerDictionary[activePlayer].NumberOfDumps / GameDuration;
+                foreach (var activePlayer in activePlayers)
+                {
+                    // Iterate through the player's game moves.
+                    foreach (var dataPoint in PlayerDictionary[activePlayer].RawGameData)
+                    {
+                        switch (dataPoint.MoveType)
+                        {
+                            case MoveType.Dump:
+                                PlayerDictionary[activePlayer].NumberOfDumps++;
+                                break;
 
-                PlayerDictionary[activePlayer].AvgTimeBetweenPeels = 
-                        PlayerDictionary[activePlayer].NumberOfPeels / GameDuration;
+                            case MoveType.Peel:
+                                PlayerDictionary[activePlayer].NumberOfPeels++;
+                                break;
+
+                            case MoveType.Victory:
+                                PlayerDictionary[activePlayer].IsWinner = true;
+                                Winner = activePlayer;
+                                break;
+                        }
+                    }
+
+                    PlayerDictionary[activePlayer].AvgTimeBetweenDumps =
+                            PlayerDictionary[activePlayer].NumberOfDumps / GameDuration;
+
+                    PlayerDictionary[activePlayer].AvgTimeBetweenPeels =
+                            PlayerDictionary[activePlayer].NumberOfPeels / GameDuration;
+                }
+
+
+                //
+                // Create a blank PlayerGameStats object for all inactive players
+                //
+
+                var inactivePlayerKeys = PlayerDictionary
+                        .Where(kvp => kvp.Value == null)
+                        .Select(kvp => kvp.Key).ToList();
+
+                foreach (var key in inactivePlayerKeys)
+                {
+                    PlayerDictionary[key] = new PlayerGameStats();
+                }
             }
-
-
-            //
-            // Create a blank PlayerGameStats object for all inactive players
-            //
-
-            var inactivePlayerKeys = PlayerDictionary
-                    .Where(kvp => kvp.Value == null)
-                    .Select(kvp => kvp.Key).ToList();
-
-            foreach (var key in inactivePlayerKeys)
+            catch(KeyNotFoundException e)
             {
-                PlayerDictionary[key] = new PlayerGameStats();
+#if DEBUG
+                throw e;
+#endif
             }
-
         }
 
 

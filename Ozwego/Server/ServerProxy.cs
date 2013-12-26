@@ -64,9 +64,8 @@ namespace Ozwego.Server
 
             try
             {
-                await TcpSocket.ConnectAsync(localHostName, localPort);
-                //await TcpSocket.ConnectAsync(OzwegoStaging, OzwegoStagingPort);
-                //await TcpSocket.ConnectAsync(OzwegoProduction, OzwegoPort);
+                //await TcpSocket.ConnectAsync(localHostName, localPort);
+                await TcpSocket.ConnectAsync(OzwegoStaging, OzwegoStagingPort);
 
                 mainPageViewModel.ConnectionStatus = true;
 
@@ -162,6 +161,7 @@ namespace Ozwego.Server
                         userName = string.Format("{0} {1}", dynamicResult.first_name, dynamicResult.last_name);
                         email = dynamicResult.emails.preferred;
                         Settings.EmailAddress = email;
+                        //Settings.EmailAddress = "mobius02@gmail.com";
 
                         var roomManager = RoomManager.GetInstance();
                         roomManager.AddMemberToRoom(Settings.userInstance);
@@ -174,8 +174,6 @@ namespace Ozwego.Server
 
                     var mainPageViewModel = MainPageViewModel.GetInstance();
                     mainPageViewModel.UserName = string.Format("Welcome {0}!", meResult.Result["first_name"]);
-
-                    Settings.Alias = (string)meResult.Result["first_name"];
 
                 }
                 else

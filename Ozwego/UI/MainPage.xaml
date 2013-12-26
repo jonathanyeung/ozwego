@@ -306,25 +306,6 @@
             </TextBlock>
         </Grid>
 
-        <Grid x:Name="PopUp" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2">
-            <Popup  x:Name="StandardPopup">
-                <Border BorderBrush="{StaticResource ApplicationForegroundThemeBrush}" 
-            	Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
-            	BorderThickness="2" Margin="10,10,0,0">
-                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <TextBlock Text="Welcome to Ozwego!" FontSize="48" HorizontalAlignment="Center" />
-                        <TextBlock Text="&lt;Insert Warm Welcome Message&gt;" FontSize="13.333" HorizontalAlignment="Center" Margin="0,0,0,50" />
-                        <TextBlock x:Name="PopUpStatus" Text="Create an Alias" FontSize="13.333" HorizontalAlignment="Center" Margin="0,0,0,5" />
-                        <StackPanel Orientation="Horizontal">
-                            <TextBox x:Name="AliasTextBox" TextWrapping="Wrap" Text="" Width="300"/>
-                            <Button Content="Accept" Click="CheckIfAvailableClicked" HorizontalAlignment="Center" Margin="10,0,0,0"  />
-                        </StackPanel>
-                        <Button Content="Close" Click="CloseButtonClicked" HorizontalAlignment="Center" Margin="10,20,0,0"  />
-                    </StackPanel>
-                </Border>
-            </Popup>
-        </Grid>
-
         <Grid x:Name="MatchmakingPane" RenderTransformOrigin="0.5,0.5" Visibility="Collapsed">
             <Grid.RenderTransform>
                 <CompositeTransform/>
@@ -436,6 +417,28 @@
             </StackPanel>
 
         </Grid>
+
+        <!--<Grid x:Name="PopUp" HorizontalAlignment="Center" VerticalAlignment="Center">-->
+            <Popup x:Name="StandardPopup" VerticalAlignment="Center" HorizontalAlignment="Center" IsOpen="False">
+                <Border BorderBrush="{StaticResource ApplicationForegroundThemeBrush}" 
+            	Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
+            	BorderThickness="2" Margin="10,10,0,0">
+                    <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                    
+                        <UserControl x:Name="OOBESection" Grid.Row="0"/>
+
+                        <StackPanel Orientation="Horizontal" Grid.Row="1">
+                            <Button Name="OOBEPrevButton" Content="Previous" Click="OnOOBEPreviousClick"/>
+                            <Button Name="OOBENextButton" Content="Next" Click="OnOOBENextClick"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Popup>
+        <!--</Grid>-->
 
         <VisualStateManager.VisualStateGroups>
 

@@ -1,0 +1,23 @@
+﻿<Page
+    x:Class="Ozwego.OOBEPage6"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Ozwego"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+    <Grid x:Name="LayoutRoot" Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+    <Grid x:Name="OOBEContent">
+		<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Text="Insert Picture" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,50" />
+            <TextBlock FontSize="13.333" HorizontalAlignment="Center" Margin="0,0,0,50" Height="176" Width="454" TextWrapping="Wrap" >
+            	<Run Text="When there are fewer tiles in the community pool than players, the first person to form a valid game board wins!"/>
+            	<LineBreak/>
+            	<Run/>
+            	<LineBreak/>
+            </TextBlock>
+            <StackPanel Orientation="Horizontal"/>
+        </StackPanel>
+    </Grid>
+    </Grid>
+</Page>

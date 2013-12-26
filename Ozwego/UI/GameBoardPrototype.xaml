@@ -15,7 +15,26 @@
         <!-- TODO: Delete this line if the key AppName is declared in App.xaml -->
         <x:String x:Key="AppName">Game Board Prototype</x:String>
 
-        <Storyboard x:Name="ColorCircle">
+        <Storyboard x:Name="TileSpinAndVanish">
+            <DoubleAnimation Duration="0:0:0.5" To="720" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.Rotation)" d:IsOptimized="True"/>
+            <DoubleAnimation Duration="0:0:0.5" To="0" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleX)" d:IsOptimized="True"/>
+            <DoubleAnimation Duration="0:0:0.5" To="0" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)" d:IsOptimized="True"/>
+            <!--<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Visible</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Collapsed</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>-->
+        </Storyboard>
+
+        <!--ToDo: Apply d:IsOptimized to all animations??-->
+        <!--<Storyboard x:Name="ColorCircle">
             <ColorAnimation
                 EnableDependentAnimation="true"
                 Storyboard.TargetProperty="(Rectangle.Fill).(SolidColorBrush.Color)"
@@ -23,8 +42,9 @@
                 AutoReverse="True"
                 To="Blue"
                 RepeatBehavior="Forever"
+                d:IsOptimized="True"
                 />
-        </Storyboard>
+        </Storyboard>-->
         
         <Storyboard x:Name="StartGameAnimation">
         	<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(TextBlock.Text)" Storyboard.TargetName="textBlock">
@@ -57,7 +77,9 @@
         <!--Resources For LobbyPage-->
         <DataTemplate x:Key="GameBoardPlayerTileTemplate">
             <Grid Margin="10, 10, 10, 10">
-                <Rectangle Fill="#15178F" Height="100" Width="150" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                <Ellipse Width="120" Height="120" Stroke="Orange" Fill="Black" StrokeThickness="6" Opacity=".7" ></Ellipse>
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding PlayerName}"></TextBlock>
+                <!--<Rectangle Fill="#15178F" Height="100" Width="150" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                 <Rectangle Fill="#15548F" Height="30" Width="150" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                 <StackPanel Margin="0,0,0,0" Orientation="Vertical">
                     <TextBlock TextWrapping="Wrap" Foreground="{StaticResource ApplicationForegroundThemeBrush}"
@@ -68,40 +90,84 @@
                                     HorizontalAlignment="Left" Margin="5, 0, 0, 0"/>
                     <TextBlock Foreground="{StaticResource ApplicationForegroundThemeBrush}" Width="100" MaxHeight="20"
                                     VerticalAlignment="Center" Text="{Binding ActionString}" HorizontalAlignment="Center"/>
-                </StackPanel>
+                </StackPanel>-->
             </Grid>
         </DataTemplate>
         
+        <Storyboard x:Name="PlayerPeel">
+        	<!--<DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)" Storyboard.TargetName="Tile">
+        		<EasingDoubleKeyFrame KeyTime="0" Value="-1.139"/>
+        		<EasingDoubleKeyFrame KeyTime="0:0:1" Value="-2.277">
+        			<EasingDoubleKeyFrame.EasingFunction>
+        				<QuadraticEase EasingMode="EaseInOut"/>
+        			</EasingDoubleKeyFrame.EasingFunction>
+        		</EasingDoubleKeyFrame>
+        	</DoubleAnimationUsingKeyFrames>
+        	<DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)" Storyboard.TargetName="Tile">
+        		<EasingDoubleKeyFrame KeyTime="0" Value="-1.139"/>
+        		<EasingDoubleKeyFrame KeyTime="0:0:1" Value="178.718">
+        			<EasingDoubleKeyFrame.EasingFunction>
+        				<QuadraticEase EasingMode="EaseInOut"/>
+        			</EasingDoubleKeyFrame.EasingFunction>
+        		</EasingDoubleKeyFrame>
+        	</DoubleAnimationUsingKeyFrames>-->
+        </Storyboard>
+        
     </Page.Resources>
-
     <!--ToDo: Change this from the LayoutRootStyle to prevent the funky page load animation.-->
-    <Grid Name="RootGrid" Style="{StaticResource LayoutRootStyle}">
-    	<!--<Grid.Background>
+    <!--<Grid Name="RootGrid" Style="{StaticResource LayoutRootStyle}">-->
+    <Grid Name="RootGrid">
+        <!--<Grid.Background>
     		<ImageBrush ImageSource="ms-appx:/Assets/GameBackground.jpg" Stretch="UniformToFill"/>
     	</Grid.Background>-->
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="250"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="250"/>
         </Grid.ColumnDefinitions>
 
         <Button x:Name="backButton" Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}" />
         
+
         
         <!--Left Hand Column-->
         <StackPanel Grid.Row="1" Grid.Column="0"  HorizontalAlignment="Center">
-            <!--<Button x:Name="StartGame" Content="Start Game"   Grid.Row="1" VerticalAlignment="Top" Width="200" Tapped="StartGame_OnTapped" Margin="0, 10, 0, 0"/>-->
+            
+            <!--Dump Box-->
+            <Grid>
+                <Ellipse x:Name="DumpCircle" Width="180" Height="180" Fill="Black" Stroke="Orange" StrokeThickness="7" Opacity=".7" VerticalAlignment="Center" Margin="20" />
+                <Ellipse x:Name="InnerDumpCircle" Width="120" Height="120" Fill="Black" Stroke="Orange" StrokeThickness="7" Opacity=".7" Margin="20" VerticalAlignment="Center"  />
+                <!--<Ellipse Width="160" Height="160" Fill="Black" VerticalAlignment="Top" Margin="30"/>
+                <Ellipse Width="120" Height="120" Fill="Aqua" VerticalAlignment="Top" Margin="50" />
+                <Ellipse Width="100" Height="100" Fill="Black" VerticalAlignment="Top" Margin="60"/>-->
+                <Rectangle x:Name="DumpBox" Width="180" Height="180" VerticalAlignment="Top" Margin="20"/>
+                <TextBlock x:Name="TilePoolCountUI" Text="{Binding TilePileCount, Mode=TwoWay}" FontSize="40" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0, 90, 0, 0"/>
+            </Grid>
 
-            <ItemsControl x:Name="PlayerPanel" Background="Transparent" ItemTemplate="{StaticResource GameBoardPlayerTileTemplate}"/>
+            <!--List of Players-->
+            <ItemsControl x:Name="PlayerPanel" Background="Transparent" ItemTemplate="{StaticResource GameBoardPlayerTileTemplate}">
+                <Grid Margin="10, 10, 10, 10">
+                    <Ellipse Width="120" Height="120" Stroke="Orange" Fill="Black" StrokeThickness="6" Opacity=".7" ></Ellipse>
+                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding PlayerName}"></TextBlock>
+                </Grid>
+            </ItemsControl>
+            
+            <Button Content="Animate Peel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="PeelButton_Click"/>
+            <Button Content="Animate Dump" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="DumpButton_Click"/>
+            
         </StackPanel>
+        
+        <!--<Rectangle Name="DumpTile" Width="50" Height="50" Fill="DodgerBlue" VerticalAlignment="Top" HorizontalAlignment="Left"></Rectangle>-->
 
-        <!--<Canvas Grid.Column="1" Height="Auto" Width="Auto" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">-->
+
+
+        <!--Central Game Board-->
         <ScrollViewer Grid.Column="1"  x:Name="GameBoardScrollViewer" ZoomMode="Enabled" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                           HorizontalScrollMode="Enabled" VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Hidden"
                           HorizontalScrollBarVisibility="Hidden" IsHorizontalRailEnabled="True" IsVerticalRailEnabled="True" 
                           MaxZoomFactor="2.5" MinZoomFactor=".5"
                           IsHorizontalScrollChainingEnabled="True"
-                          DoubleTapped="GameBoardScrollViewer_OnDoubleTapped" Background="Transparent">
+                          Background="#59000000">
                       
             <Grid Name="GameBoard" VerticalAlignment="Center" HorizontalAlignment="Center" />
         </ScrollViewer>
@@ -114,50 +180,46 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!--Dump Box-->
-            <Grid Grid.Row="0">
-                <Ellipse x:Name="DumpCircle" Width="180" Height="180" Fill="Aqua" VerticalAlignment="Top" Margin="20" />
-                <Ellipse Width="160" Height="160" Fill="Black" VerticalAlignment="Top" Margin="30"/>
-                <Ellipse Width="120" Height="120" Fill="Aqua" VerticalAlignment="Top" Margin="50" />
-                <Ellipse Width="100" Height="100" Fill="Black" VerticalAlignment="Top" Margin="60"/>
-                <Rectangle x:Name="DumpBox" Width="180" Height="180" VerticalAlignment="Top" Margin="20"/>
-                <TextBlock x:Name="TilePoolCountUI" Text="{Binding TilePileCount, Mode=TwoWay}" FontSize="40" VerticalAlignment="Top" FontWeight="ExtraBold" HorizontalAlignment="Center" Margin="0, 90, 0, 0"/>
-            </Grid>
-            
+
+            <!--ToDo: Switch to this Wrap Grid-->
             <!--Tile Rack-->
-            <ItemsControl Name="TileRackUi" Grid.Row="1"> <!--ItemTemplate="{StaticResource LetterTileTemplate}"-->
+            <!--<ItemsControl Name="TileRackUi" Grid.Row="1" ItemTemplate="{StaticResource LetterTileTemplate}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3" VerticalChildrenAlignment="Stretch" HorizontalChildrenAlignment="Stretch" Margin="1,0,-1,0"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
-            </ItemsControl>
+            </ItemsControl>-->
 
-            <!--<Grid Grid.Row="1" x:Name="TileRackUi">
+            <Grid Grid.Row="1" x:Name="TileRackUi">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-            </Grid>-->
+            </Grid>
             
         </Grid>
+
+		<!--Temporary Peel Animation Design -->
         
         <!--Starting Game Animation Resources-->
         <Grid x:Name="grid" Background="#CC1B0202" Grid.ColumnSpan="3" d:IsHidden="True">
             <TextBlock x:Name="textBlock" HorizontalAlignment="Center" Margin="0" TextWrapping="Wrap" Text="3" VerticalAlignment="Center" Grid.ColumnSpan="3" FontSize="200"/>
         </Grid>
+        
+
 
 
         <VisualStateManager.VisualStateGroups>

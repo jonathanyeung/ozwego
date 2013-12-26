@@ -1,0 +1,30 @@
+﻿<Page
+    x:Class="Ozwego.UI.OOBE.OOBEPage2"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Ozwego.UI.OOBE"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+    <Grid x:Name="LayoutRoot" Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+        <Grid x:Name="OOBEContent">
+            <StackPanel>
+
+                <TextBlock TextWrapping="Wrap" Margin="0,0,0,30">
+            	<Run Text="That's all you need to know to play Ozwego!  You can always view the tutorial again in the settings."/>
+            	<LineBreak/>
+            	<Run/>
+            	<LineBreak/>
+            	<Run Text="One more thing before we start playing... create an alias."/>
+                </TextBlock>
+
+                <TextBlock x:Name="PopUpStatus" Text="Create an Alias" FontSize="13.333" HorizontalAlignment="Center" Margin="0,0,0,5" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBox x:Name="AliasTextBox" TextWrapping="Wrap" Text="" Width="300"/>
+                    <Button Content="Accept" Click="CheckIfAvailableClicked" HorizontalAlignment="Right" Margin="10,0,0,0"  />
+                </StackPanel>
+                <Button Content="Close" Click="CloseButtonClicked" HorizontalAlignment="Center" Margin="10,20,0,0"  />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Page>

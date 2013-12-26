@@ -29,14 +29,16 @@ namespace Ozwego.UI.Background
         public void BeginSubtleAnimation()
         {
             timer.Stop();
-            colorStoryboard.Begin();
+            //ToDo: Re-enable:
+            //colorStoryboard.Begin();
         }
 
 
         public void BeginFlashAnimation()
         {
-            colorStoryboard.Stop();
-            timer.Start();
+            //ToDo: Re-enable:
+            //colorStoryboard.Stop();
+            //timer.Start();
         }
 
 
@@ -47,14 +49,14 @@ namespace Ozwego.UI.Background
             colorStoryboard = new Storyboard();
 
             //ToDo: Re-enable this.  Currently this is causing memory leaks.
-            colorStoryboard.Completed += (sender, o) =>
-            {
-                foreach (var child in colorStoryboard.Children)
-                {
-                    (child as ColorAnimation).To = ColorGenerator.GetRandomColor(ColorScheme.Purple).Color;
-                }
-                colorStoryboard.Begin();
-            };
+            //colorStoryboard.Completed += (sender, o) =>
+            //{
+            //    foreach (var child in colorStoryboard.Children)
+            //    {
+            //        (child as ColorAnimation).To = ColorGenerator.GetRandomColor(ColorScheme.Purple).Color;
+            //    }
+            //    colorStoryboard.Begin();
+            //};
 
             PolygonGrid = GenerateGrid();
 
@@ -131,7 +133,8 @@ namespace Ozwego.UI.Background
         {
             var animation = new ColorAnimation
                 {
-                    AutoReverse = false,
+                    AutoReverse = true, // ToDo: Was False
+                    RepeatBehavior = RepeatBehavior.Forever,
                     EnableDependentAnimation = true,
                     Duration = TimeSpan.FromMilliseconds(4000),
                     To = ColorGenerator.GetRandomColor(ColorScheme.Purple).Color,

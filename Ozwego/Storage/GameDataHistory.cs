@@ -138,16 +138,6 @@ namespace Ozwego.Storage
             {
                 var messageSender = MessageSender.GetInstance();
                 await messageSender.SendMessage(PacketType.ClientUploadGameData, gameData);
-
-                //using (var stream = new MemoryStream())
-                //{
-                //    var binaryWriter = new BinaryWriter(stream);
-                //    gameData.Write(binaryWriter);
-
-                //    var messageSender = MessageSender.GetInstance();
-
-                //    await messageSender.SendMessage(PacketType.ClientUploadGameData, stream.ToArray());
-                //}
             }
         }
     }

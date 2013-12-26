@@ -11,11 +11,32 @@ namespace Ozwego.Storage
         // ToDo: Remove or change these default values.
         private const string DefaultAlias = "Jonathan Yeung";
         private const string DefaultEmailAddress = "jonathanyeung@outlook.com";
+
         private const int DefaultLevel = 0;
         private const long DefaultExpCount = 0;
         private const int DefaultRanking = 1;
         private static readonly DateTime DefaultCreationTime = new DateTime(9999, 9, 9);
 
+
+        public static bool IsFirstLaunch
+        {
+            get
+            {
+                var isFirstLaunch = localSettings.Values["isFirstLaunch"];
+
+                if (null == isFirstLaunch)
+                {
+                    return true;
+                }
+
+                return (bool)isFirstLaunch;
+            }
+
+            set
+            {
+                localSettings.Values["isFirstLaunch"] = value;
+            }
+        }
 
         public static Friend userInstance
         {

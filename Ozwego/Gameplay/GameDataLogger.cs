@@ -35,8 +35,7 @@ namespace Ozwego.Gameplay
 
             foreach (var p in players)
             {
-                //ToDo: Caution, this has been switched to email address already instead of alias
-                _gameData.PlayerDictionary.Add(p.EmailAddress, null);
+                _gameData.PlayerDictionary.Add(p.Alias, null);
             }
         }
 

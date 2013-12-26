@@ -15,6 +15,7 @@
     <PackageCertificateKeyFile>Ozwego_StoreKey.pfx</PackageCertificateKeyFile>
     <PackageCertificateThumbprint>DEE204FE70DD9D6DA8CBCFD6336AD4C68835D123</PackageCertificateThumbprint>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <ExpressionBlendVersion>12.0.41002.1</ExpressionBlendVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -201,6 +202,27 @@
     <Compile Include="UI\MatchmakingWaitPage.xaml.cs">
       <DependentUpon>MatchmakingWaitPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\OOBE\OOBEPage1.xaml.cs">
+      <DependentUpon>OOBEPage1.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\OOBE\OOBEPage2.xaml.cs">
+      <DependentUpon>OOBEPage2.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\OOBE\OOBEPage3.xaml.cs">
+      <DependentUpon>OOBEPage3.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\OOBE\OOBEPage4.xaml.cs">
+      <DependentUpon>OOBEPage4.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\OOBE\OOBEPage5.xaml.cs">
+      <DependentUpon>OOBEPage5.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\OOBE\OOBEPage6.xaml.cs">
+      <DependentUpon>OOBEPage6.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\OOBE\OOBEPage7.xaml.cs">
+      <DependentUpon>OOBEPage7.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\PlayerPane.cs" />
     <Compile Include="UI\ColumnView\RequestsList.xaml.cs">
       <DependentUpon>RequestsList.xaml</DependentUpon>
@@ -289,6 +311,34 @@
     <Page Include="UI\MatchmakingWaitPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\OOBE\OOBEPage1.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\OOBE\OOBEPage2.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\OOBE\OOBEPage3.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\OOBE\OOBEPage4.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\OOBE\OOBEPage5.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\OOBE\OOBEPage6.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\OOBE\OOBEPage7.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="UI\PostGamePage.xaml">
       <SubType>Designer</SubType>

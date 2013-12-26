@@ -337,7 +337,7 @@ namespace WorkerRole
                         catch (Exception e)
                         {
 #if DEBUG
-                            throw;
+                            //throw;
 #endif
                             if (!IsConnected)
                             {

@@ -95,7 +95,7 @@ namespace Ozwego.UI.Background
             polygon.SetValue(Grid.ColumnProperty, _column);
 
             polygon.Fill = ColorGenerator.GetRandomColor(ColorScheme.Purple);
-            polygon.Opacity = .3f;
+            polygon.Opacity = .4f;
         }
     }
 }

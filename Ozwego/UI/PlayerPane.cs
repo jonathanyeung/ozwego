@@ -31,13 +31,17 @@ namespace Ozwego.UI
                 PlayerList.Add(new PlayerPaneViewModel(player.Alias));
             }
 
+            //PlayerList.Add(new PlayerPaneViewModel("Charles Barkley"));
+            //PlayerList.Add(new PlayerPaneViewModel("Shaq Attack"));
+            //PlayerList.Add(new PlayerPaneViewModel("Michael Jordan"));
+
             var roomManager = RoomManager.GetInstance();
             foreach (var member in roomManager.RoomMembers)
             {
                 //ToDo: Remove this instance.  Do a smarter check to prevent double adding the client name.
                 if (member.EmailAddress != Settings.EmailAddress)
                 {
-                    PlayerList.Add(new PlayerPaneViewModel(member.EmailAddress));
+                    PlayerList.Add(new PlayerPaneViewModel(member.Alias));
                 }
             }
         }

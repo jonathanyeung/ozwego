@@ -15,6 +15,7 @@ using Windows.UI.Xaml.Shapes;
 using Ozwego.ViewModels;
 using Ozwego.Storage;
 using Ozwego.UI.Background;
+using System.Threading.Tasks;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -94,7 +95,7 @@ namespace Ozwego.UI
             var tile = CreateLetterTile(tileContents);
             _tileRack.AddTile(tile);
 
-            PlayPeelAnimation(actionSender);
+            PlayCompletePeelAnimation(actionSender);
         }
 
 
@@ -160,7 +161,7 @@ namespace Ozwego.UI
         private void OnGameStartedEvent(object sender)
         {
             GenerateBoxes();
-            ColorCircle.Begin();
+            //ColorCircle.Begin();
 
             _playerPane.Initialize();
 
@@ -184,7 +185,7 @@ namespace Ozwego.UI
             //GameBoardScrollViewer.ZoomSnapPoints.Add(1.0f);
             //GameBoardScrollViewer.ZoomSnapPoints.Add(2.5f);
             //GameBoardScrollViewer.ZoomSnapPointsType = SnapPointsType.Mandatory;
-            GameBoardScrollViewer.Background = new SolidColorBrush(Colors.RoyalBlue) {Opacity = 0.1f};
+            //GameBoardScrollViewer.Background = new SolidColorBrush(Colors.RoyalBlue) {Opacity = 0.1f};
 
             DumpCircle.Fill.Opacity = .7f;
             //TileRackUi.Background = new SolidColorBrush(Colors.MediumVioletRed);
@@ -192,7 +193,42 @@ namespace Ozwego.UI
 
             //TilePoolCountUI.SetBinding(TextBlock.TextProperty, 
 
-            Storyboard.SetTarget(ColorCircle, DumpCircle);
+            //Storyboard.SetTarget(ColorCircle, DumpCircle);
+        }
+
+
+        /// <summary>
+        /// This method gets the index of the target container from the left hand column player panel.
+        /// The index of the target container corresponding to the passed in user name is returned, on which
+        /// animations are targeted for peel and dump actions.
+        /// </summary>
+        /// <param name="userNamae"></param>
+        /// <returns></returns>
+        private int GetPlayerPanelIndex(string userName)
+        {
+            //
+            // Find the right item template instance from the string of the name of the Action Sender.
+            //
+
+            int index = 0;
+            PlayerPaneViewModel curViewModel = null;
+            foreach (PlayerPaneViewModel viewModel in _playerPane.PlayerList)
+            {
+                if (viewModel.PlayerName == userName)
+                {
+                    curViewModel = viewModel;
+                    break;
+                }
+
+                index++;
+            }
+
+            if (null == curViewModel)
+            {
+                return -1;
+            }
+
+            return index;
         }
 
 
@@ -200,14 +236,62 @@ namespace Ozwego.UI
         /// 
         /// </summary>
         /// <param name="index">index of child element on which to perform the animation.</param>
-        private void PlayPeelAnimation(string actionSender)
+        private void PlayCompletePeelAnimation(string actionSender)
         {
-            PlayPlayerActionAnimation(actionSender, "Peeled!");
+            var index = GetPlayerPanelIndex(actionSender);
+
+            if (index == -1)
+            {
+                return;
+            }
+
+            var animationTargetContainer = PlayerPanel.ItemContainerGenerator.ContainerFromIndex(index);
+
+            var grid = VisualTreeHelper.GetChild(animationTargetContainer, 0);
+            var ellipse = VisualTreeHelper.GetChild(grid, 0);
+
+            var colorAnimation = new ColorAnimationUsingKeyFrames();
+
+            var frameA = new EasingColorKeyFrame();
+            frameA.KeyTime = TimeSpan.FromMilliseconds(200);
+            frameA.Value = Colors.Green;
+            frameA.EasingFunction = new QuadraticEase();
+            frameA.EasingFunction.EasingMode = EasingMode.EaseIn;
+
+            var frameB = new EasingColorKeyFrame();
+            frameB.KeyTime = TimeSpan.FromMilliseconds(400);
+            frameB.Value = Colors.Orange;
+            frameB.EasingFunction = new QuadraticEase();
+            frameB.EasingFunction.EasingMode = EasingMode.EaseOut;
+
+            colorAnimation.KeyFrames.Add(frameA);
+            colorAnimation.KeyFrames.Add(frameB);
+
+            Storyboard MyStoryBoard = new Storyboard();
+            Storyboard.SetTargetProperty(colorAnimation, "(Ellipse.Stroke).(SolidColorBrush.Color)");
+            Storyboard.SetTarget(colorAnimation, ellipse);
+
+            MyStoryBoard.Children.Add(colorAnimation);
+            MyStoryBoard.Begin();
+            PlayPeelAnimation();
         }
 
         private void PlayDumpAnimation(string actionSender)
         {
-            PlayPlayerActionAnimation(actionSender, "Dumped!");
+            var index = GetPlayerPanelIndex(actionSender);
+
+            if (index == -1)
+            {
+#if DEBUG
+                throw new ArgumentException("Invalid index for the dump animation.");
+#else
+                index = 0;
+#endif
+            }
+
+            var storyboard = CreateDumpAnimationStoryboard(index);
+
+            storyboard.Begin();
         }
 
 
@@ -248,6 +332,8 @@ namespace Ozwego.UI
             // template.  If that changes, the code below will break!  Find a stronger contract
             // here.
             //
+
+            // ToDo: Update code below; UI has changed.
 
             var grid = VisualTreeHelper.GetChild(animationTargetContainer, 0);
             var stackPanel = VisualTreeHelper.GetChild(grid, 2);
@@ -451,6 +537,7 @@ namespace Ozwego.UI
             boxOne.ManipulationCompleted += BoxOnManipulationCompleted;
             boxOne.ManipulationStarted += BoxOnManipulationStarted;
             boxOne.ManipulationInertiaStarting += Box_ManipulationInertiaStarting;
+            boxOne.DoubleTapped += boxOne_DoubleTapped;
             boxOne.RenderTransform = new TranslateTransform();
 
             var rectOne = new Rectangle
@@ -475,16 +562,18 @@ namespace Ozwego.UI
         }
 
 
+
+
         private void CreateBorder(int x, int y)
         {
             var border = new Border
             {
                 BorderThickness = new Thickness(BorderWidth),
-                BorderBrush = new SolidColorBrush(Colors.DarkGray)
+                BorderBrush = new SolidColorBrush(Colors.WhiteSmoke)
 
             };
 
-            border.BorderBrush.Opacity = .3f;
+            border.BorderBrush.Opacity = .4f;
 
             border.SetValue(Grid.RowProperty, y);
             border.SetValue(Grid.ColumnProperty, x);
@@ -501,7 +590,421 @@ namespace Ozwego.UI
         #endregion
 
 
+        #region Dump and Peel Tile Animations
+
+        private enum TileAnimationDirection
+        {
+            Up,
+            Down
+        }
+
+
+        /// <summary>
+        /// Scale X Animation Keyframes for tile animations.
+        /// </summary>
+        /// <returns></returns>
+        private DoubleAnimationUsingKeyFrames CreateScaleXKeyFrames(int delay = 0)
+        {
+            var animation = new DoubleAnimationUsingKeyFrames();
+
+            Storyboard.SetTargetProperty(animation, "(UIElement.RenderTransform).(CompositeTransform.ScaleX)");
+
+            var frame = new EasingDoubleKeyFrame();
+            frame.KeyTime = new KeyTime();
+            frame.KeyTime = TimeSpan.FromMilliseconds(0);
+            frame.Value = 0;
+
+            var frameTwo = new EasingDoubleKeyFrame();
+            frameTwo.KeyTime = new KeyTime();
+            frameTwo.KeyTime = TimeSpan.FromMilliseconds(0 + delay);
+            frameTwo.Value = 0;
+
+            var frameThree = new EasingDoubleKeyFrame();
+            frameThree.KeyTime = new KeyTime();
+            frameThree.KeyTime = TimeSpan.FromMilliseconds(100 + delay);
+            frameThree.Value = 1;
+
+            //var frameThree = new EasingDoubleKeyFrame();
+            //frameThree.KeyTime = new KeyTime();
+            //frameThree.KeyTime = TimeSpan.FromMilliseconds(1000 + delay);
+            //frameThree.Value = 1;
+
+            animation.KeyFrames.Add(frame);
+            animation.KeyFrames.Add(frameTwo);
+            animation.KeyFrames.Add(frameThree);
+
+            return animation;
+        }
+
+
+        private static DoubleAnimationUsingKeyFrames CreateScaleYKeyFrames(int delay = 0)
+        {
+            var animation = new DoubleAnimationUsingKeyFrames();
+
+            Storyboard.SetTargetProperty(animation, "(UIElement.RenderTransform).(CompositeTransform.ScaleY)");
+
+            var frameA = new EasingDoubleKeyFrame();
+            frameA.KeyTime = new KeyTime();
+            frameA.KeyTime = TimeSpan.FromMilliseconds(0);
+            frameA.Value = 0;
+
+            var frameB = new EasingDoubleKeyFrame();
+            frameB.KeyTime = new KeyTime();
+            frameB.KeyTime = TimeSpan.FromMilliseconds(0 + delay);
+            frameB.Value = 0;
+
+            var frameC = new EasingDoubleKeyFrame();
+            frameC.KeyTime = new KeyTime();
+            frameC.KeyTime = TimeSpan.FromMilliseconds(100 + delay);
+            frameC.Value = 1;
+
+            animation.KeyFrames.Add(frameA);
+            animation.KeyFrames.Add(frameB);
+            animation.KeyFrames.Add(frameC);
+
+            return animation;
+        }
+
+
+        private DoubleAnimationUsingKeyFrames CreateOpacityKeyFrames(int delay = 0)
+        {
+            var opacityAnimation = new DoubleAnimationUsingKeyFrames();
+
+            Storyboard.SetTargetProperty(opacityAnimation, "(UIElement.Opacity)");
+
+            var oFrameZero = new EasingDoubleKeyFrame();
+            oFrameZero.KeyTime = new KeyTime();
+            oFrameZero.KeyTime = TimeSpan.FromMilliseconds(0);
+            oFrameZero.Value = 1;
+
+            var oFrameOne = new EasingDoubleKeyFrame();
+            oFrameOne.KeyTime = new KeyTime();
+            oFrameOne.KeyTime = TimeSpan.FromMilliseconds(500 + delay);
+            oFrameOne.Value = 1;
+
+
+            var oFrameTwo = new EasingDoubleKeyFrame();
+            oFrameTwo.KeyTime = new KeyTime();
+            oFrameTwo.KeyTime = TimeSpan.FromMilliseconds(2000 + delay);
+            oFrameTwo.Value = 0;
+
+            oFrameTwo.EasingFunction = new QuinticEase();
+            oFrameTwo.EasingFunction.EasingMode = EasingMode.EaseOut;
+
+            opacityAnimation.KeyFrames.Add(oFrameZero);
+            opacityAnimation.KeyFrames.Add(oFrameOne);
+            opacityAnimation.KeyFrames.Add(oFrameTwo);
+
+            return opacityAnimation;
+        }
+
+
+        private DoubleAnimationUsingKeyFrames CreateTranslationKeyFrames(int playerViewModelIndex, TileAnimationDirection direction, Grid tile, int delay = 0)
+        {
+            Point BeginPoint;
+            Point EndPoint;
+
+            var animation = new DoubleAnimationUsingKeyFrames();
+
+            Storyboard.SetTargetProperty(animation, "(UIElement.RenderTransform).(CompositeTransform.TranslateY)");
+
+            var dumpCircleGt = InnerDumpCircle.TransformToVisual(pageRoot);
+
+            var animationTargetContainer = PlayerPanel.ItemContainerGenerator.ContainerFromIndex(playerViewModelIndex);
+
+            var grid = VisualTreeHelper.GetChild(animationTargetContainer, 0) as Grid;
+
+            var playerViewModelGt = grid.TransformToVisual(pageRoot);
+
+            if (direction == TileAnimationDirection.Down)
+            {
+                BeginPoint = dumpCircleGt.TransformPoint(new Point(0, 0));
+
+                EndPoint = playerViewModelGt.TransformPoint(new Point(0, 0));
+
+                tile.Margin = new Thickness(BeginPoint.X + InnerDumpCircle.Width / 2 - tile.Width / 2, BeginPoint.Y - tile.Height / 2 + 10/* + InnerDumpCircle.Height / 2*/, 0, 0);
+            }
+            else
+            {
+                EndPoint = dumpCircleGt.TransformPoint(new Point(0, 0));
+
+                BeginPoint = playerViewModelGt.TransformPoint(new Point(0, 0));
+
+                tile.Margin = new Thickness(BeginPoint.X + InnerDumpCircle.Width / 2 + 15, tile.Height / 2 + 10, 0, 0);
+            }
+
+            var acFrame = new EasingDoubleKeyFrame();
+            acFrame.KeyTime = new KeyTime();
+            acFrame.KeyTime = TimeSpan.FromMilliseconds(0);
+            acFrame.Value = BeginPoint.Y;
+
+            var bcFrame = new EasingDoubleKeyFrame();
+            bcFrame.KeyTime = new KeyTime();
+            bcFrame.KeyTime = TimeSpan.FromMilliseconds(0 + delay);
+            bcFrame.Value = BeginPoint.Y;
+
+
+            var cFrame = new EasingDoubleKeyFrame();
+            cFrame.KeyTime = new KeyTime();
+            cFrame.KeyTime = TimeSpan.FromMilliseconds(100 + delay);
+            cFrame.Value = BeginPoint.Y;
+
+            var dFrame = new EasingDoubleKeyFrame();
+            dFrame.KeyTime = new KeyTime();
+            dFrame.KeyTime = TimeSpan.FromMilliseconds(500 + delay);
+            dFrame.Value = EndPoint.Y;
+
+            dFrame.EasingFunction = new QuadraticEase();
+            dFrame.EasingFunction.EasingMode = EasingMode.EaseInOut;
+
+            animation.KeyFrames.Add(acFrame);
+            animation.KeyFrames.Add(bcFrame);
+            animation.KeyFrames.Add(cFrame);
+            animation.KeyFrames.Add(dFrame);
+
+            return animation;
+        }
+
+
+        private Storyboard CreatePeelAnimationStoryboard(int playerViewModelIndex, TileAnimationDirection direction, out Grid tile)
+        {
+            //
+            // Initialize the tile grid.
+            //
+
+            tile = new Grid()
+            {
+                Width = 50,
+                Height = 50,
+                Background = new SolidColorBrush(Colors.DodgerBlue)
+            };
+
+            tile.VerticalAlignment = VerticalAlignment.Top;
+            tile.HorizontalAlignment = HorizontalAlignment.Left;
+            tile.SetValue(Grid.ColumnProperty, 0);
+
+            RootGrid.Children.Add(tile);
+
+            tile.RenderTransformOrigin = new Point(.5, .5);
+            tile.RenderTransform = new CompositeTransform();
+
+
+            var storyboard = new Storyboard();
+
+            storyboard.Children.Add(CreateScaleXKeyFrames());
+
+            storyboard.Children.Add(CreateScaleYKeyFrames());
+
+            storyboard.Children.Add(CreateTranslationKeyFrames(playerViewModelIndex, direction, tile));
+
+            storyboard.Children.Add(CreateOpacityKeyFrames());
+
+            return storyboard;
+        }
+
+        private Grid CreateAnimationTile()
+        {
+            var tile = new Grid()
+            {
+                Width = 50,
+                Height = 50,
+                Background = new SolidColorBrush(Colors.DodgerBlue)
+            };
+
+            tile.VerticalAlignment = VerticalAlignment.Top;
+            tile.HorizontalAlignment = HorizontalAlignment.Left;
+            tile.SetValue(Grid.ColumnProperty, 0);
+
+            tile.RenderTransformOrigin = new Point(.5, .5);
+            tile.RenderTransform = new CompositeTransform();
+
+            return tile;
+        }
+
+        private Storyboard CreateDumpAnimationStoryboard(int playerViewModelIndex)
+        {
+            Storyboard storyboard = new Storyboard();
+
+            var tileOne = CreateAnimationTile();
+            var tileTwo = CreateAnimationTile();
+            var tileThree = CreateAnimationTile();
+            var tileFour = CreateAnimationTile();
+
+            RootGrid.Children.Add(tileOne);
+            RootGrid.Children.Add(tileTwo);
+            RootGrid.Children.Add(tileThree);
+            RootGrid.Children.Add(tileFour);
+
+            var tiles = new List<Grid>() { tileOne, tileTwo, tileThree, tileFour };
+
+            int i = 0;
+            int delay = 0;
+
+            foreach (var tile in tiles)
+            {
+                if (i == 1)
+                {
+                    delay += 500;
+                }
+                else if (i > 1)
+                {
+                    delay += 200;
+                }
+
+                var upAnimationScaleX = CreateScaleXKeyFrames(delay);
+                Storyboard.SetTarget(upAnimationScaleX, tile);
+                storyboard.Children.Add(upAnimationScaleX);
+
+                var upAnimationScaleY = CreateScaleYKeyFrames(delay);
+                Storyboard.SetTarget(upAnimationScaleY, tile);
+                storyboard.Children.Add(upAnimationScaleY);
+
+                var upAnimationOpacity = CreateOpacityKeyFrames(delay);
+                Storyboard.SetTarget(upAnimationOpacity, tile);
+                storyboard.Children.Add(upAnimationOpacity);
+
+                i++;
+            }
+
+
+            var upAnimationTranslate = CreateTranslationKeyFrames(playerViewModelIndex, TileAnimationDirection.Up, tileOne);
+            Storyboard.SetTarget(upAnimationTranslate, tileOne);
+            storyboard.Children.Add(upAnimationTranslate);
+
+            var downAnimationTranslateOne = CreateTranslationKeyFrames(playerViewModelIndex, TileAnimationDirection.Down, tileTwo, 500);
+            Storyboard.SetTarget(downAnimationTranslateOne, tileTwo);
+
+            var downAnimationTranslateTwo = CreateTranslationKeyFrames(playerViewModelIndex, TileAnimationDirection.Down, tileThree, 700);
+            Storyboard.SetTarget(downAnimationTranslateTwo, tileThree);
+
+            var downAnimationTranslateThree = CreateTranslationKeyFrames(playerViewModelIndex, TileAnimationDirection.Down, tileFour, 900);
+            Storyboard.SetTarget(downAnimationTranslateThree, tileFour);
+
+            storyboard.Children.Add(downAnimationTranslateOne);
+            storyboard.Children.Add(downAnimationTranslateTwo);
+            storyboard.Children.Add(downAnimationTranslateThree);
+
+            return storyboard;
+        }
+
+        #endregion
+
+
         #region Box Manipulation Handlers
+
+
+
+        /// <summary>
+        /// Maps to a dump now.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        async void boxOne_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            var gameController = GameController.GetInstance();
+
+            var box = sender as Grid;
+
+            if (box == null)
+            {
+                return;
+            }
+            var textBlock = box.Children[1] as TextBlock;
+
+            var returnedTile = new Tile(textBlock.Text);
+
+            //ToDo: The line below is super hacky...yuck yuck.  Should not use app.clientbuddyinstance here, but instead use the performdumpaction method of humanplayer.cs
+            var tiles = await gameController.PerformDumpAction(Settings.Alias, returnedTile);
+
+
+            //
+            // If there aren't enough tiles left for a dump, then return the tile back to the 
+            // rack.
+            //
+
+            if (tiles.Count == 0)
+            {
+                return;
+            }
+
+            else
+            {
+                if (box.Parent == TileRackUi)
+                {
+                    _tileRack.RemoveTile(box);
+                    gameController.RemoveTileFromRack(textBlock.Text);
+                }
+
+                foreach (var tile in tiles)
+                {
+                    var newTile = CreateLetterTile(tile.TileContents);
+                    _tileRack.AddTile(newTile);
+                    gameController.ReturnTileToRack(tile.TileContents);
+                }
+
+                //ToDo: Figure out how to move this shit back to XAML...God damn it XAML.
+                var scaleXAnimation = new DoubleAnimation();
+                scaleXAnimation.Duration = TimeSpan.FromMilliseconds(500);
+                scaleXAnimation.To = 0;
+                Storyboard.SetTargetProperty(scaleXAnimation, "(UIElement.RenderTransform).(CompositeTransform.ScaleX)");
+
+                var scaleYAnimation = new DoubleAnimation();
+                scaleYAnimation.Duration = TimeSpan.FromMilliseconds(500);
+                scaleYAnimation.To = 0;
+                Storyboard.SetTargetProperty(scaleYAnimation, "(UIElement.RenderTransform).(CompositeTransform.ScaleY)");
+
+                var rotationAnimation = new DoubleAnimation();
+                rotationAnimation.Duration = TimeSpan.FromMilliseconds(500);
+                rotationAnimation.To = 720;
+                Storyboard.SetTargetProperty(rotationAnimation, "(UIElement.RenderTransform).(CompositeTransform.Rotation)");
+
+                var TileVanishStoryboard = new Storyboard();
+
+                TileVanishStoryboard.Children.Add(scaleXAnimation);
+                TileVanishStoryboard.Children.Add(scaleYAnimation);
+                TileVanishStoryboard.Children.Add(rotationAnimation);
+
+
+                box.RenderTransform = new CompositeTransform();
+                box.RenderTransformOrigin = new Point(.5, .5);
+
+                //Storyboard.SetTarget(TileVanishStoryboard, box);
+                //TileVanishStoryboard.Begin();
+                //TileVanishStoryboard.Completed += TileSpinAndVanish_Completed;
+
+                TileSpinAndVanish.Stop();
+                Storyboard.SetTarget(TileSpinAndVanish, box);
+                TileSpinAndVanish.Begin();
+                PlayDumpAnimation(Settings.Alias);
+
+                TileSpinAndVanish.Completed += TileSpinAndVanish_Completed;
+
+                // ToDo: Remove this sleep and use the TileSpinAndVanishCompleted EH.
+                await Task.Delay(500);
+
+
+                //
+                // Clear the game board spot from where the tile was dumped
+                //
+
+                var curColumn = (int)box.GetValue(Grid.ColumnProperty);
+                var curRow = (int)box.GetValue(Grid.RowProperty);
+
+                gameController = GameController.GetInstance();
+                gameController.ClearBoardSpace(_westLimit + curColumn, _northLimit + curRow);
+
+                
+                box.Visibility = Visibility.Collapsed;
+                GameBoard.Children.Remove(box);
+
+                //_playedTiles.Remove(box); huh?  what's the purpose of this...
+
+
+            }
+        }
+
+
+
 
         private void BoxOnManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
         {
@@ -512,8 +1015,6 @@ namespace Ozwego.UI
                 return;
             }
 
-            //GridFadeIn.Begin();
-
 
             //
             // If there are any tiles that have been painted red, change them back to blue.
@@ -523,6 +1024,7 @@ namespace Ozwego.UI
             {
                 dirtyRect.Fill = new SolidColorBrush(Colors.DodgerBlue);
             }
+
             _dirtyTiles.Clear();
 
 
@@ -541,14 +1043,6 @@ namespace Ozwego.UI
 
                 _playedTiles.Remove(box);
             }
-
-            var rect = box.Children[0] as Rectangle;
-            if (rect != null)
-            {
-                rect.Fill = new SolidColorBrush(Colors.Crimson);
-            }
-
-            //box.SetValue(Canvas.ZIndexProperty, 3);
 
             e.Handled = true;
         }
@@ -588,6 +1082,24 @@ namespace Ozwego.UI
                 translateTransform.Y += (e.Delta.Translation.Y * (1 / intendedZoomFactor));
             }
 
+
+            //
+            // Restrict the tile movement to only be within the scroll viewer.
+            //
+
+            var gt = dragableItem.TransformToVisual(pageRoot);
+            var endOfDragPosition = gt.TransformPoint(new Point(0, 0));
+
+            gt = GameBoardScrollViewer.TransformToVisual(pageRoot);
+            var scrollViewerAnchorPoint = gt.TransformPoint(new Point(0, 0));
+
+            if ((endOfDragPosition.X < scrollViewerAnchorPoint.X) ||
+                ((endOfDragPosition.X > scrollViewerAnchorPoint.X + GameBoardScrollViewer.ViewportWidth - dragableItem.Width * intendedZoomFactor) && (dragableItem.Parent != TileRackUi)))
+            {
+                translateTransform.X -= (e.Delta.Translation.X * (1 / intendedZoomFactor));
+                translateTransform.Y -= (e.Delta.Translation.Y * (1 / intendedZoomFactor));
+            }
+
             e.Handled = true;
         }
 
@@ -600,7 +1112,7 @@ namespace Ozwego.UI
         }
 
 
-        private async void BoxOnManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+        private void BoxOnManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
         {
             var gameController = GameController.GetInstance();
 
@@ -622,8 +1134,6 @@ namespace Ozwego.UI
             }
 
             var translateTransform = box.RenderTransform as TranslateTransform;
-
-            rect.Fill = new SolidColorBrush(Colors.DodgerBlue);
 
 
             //
@@ -667,64 +1177,66 @@ namespace Ozwego.UI
                 }
 
 
-            //
-            // Check if the user is trying to dump the tile into the tile pool:
-            //
+            ////
+            //// Check if the user is trying to dump the tile into the tile pool:
+            ////
 
-            else if ((endOfDragPosition.X > dumpBoxAnchorPoint.X) 
-                && (dumpBoxAnchorPoint.X + DumpBox.ActualWidth > endOfDragPosition.X)
-                && (endOfDragPosition.Y > dumpBoxAnchorPoint.Y)
-                && (dumpBoxAnchorPoint.Y + DumpBox.ActualHeight > endOfDragPosition.Y))
-            {
-                var returnedTile = new Tile(textBlock.Text);
-
-
-                //ToDo: The line below is super hacky...yuck yuck.  Should not use app.clientbuddyinstance here, but instead use the performdumpaction method of humanplayer.cs
-                var tiles = await gameController.PerformDumpAction(Settings.Alias, returnedTile);
+            //else if ((endOfDragPosition.X > dumpBoxAnchorPoint.X) 
+            //    && (dumpBoxAnchorPoint.X + DumpBox.ActualWidth > endOfDragPosition.X)
+            //    && (endOfDragPosition.Y > dumpBoxAnchorPoint.Y)
+            //    && (dumpBoxAnchorPoint.Y + DumpBox.ActualHeight > endOfDragPosition.Y))
+            //{
+            //    var returnedTile = new Tile(textBlock.Text);
 
 
-                //
-                // If there aren't enough tiles left for a dump, then return the tile back to the 
-                // rack.
-                //
+            //    //ToDo: The line below is super hacky...yuck yuck.  Should not use app.clientbuddyinstance here, but instead use the performdumpaction method of humanplayer.cs
+            //    var tiles = await gameController.PerformDumpAction(Settings.Alias, returnedTile);
 
-                if (tiles.Count == 0)
-                {
-                    //ToDo: This code was copied from the above "user has put the tile back on the tile rack section.  Consolidate this.
-                    if (box.Parent == TileRackUi)
-                    {
-                        _tileRack.RemoveTile(box);
-                        gameController.RemoveTileFromRack(textBlock.Text);
-                    }
 
-                    if (translateTransform != null)
-                    {
-                        translateTransform.X = 0;
-                        translateTransform.Y = 0;
-                    }
+            //    //
+            //    // If there aren't enough tiles left for a dump, then return the tile back to the 
+            //    // rack.
+            //    //
 
-                    _tileRack.AddTile(box);
-                    gameController.ReturnTileToRack(textBlock.Text);
-                }
+            //    if (tiles.Count == 0)
+            //    {
+            //        //ToDo: This code was copied from the above "user has put the tile back on the tile rack section.  Consolidate this.
+            //        if (box.Parent == TileRackUi)
+            //        {
+            //            _tileRack.RemoveTile(box);
+            //            gameController.RemoveTileFromRack(textBlock.Text);
+            //        }
 
-                else
-                {
-                    if (box.Parent == TileRackUi)
-                    {
-                        _tileRack.RemoveTile(box);
-                        gameController.RemoveTileFromRack(textBlock.Text);
-                    }
+            //        if (translateTransform != null)
+            //        {
+            //            translateTransform.X = 0;
+            //            translateTransform.Y = 0;
+            //        }
 
-                    foreach (var tile in tiles)
-                    {
-                        var newTile = CreateLetterTile(tile.TileContents);
-                        _tileRack.AddTile(newTile);
-                        gameController.ReturnTileToRack(tile.TileContents);
-                    }
+            //        _tileRack.AddTile(box);
+            //        gameController.ReturnTileToRack(textBlock.Text);
+            //    }
 
-                    box.Visibility = Visibility.Collapsed;
-                }
-            }
+            //    else
+            //    {
+            //        if (box.Parent == TileRackUi)
+            //        {
+            //            _tileRack.RemoveTile(box);
+            //            gameController.RemoveTileFromRack(textBlock.Text);
+            //        }
+
+            //        foreach (var tile in tiles)
+            //        {
+            //            var newTile = CreateLetterTile(tile.TileContents);
+            //            _tileRack.AddTile(newTile);
+            //            gameController.ReturnTileToRack(tile.TileContents);
+            //        }
+
+            //        box.RenderTransform = new CompositeTransform();
+            //        Storyboard.SetTarget(TileSpinAndVanish, box);
+            //        TileSpinAndVanish.Completed += TileSpinAndVanish_Completed;
+            //    }
+            //}
 
 
             //
@@ -796,6 +1308,13 @@ namespace Ozwego.UI
             }
 
             e.Handled = true;
+        }
+
+
+        void TileSpinAndVanish_Completed(object sender, object e)
+        {
+            //ToDo: Cleanup the objects.
+            //box.Visibility = Visibility.Collapsed;
         }
 
 
@@ -895,6 +1414,73 @@ namespace Ozwego.UI
         }
 
         #endregion
+
+
+
+        private void PlayPeelAnimation()
+        {
+            List<Storyboard> storyboards = new List<Storyboard>();
+
+            for (var i = 0; i < PlayerPanel.Items.Count; i++)
+            {
+                Grid newTile = null;
+                var storyboard = CreatePeelAnimationStoryboard(i, TileAnimationDirection.Down, out newTile);
+                Storyboard.SetTarget(storyboard, newTile);
+                storyboards.Add(storyboard);
+            }
+
+            foreach(var s in storyboards)
+            {
+                s.Begin();
+            }
+        }
+
+
+        private async void PlayDumpAnimation(int playerViewModelIndex)
+        {
+            var storyboard = CreateDumpAnimationStoryboard(playerViewModelIndex);
+            storyboard.Begin();
+
+            //const int TilesPerDump = 3;
+
+            //List<Storyboard> storyboards = new List<Storyboard>();
+
+            //Grid newTile = null;
+            //var upStoryboard = CreatePeelAnimationStoryboard(playerViewModelIndex, TileAnimationDirection.Up, out newTile);
+            //Storyboard.SetTarget(upStoryboard, newTile);
+
+
+
+            //upStoryboard.Begin();
+
+            //await Task.Delay(600);
+
+            //for (var i = 0; i < TilesPerDump; i++)
+            //{
+            //    Grid newIncomingTile = null;
+            //    var storyboard = CreatePeelAnimationStoryboard(playerViewModelIndex, TileAnimationDirection.Down, out newIncomingTile);
+            //    Storyboard.SetTarget(storyboard, newTile);
+            //    storyboards.Add(storyboard);
+            //}
+
+            //foreach (var s in storyboards)
+            //{
+            //    s.Begin();
+            //    await Task.Delay(500);
+            //}
+        }
+
+
+        private void PeelButton_Click(object sender, RoutedEventArgs e)
+        {
+            //PlayPeelAnimation();
+            PlayCompletePeelAnimation("Jonathan");
+        }
+
+        private void DumpButton_Click(object sender, RoutedEventArgs e)
+        {
+            PlayDumpAnimation(0);
+        }
 
     }
 }

@@ -15,7 +15,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 using Ozwego.ViewModels;
 using Ozwego.Storage;
-
+using Ozwego.UI.OOBE;
 using Ozwego.Gameplay;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
@@ -28,6 +28,7 @@ namespace Ozwego
     public sealed partial class MainPage : Ozwego.Common.LayoutAwarePage
     {
         private BackgroundGrid _background;
+        //private Friend ClientFriendInstance;
 
         public MainPage()
         {
@@ -35,7 +36,8 @@ namespace Ozwego
 
             var mainPageViewModel = MainPageViewModel.GetInstance();
             DataContext = mainPageViewModel;
-            UserStatsUI.DataContext = App.ClientBuddyInstance;
+
+            UserStatsUI.DataContext = Settings.userInstance;
 
             var gameBoardViewModel = GameBoardViewModel.GetInstance();
             MatchmakingPane.DataContext = gameBoardViewModel;
@@ -55,8 +57,6 @@ namespace Ozwego
 
             try
             {
-                if (!StandardPopup.IsOpen) { StandardPopup.IsOpen = true; }
-
                 var serverProxy = ServerProxy.GetInstance();
                 await serverProxy.Authenticate();
                 serverProxy.Connect();
@@ -76,6 +76,25 @@ namespace Ozwego
 
             _background.BeginSubtleAnimation();
 
+
+            // This frame is hidden, meaning it is never shown.  It is simply used to load
+            // each scenario page and then pluck out the input and output sections and
+            // place them into the UserControls on the main page.
+            HiddenFrame = new Windows.UI.Xaml.Controls.Frame();
+            HiddenFrame.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+
+
+            //
+            // Load OOBE if this is first launch.
+            //
+
+            if (Settings.IsFirstLaunch)
+            {
+                if (!StandardPopup.IsOpen) { StandardPopup.IsOpen = true; }
+                LoadOOBEView(typeof(OOBEPage1));  
+            }
+
+
             //
             // Friend Lobby Initialization
             //
@@ -88,11 +107,7 @@ namespace Ozwego
             DataContext = mainPageViewModel;
 
 
-            // This frame is hidden, meaning it is never shown.  It is simply used to load
-            // each scenario page and then pluck out the input and output sections and
-            // place them into the UserControls on the main page.
-            HiddenFrame = new Windows.UI.Xaml.Controls.Frame();
-            HiddenFrame.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+
             //ContentRoot.Children.Add(HiddenFrame);
 
             LoadColumnView(typeof(FriendsList));
@@ -134,36 +149,36 @@ namespace Ozwego
         {
             var gdh = GameDataHistory.GetInstance();
 
-            var dataSet1 = new GameData { GameDuration = 50, GameHost = "abc@outlook.com", Winner = "abc@outlook.com", GameStartTime = new DateTime(2013, 10, 14) };
+            //var dataSet1 = new GameData { GameDuration = 50, GameHost = "abc@outlook.com", Winner = "abc@outlook.com", GameStartTime = new DateTime(2013, 10, 14) };
 
-            dataSet1.GameMoves.Add(new GameMoveDataPoint("abc@outlook.com", 5, MoveType.Peel));
+            //dataSet1.GameMoves.Add(new GameMoveDataPoint("abc@outlook.com", 5, MoveType.Peel));
 
-            var stats = new PlayerGameStats()
-            {
-                AvgTimeBetweenDumps = 5,
-                AvgTimeBetweenPeels = 5,
-                NumberOfDumps = 3,
-                NumberOfPeels = 3,
-                PerformedFirstPeel = true,
-                IsWinner = false,
-                RawGameData = new List<GameMoveDataPoint>() { new GameMoveDataPoint("abc@outlook.com", 1, MoveType.Peel) }
-            };
+            //var stats = new PlayerGameStats()
+            //{
+            //    AvgTimeBetweenDumps = 5,
+            //    AvgTimeBetweenPeels = 5,
+            //    NumberOfDumps = 3,
+            //    NumberOfPeels = 3,
+            //    PerformedFirstPeel = true,
+            //    IsWinner = false,
+            //    RawGameData = new List<GameMoveDataPoint>() { new GameMoveDataPoint("abc@outlook.com", 1, MoveType.Peel) }
+            //};
 
-            //var playerTuple = new PlayerTuple { Name = "abc@outlook.com", Stats = stats };
-            //var tupleList = new List<PlayerTuple> { playerTuple };
-            //dataSet1.Players = tupleList;
-
-
-            //
-            // Add one set and commit it to storage.
-            //
-
-            await gdh.ClearAllStoredData();
-
-            await gdh.StoreGameData(dataSet1);
+            ////var playerTuple = new PlayerTuple { Name = "abc@outlook.com", Stats = stats };
+            ////var tupleList = new List<PlayerTuple> { playerTuple };
+            ////dataSet1.Players = tupleList;
 
 
-            var crap = await gdh.RetrieveGameData();
+            ////
+            //// Add one set and commit it to storage.
+            ////
+
+            //await gdh.ClearAllStoredData();
+
+            //await gdh.StoreGameData(dataSet1);
+
+
+            //var crap = await gdh.RetrieveGameData();
 
             await gdh.UploadPendingGameData();
         }
@@ -302,7 +317,7 @@ namespace Ozwego
 
         #region Friend Lobby
 
-        private string _enteredAlias;
+
         private Frame HiddenFrame = null;
 
         private void OnNavigatedToFriendLobby()
@@ -310,35 +325,7 @@ namespace Ozwego
         }
 
 
-        private async void CheckIfAvailableClicked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
-        {
-            DataBaseMessageProcessor.DataBaseMessageReceivedEvent += AliasAvailableCallback;
 
-            _enteredAlias = AliasTextBox.Text;
-
-            var serverProxy = ServerProxy.GetInstance();
-
-            if (serverProxy.messageSender != null)
-            {
-                await serverProxy.messageSender.SendMessage(PacketType.ClientQueryIfAliasAvailable, _enteredAlias);
-            }
-        }
-
-
-        private void AliasAvailableCallback(object sender, string message)
-        {
-            if (message == "true")
-            {
-                Settings.Alias = _enteredAlias;
-                PopUpStatus.Text = "Alias Available and Set!";
-            }
-            else
-            {
-                PopUpStatus.Text = "Alias Taken!";
-            }
-
-            // ToDo: Once the alias has been accepted, then upload it to the server.
-        }
 
 
         private void OnMainMenuTappedFromFriendChallengePane(object sender, TappedRoutedEventArgs e)
@@ -458,18 +445,91 @@ namespace Ozwego
 
         #endregion
 
-        private void ShowPopupOffsetClicked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+
+        #region OOBE UI
+
+        List<Type> OOBEPages = new List<Type> 
         {
-            // open the Popup if it isn't open already 
-            if (!StandardPopup.IsOpen) { StandardPopup.IsOpen = true; }
+            typeof(OOBEPage1),  
+            typeof(OOBEPage3), 
+            typeof(OOBEPage4), 
+            typeof(OOBEPage5), 
+            typeof(OOBEPage6), 
+            typeof(OOBEPage7),
+            typeof(OOBEPage2)
+        };
+
+        private int PageIndex = 0;
+
+        private void LoadOOBEView(Type OOBEPageView)
+        {
+            // Load the ScenarioX.xaml file into the Frame.
+            HiddenFrame.Navigate(OOBEPageView, this);
+
+            // Get the top element, the Page, so we can look up the elements
+            // that represent the input and output sections of the ScenarioX file.
+            Page hiddenPage = HiddenFrame.Content as Page;
+
+            UIElement columnContent = hiddenPage.FindName("OOBEContent") as UIElement;
+
+            if (columnContent == null)
+            {
+                throw new ArgumentException("The OOBE content could not be found in LoadOOBEView()");
+            }
+
+            // Find the LayoutRoot which parents the input and output sections in the main page.
+            Panel panel = hiddenPage.FindName("LayoutRoot") as Panel;
+
+            if (panel != null)
+            {
+                // Get rid of the content that is currently in the intput and output sections.
+                panel.Children.Remove(columnContent);
+
+                // Populate the OOBE content sections with the newly loaded content.
+                OOBESection.Content = columnContent;
+            }
+            else
+            {
+                throw new ArgumentException("The loaded layoutRoot could not be found in LoadOOBEView()");
+            }
         }
 
 
-        private void CloseButtonClicked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        private void OnOOBEPreviousClick(object sender, RoutedEventArgs e)
         {
-            if (StandardPopup.IsOpen) { StandardPopup.IsOpen = false; }
+            if (PageIndex > 0)
+            {
+                PageIndex--;
+
+                LoadOOBEView(OOBEPages[PageIndex]);
+            }
+            else if (PageIndex == 0)
+            {
+                OOBEPrevButton.IsEnabled = false;
+            }
         }
 
 
+        private void OnOOBENextClick(object sender, RoutedEventArgs e)
+        {
+            if (PageIndex < OOBEPages.Count - 1)
+            {
+                PageIndex++;
+
+                LoadOOBEView(OOBEPages[PageIndex]);
+            }
+            else if (PageIndex == OOBEPages.Count - 1)
+            {
+                //
+                // User has completed OOBE, so don't show it again.
+                //
+
+                Settings.IsFirstLaunch = false;
+
+                if (StandardPopup.IsOpen) { StandardPopup.IsOpen = false; }
+            }
+        }
+
+        #endregion
     }
 }

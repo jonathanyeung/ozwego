@@ -102,7 +102,7 @@ namespace WorkerRole
 
             MessageSender.BroadcastMessage(
                 onlineFriends,
-                PacketType.UserLoggedIn,
+                PacketType.s_UserLoggedIn,
                 friend,
                 client);
         }
@@ -160,7 +160,7 @@ namespace WorkerRole
 
             MessageSender.BroadcastMessage(
                     onlineFriends,
-                    PacketType.UserLoggedOut,
+                    PacketType.s_UserLoggedOut,
                     friend,
                     client);
         }

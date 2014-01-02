@@ -12,16 +12,10 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid x:Name="ColumnContent" Grid.Row="0">
+        <Grid x:Name="ColumnContent" Grid.Row="0" Margin="10,0,0,0">
             <StackPanel>
-                <TextBlock Text="friend requests" Style="{StaticResource SubheaderTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
-
-                <!--<StackPanel Orientation="Horizontal" DoubleTapped="OnFriendRequestDoubleTapped">
-                    <Button Height="45" Width="45" Content="Y" FontSize="10.667" Tapped="OnYesTapped"/>
-                    <Button Height="45" Width="45" Content="N" FontSize="10.667" Tapped="OnNoTapped"/>
-                    <Button Height="45" Width="45" Content="?" FontSize="10.667" Tapped="OnQsnTapped"/>
-                    <TextBlock Text="Jonathan Yeung" Foreground="{StaticResource ApplicationForegroundThemeBrush}" VerticalAlignment="Center" FontSize="16" />
-                </StackPanel>-->
+                <TextBlock Text="friend requests" Style="{StaticResource SubheaderTextStyle}" Margin="0,0,0,5" FontSize="18.667"></TextBlock>
+                <Line StrokeThickness="2" X2="400" Margin="0, 0, 10, 10" Stroke="#DEFFFFFF"/>
 
                 <ItemsControl Name="FriendRequestListUI" Background="Transparent">
                     <ItemsControl.ItemTemplate>
@@ -36,7 +30,8 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <TextBlock Text="game requests" Style="{StaticResource SubheaderTextStyle}" Margin="0, 0, 0, 10"/>
+                <TextBlock Text="game requests" Style="{StaticResource SubheaderTextStyle}" Margin="0,0,0,5" FontSize="18.667"></TextBlock>
+                <Line StrokeThickness="2" X2="400" Margin="0, 0, 10, 10" Stroke="#DEFFFFFF"/>
                 <ListBox Name="GameRequestListUI" Background="Transparent">
                     <ListBox.ItemTemplate>
                         <DataTemplate>

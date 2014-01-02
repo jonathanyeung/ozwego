@@ -13,6 +13,7 @@ using Windows.UI.Core;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Ozwego.UI.MainPage;
 
 namespace Ozwego.Gameplay
 {
@@ -476,7 +477,7 @@ namespace Ozwego.Gameplay
                 if ((serverProxy.messageSender != null) && IsSenderLocal)
                 {
                     // ToDo: This will send the incorrect message to the server if a bot has peeled and not the client.
-                    await serverProxy.messageSender.SendMessage(PacketType.ClientPeel);
+                    await serverProxy.messageSender.SendMessage(PacketType.c_Peel);
                 }
 
 
@@ -490,7 +491,7 @@ namespace Ozwego.Gameplay
             {
                 if ((serverProxy.messageSender != null) && IsSenderLocal)
                 {
-                    await serverProxy.messageSender.SendMessage(PacketType.ClientVictory);
+                    await serverProxy.messageSender.SendMessage(PacketType.c_Victory);
                 }
 
                 EndGame(actionSender);
@@ -550,7 +551,7 @@ namespace Ozwego.Gameplay
             if (serverProxy.messageSender != null)
             {
                 // ToDo: Send the actionsender name here instead of the client name in case it's a bot that's dumping.
-                await serverProxy.messageSender.SendMessage(PacketType.ClientDump);
+                await serverProxy.messageSender.SendMessage(PacketType.c_Dump);
             }
 
             return tiles;
@@ -589,33 +590,79 @@ namespace Ozwego.Gameplay
             {
                 _gameClock.Stop();
 
-                string title = string.Format("We Have a Winner!");
-                var dialog = new MessageDialog(winnerName, title);
-                dialog.Commands.Add(new UICommand("OK", CommandInvokedHandler));
+                string title = string.Format("{0} has won the game!", winnerName);
+
+                //ToDo: Implement.
+                var content = string.Format("Not Implemented");
+
+                var dialog = new MessageDialog(content, title);
+
+                dialog.Commands.Add(new UICommand("Play Again", OnPlayAgainClicked));
+                dialog.Commands.Add(new UICommand("Main Menu", OnMainMenuClicked));
+
+                // Set the cancel index (default button behavior) to return the user to the main page.
+                dialog.CancelCommandIndex = 1;
                 await dialog.ShowAsync();
             });
         }
 
 
-        /// <summary>
-        /// Invoked when the user presses OK on the Game Over page.  This method takes the user to
-        /// the post game stats page.
-        /// </summary>
-        /// <param name="command"></param>
-        private void CommandInvokedHandler(IUICommand command)
+        private void OnPlayAgainClicked(IUICommand command)
         {
-            var args = new PostGamePageNavigationArgs()
-            {
-                GameConnectionType = _gameConnectionType,
-                GameMode = _gameMode,
-                GameData = _postGameData
-            };
-
             var currentFrame = Window.Current.Content as Frame;
-            if (currentFrame != null)
+
+            MainPageNavigationArgs navigationArgs;
+
+            switch (_gameMode)
             {
-                currentFrame.Navigate(typeof(PostGamePage), args);
+                case GameMode.Friendly:
+                    navigationArgs = new MainPageNavigationArgs(MainPageView.FriendChallenge);
+
+                    currentFrame.Navigate(typeof(MainPage), navigationArgs);
+
+                    break;
+
+                case GameMode.Matchmaking:
+                    navigationArgs = new MainPageNavigationArgs(MainPageView.Matchmaking);
+
+                    currentFrame.Navigate(typeof(MainPage), navigationArgs);
+
+                    break;
+
+                default:
+                    currentFrame.Navigate(typeof(MainPage));
+
+                    break;
             }
+        }
+
+
+        private void OnMainMenuClicked(IUICommand command)
+        {
+            var currentFrame = Window.Current.Content as Frame;
+
+            currentFrame.Navigate(typeof(MainPage));
+        }
+
+        //ToDo: Use this somewhere.
+        private void CalculatePlayerExperience()
+        {
+            throw new NotImplementedException();
+            //var localPlayer = _navigationArgs.GameData.PlayerDictionary[Settings.Alias];
+
+            //var expEarned = ExperienceCalculator.GetGameExperienceEarned(localPlayer);
+
+            //Settings.Experience += expEarned;
+
+            //var postGameRank = ExperienceCalculator.GetPlayerLevelFromExperienceTotal(expEarned);
+
+            //if ((int)postGameRank != Settings.Level)
+            //{
+            //    Settings.Level = (int)postGameRank;
+
+            //    //ToDo: RE-enable; Currently this throws a SystemUnauthorizedAccess exception during dialog.ShowAsync();
+            //    //ShowLevelUpAnimation(postGameRank);
+            //}
         }
 
         #endregion // MessageReceivedHandlers

@@ -43,7 +43,7 @@ namespace Ozwego.UI.OOBE
 
             if (serverProxy.messageSender != null)
             {
-                await serverProxy.messageSender.SendMessage(PacketType.ClientQueryIfAliasAvailable, _enteredAlias);
+                await serverProxy.messageSender.SendMessage(PacketType.c_QueryIfAliasAvailable, _enteredAlias);
             }
         }
 

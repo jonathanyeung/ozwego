@@ -143,13 +143,13 @@ namespace WorkerRole.Matchmaking
 
                     MessageSender.SendMessage(
                             group.client1, 
-                            PacketType.ServerMatchmakingGameNotFound, 
+                            PacketType.s_MatchmakingGameNotFound, 
                             null);
                 }
                 else
                 {
                     //
-                    // Currently, the room members must be set up before the ServerMatchmakingGameFound
+                    // Currently, the room members must be set up before the s_MatchmakingGameFound
                     // packet gets sent due to a timing issue.
                     // ToDo: Fix the timing issue in the client code.
                     //
@@ -163,13 +163,13 @@ namespace WorkerRole.Matchmaking
                     tempClient = group.client1;
                     MessageSender.SendMessage(
                             tempClient,
-                            PacketType.ServerMatchmakingGameFound,
+                            PacketType.s_MatchmakingGameFound,
                             null);
 
                     tempClient = group.client2;
                     MessageSender.SendMessage(
                             tempClient,
-                            PacketType.ServerMatchmakingGameFound,
+                            PacketType.s_MatchmakingGameFound,
                             null);
 
                     /* ToDo: Re-enable this code if the group size goes back up to 4.  Better yet,
@@ -178,14 +178,14 @@ namespace WorkerRole.Matchmaking
                     roomManager.AddMemberToRoom(group.client1, ref tempClient);
                     MessageSender.SendMessage(
                             tempClient,
-                            Ozwego.Shared.PacketType.ServerMatchmakingGameFound,
+                            Ozwego.Shared.PacketType.s_MatchmakingGameFound,
                             null);
 
                     tempClient = group.client4;
                     roomManager.AddMemberToRoom(group.client1, ref tempClient);
                     MessageSender.SendMessage(
                             tempClient,
-                            Ozwego.Shared.PacketType.ServerMatchmakingGameFound,
+                            Ozwego.Shared.PacketType.s_MatchmakingGameFound,
                             null);
                      * */
                 }

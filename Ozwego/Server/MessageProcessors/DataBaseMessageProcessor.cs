@@ -35,7 +35,7 @@ namespace Ozwego.Server.MessageProcessors
 
             switch (packetType)
             {
-                case PacketType.UserLoggedIn:
+                case PacketType.s_UserLoggedIn:
                     friend = data as Friend;
 
                     if (null != friend)
@@ -46,7 +46,7 @@ namespace Ozwego.Server.MessageProcessors
                     break;
 
 
-                case PacketType.UserLoggedOut:
+                case PacketType.s_UserLoggedOut:
                     friend = data as Friend;
 
                     if (null != friend)
@@ -55,7 +55,7 @@ namespace Ozwego.Server.MessageProcessors
                     }
                     break;
 
-                case PacketType.ServerOnlineFriendList:
+                case PacketType.s_OnlineFriendList:
                     friendList = data as FriendList;
 
                     if (friendList != null)
@@ -66,7 +66,7 @@ namespace Ozwego.Server.MessageProcessors
                     break;
 
                     // This packet type contains all of the clients friends (both online and offline).
-                case PacketType.ServerFriendList:
+                case PacketType.s_FriendList:
                     friendList = data as FriendList;
 
                     if (friendList != null)
@@ -76,7 +76,7 @@ namespace Ozwego.Server.MessageProcessors
 
                     break;
 
-                case PacketType.ServerFriendRequests:
+                case PacketType.s_FriendRequests:
                     friendList = data as FriendList;
 
                     if (friendList != null)
@@ -90,7 +90,7 @@ namespace Ozwego.Server.MessageProcessors
 
                     break;
 
-                case PacketType.ServerFriendRequestAccepted:
+                case PacketType.s_FriendRequestAccepted:
                     friend = data as Friend;
 
                     if (friend != null)
@@ -100,7 +100,7 @@ namespace Ozwego.Server.MessageProcessors
 
                     break;
 
-                case PacketType.ServerFriendSearchResults:
+                case PacketType.s_FriendSearchResults:
                     friendManager.FriendSearchResultsList.Clear();
 
                     friendList = data as FriendList;
@@ -115,7 +115,7 @@ namespace Ozwego.Server.MessageProcessors
 
                     break;
 
-                case PacketType.ServerUserStats:
+                case PacketType.s_UserStats:
                     var tempFriend = data as Friend;
 
                     // ToDo: Don't just ovewrite this blindly.  We need to make sure that if the user has
@@ -133,7 +133,7 @@ namespace Ozwego.Server.MessageProcessors
 
                     break;
 
-                case PacketType.ServerIsAliasAvailable:
+                case PacketType.s_IsAliasAvailable:
                     OnMessageReceived(data as String);
                     break;
 

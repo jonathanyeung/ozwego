@@ -137,7 +137,7 @@ namespace Ozwego.Storage
             foreach (var gameData in dataList._GameData)
             {
                 var messageSender = MessageSender.GetInstance();
-                await messageSender.SendMessage(PacketType.ClientUploadGameData, gameData);
+                await messageSender.SendMessage(PacketType.c_UploadGameData, gameData);
             }
         }
     }

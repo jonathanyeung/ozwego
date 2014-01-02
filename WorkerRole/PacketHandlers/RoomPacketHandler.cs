@@ -23,7 +23,7 @@ namespace WorkerRole.PacketHandlers
 
             switch (PacketType)
             {
-                case PacketType.ClientLogIn:
+                case PacketType.c_LogIn:
                     friend = Data as Friend;
 
                     if (null != friend)
@@ -32,11 +32,11 @@ namespace WorkerRole.PacketHandlers
                     }
                     break;
 
-                case PacketType.ClientLogOut:
+                case PacketType.c_LogOut:
                     clientManager.RemoveClient(client);
                     break;
 
-                case PacketType.ClientJoinRoom:
+                case PacketType.c_JoinRoom:
                     friend = Data as Friend;
 
                     if (null != friend)
@@ -45,7 +45,7 @@ namespace WorkerRole.PacketHandlers
                     }
                     break;
 
-                case PacketType.ClientLeaveRoom:
+                case PacketType.c_LeaveRoom:
                     roomManager.RemoveMemberfromRoom(client.Room.Host, client);
 
 
@@ -59,7 +59,7 @@ namespace WorkerRole.PacketHandlers
 
                     break;
 
-                case PacketType.ClientInitiateGame:
+                case PacketType.c_InitiateGame:
 
                     //
                     // Only allow the room host to initiate a game.
@@ -69,23 +69,23 @@ namespace WorkerRole.PacketHandlers
                     {
                         MessageSender.BroadcastMessage(
                             client.Room.Members,
-                            PacketType.ServerBeginGameInitialization,
+                            PacketType.s_BeginGameInitialization,
                             null,
                             client);
                     }
 
                     break;
 
-                case PacketType.ClientChat:
+                case PacketType.c_Chat:
                     var arguments = Data as ChatMessage;
 
                     if (arguments != null)
                     {
-                        MessageSender.BroadcastMessage(client.Room.Members, PacketType.ServerChat, arguments, client);
+                        MessageSender.BroadcastMessage(client.Room.Members, PacketType.s_Chat, arguments, client);
                     }
                     break;
 
-                case PacketType.ClientReadyForGameStart:
+                case PacketType.c_ReadyForGameStart:
                     client.Room.SignalClientIsReadyForGame(client);
                     break;
 
@@ -155,7 +155,7 @@ namespace WorkerRole.PacketHandlers
 
             MessageSender.SendMessage(
                 client,
-                PacketType.ServerUserStats,
+                PacketType.s_UserStats,
                 userAsFriend);
 
 
@@ -178,7 +178,7 @@ namespace WorkerRole.PacketHandlers
 
                 MessageSender.SendMessage(
                         client,
-                        PacketType.ServerFriendRequests,
+                        PacketType.s_FriendRequests,
                         pendingFriendRequests);
             }
         }

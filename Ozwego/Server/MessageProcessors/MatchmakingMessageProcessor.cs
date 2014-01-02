@@ -44,11 +44,11 @@ namespace Ozwego.Server.MessageProcessors
         {
             switch (packetType)
             {
-                case PacketType.ServerMatchmakingGameFound:
+                case PacketType.s_MatchmakingGameFound:
                     OnMessageReceived(MessageResult.GameFound);
                     break;
 
-                case PacketType.ServerMatchmakingGameNotFound:
+                case PacketType.s_MatchmakingGameNotFound:
                     OnMessageReceived(MessageResult.GameNotFound);
                     break;
 

@@ -84,7 +84,7 @@ namespace WorkerRole
 
                 MessageSender.SendMessage(
                         client,
-                        PacketType.ServerFriendList,
+                        PacketType.s_FriendList,
                         friendListString);
 
 
@@ -109,7 +109,7 @@ namespace WorkerRole
 
                 MessageSender.SendMessage(
                     client,
-                    PacketType.ServerOnlineFriendList,
+                    PacketType.s_OnlineFriendList,
                     onlineFriends);
             }
         }

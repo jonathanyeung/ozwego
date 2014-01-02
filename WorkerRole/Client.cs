@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
 using Ozwego.BuddyManagement;
+using Shared;
 
 namespace WorkerRole
 {
@@ -22,6 +23,8 @@ namespace WorkerRole
 
         private readonly Socket _socket;
         private readonly int _socketId;
+
+        private ClientUserState _clientUserState;
 
         public Room Room;
         public Friend UserInfo;
@@ -46,6 +49,13 @@ namespace WorkerRole
             //
 
             _heartBeatTimer = new Timer(CheckHeartBeatTimer, null, 20000, TimerInterval);
+
+
+            //
+            // Set the client user state to default value.
+            //
+
+            _clientUserState = ClientUserState.InLobby;
         }
 
 

@@ -27,7 +27,7 @@ namespace WorkerRole.PacketHandlers
 
             switch (PacketType)
             {
-                case PacketType.ClientAcceptFriendRequest:
+                case PacketType.c_AcceptFriendRequest:
                     var friend = Data as Friend;
 
                     if (!DataIsNull(friend))
@@ -48,8 +48,8 @@ namespace WorkerRole.PacketHandlers
                         matchingUsers = db.GetMatchingUsersByEmail(Sender);
                         var userList = MessageReceiver.CreateFriendListFromUserList(matchingUsers);
 
-                        MessageSender.SendMessage(curClient, PacketType.ServerFriendRequestAccepted, userList);
-                        MessageSender.SendMessage(curClient, PacketType.UserLoggedIn, Sender);
+                        MessageSender.SendMessage(curClient, PacketType.s_FriendRequestAccepted, userList);
+                        MessageSender.SendMessage(curClient, PacketType.s_UserLoggedIn, Sender);
                     }
 
 
@@ -62,7 +62,7 @@ namespace WorkerRole.PacketHandlers
 
                     break;
 
-                case PacketType.ClientRejectFriendRequest:
+                case PacketType.c_RejectFriendRequest:
                     friend = Data as Friend;
 
                     if (!DataIsNull(friend))
@@ -72,7 +72,7 @@ namespace WorkerRole.PacketHandlers
 
                     break;
 
-                case PacketType.ClientSendFriendRequest:
+                case PacketType.c_SendFriendRequest:
                     friend = Data as Friend;
 
                     if (DataIsNull(friend))
@@ -89,12 +89,12 @@ namespace WorkerRole.PacketHandlers
                         matchingUsers = db.GetMatchingUsersByEmail(Sender);
                         var userList = MessageReceiver.CreateFriendListFromUserList(matchingUsers);
 
-                        MessageSender.SendMessage(curClient, PacketType.ServerFriendRequests, userList);
+                        MessageSender.SendMessage(curClient, PacketType.s_FriendRequests, userList);
                     }
 
                     break;
 
-                case PacketType.ClientRemoveFriend:
+                case PacketType.c_RemoveFriend:
                     friend = Data as Friend;
 
                     if (DataIsNull(friend))
@@ -111,12 +111,12 @@ namespace WorkerRole.PacketHandlers
                         matchingUsers = db.GetMatchingUsersByEmail(Sender);
                         var userList = MessageReceiver.CreateFriendListFromUserList(matchingUsers);
 
-                        MessageSender.SendMessage(curClient, PacketType.ServerRemoveFriend, userList);
+                        MessageSender.SendMessage(curClient, PacketType.s_RemoveFriend, userList);
                     }
 
                     break;
 
-                case PacketType.ClientFindBuddyFromGlobalList:
+                case PacketType.c_FindBuddyFromGlobalList:
                     var friendQueryString = Data as string;
 
                     if (DataIsNull(friendQueryString))
@@ -130,12 +130,12 @@ namespace WorkerRole.PacketHandlers
                     {
                         var userList = MessageReceiver.CreateFriendListFromUserList(matchingUsers);
 
-                        MessageSender.SendMessage(client, PacketType.ServerFriendSearchResults, userList);
+                        MessageSender.SendMessage(client, PacketType.s_FriendSearchResults, userList);
                     }
 
                     break;
 
-                case PacketType.ClientQueryIfAliasAvailable:
+                case PacketType.c_QueryIfAliasAvailable:
                     friend = Data as Friend;
 
                     if (DataIsNull(friend))
@@ -147,16 +147,16 @@ namespace WorkerRole.PacketHandlers
 
                     if (users == null || users.Count == 0)
                     {
-                        MessageSender.SendMessage(client, PacketType.ServerIsAliasAvailable, "true");
+                        MessageSender.SendMessage(client, PacketType.s_IsAliasAvailable, "true");
                     }
                     else
                     {
-                        MessageSender.SendMessage(client, PacketType.ServerIsAliasAvailable, "false");
+                        MessageSender.SendMessage(client, PacketType.s_IsAliasAvailable, "false");
                     }
 
                     break;
 
-                case PacketType.ClientUploadGameData:
+                case PacketType.c_UploadGameData:
                     var gameData = Data as GameData;
 
                     if (DataIsNull(gameData))
@@ -168,7 +168,7 @@ namespace WorkerRole.PacketHandlers
 
                     break;
 
-                case PacketType.ClientGetGameHistory:
+                case PacketType.c_GetGameHistory:
 
                     var user = db.GetUserByEmail(Sender);
 
@@ -177,7 +177,7 @@ namespace WorkerRole.PacketHandlers
                     // ToDo: Check whether this should be (games != null) or (games.Count != 0)
                     if (games != null)
                     {
-                        MessageSender.SendMessage(client, PacketType.ServerUserGameHistory, games);
+                        MessageSender.SendMessage(client, PacketType.s_UserGameHistory, games);
                     }
 
                     break;

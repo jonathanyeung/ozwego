@@ -78,10 +78,10 @@ namespace Ozwego.UI
             // Background grid initialization
             //
 
-            _background = new BackgroundGrid();
-            _background.PolygonGrid.SetValue(Grid.ColumnSpanProperty, 3);
+            //_background = new BackgroundGrid();
+            //_background.PolygonGrid.SetValue(Grid.ColumnSpanProperty, 3);
 
-            RootGrid.Children.Insert(0, _background.PolygonGrid);
+            //RootGrid.Children.Insert(0, _background.PolygonGrid);
 
             //_background.BeginSubtleAnimation();
         }
@@ -892,8 +892,6 @@ namespace Ozwego.UI
 
         #region Box Manipulation Handlers
 
-
-
         /// <summary>
         /// Maps to a dump now.
         /// </summary>
@@ -1002,8 +1000,6 @@ namespace Ozwego.UI
 
             }
         }
-
-
 
 
         private void BoxOnManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
@@ -1374,7 +1370,7 @@ namespace Ozwego.UI
 
                 if (serverProxy.messageSender != null)
                 {
-                    await serverProxy.messageSender.SendMessage(PacketType.ClientReadyForGameStart);
+                    await serverProxy.messageSender.SendMessage(PacketType.c_ReadyForGameStart);
                 }
             }
         }
@@ -1477,9 +1473,16 @@ namespace Ozwego.UI
             PlayCompletePeelAnimation("Jonathan");
         }
 
+
         private void DumpButton_Click(object sender, RoutedEventArgs e)
         {
             PlayDumpAnimation(0);
+        }
+
+        private void DebugEndGame_Click(object sender, RoutedEventArgs e)
+        {
+            var gc = GameController.GetInstance();
+            gc.EndGame(Settings.Alias);
         }
 
     }

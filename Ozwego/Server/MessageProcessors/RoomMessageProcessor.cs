@@ -18,7 +18,7 @@ namespace Ozwego.Server.MessageProcessors
 
             switch (packetType)
             {
-                case PacketType.ServerRoomList:
+                case PacketType.s_RoomList:
                     var friendList = data as FriendList;
 
                     if (friendList != null)
@@ -31,7 +31,7 @@ namespace Ozwego.Server.MessageProcessors
 
                     break;
 
-                case PacketType.UserJoinedRoom:
+                case PacketType.s_UserJoinedRoom:
                     friend = data as Friend;
 
                     if (friend != null)
@@ -41,7 +41,7 @@ namespace Ozwego.Server.MessageProcessors
 
                     break;
 
-                case PacketType.UserLeftRoom:
+                case PacketType.s_UserLeftRoom:
                     friend = data as Friend;
 
                     if (friend != null)
@@ -51,7 +51,7 @@ namespace Ozwego.Server.MessageProcessors
 
                     break;
 
-                case PacketType.ServerBeginGameInitialization:
+                case PacketType.s_BeginGameInitialization:
                     var currentFrame = Window.Current.Content as Frame;
                     if (currentFrame != null)
                     {
@@ -65,7 +65,7 @@ namespace Ozwego.Server.MessageProcessors
                     }
                     break;
 
-                case PacketType.ServerChat:
+                case PacketType.s_Chat:
                     var chatmessage = data as ChatMessage;
 
                     if (chatmessage != null)
@@ -75,7 +75,7 @@ namespace Ozwego.Server.MessageProcessors
 
                     break;
 
-                case PacketType.HostTransfer:
+                case PacketType.s_HostTransfer:
                     friend = data as Friend;
 
                     if (friend != null)

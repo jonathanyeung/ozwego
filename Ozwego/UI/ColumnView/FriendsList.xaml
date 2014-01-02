@@ -12,7 +12,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid x:Name="ColumnContent" Grid.Row="0">
+        <Grid x:Name="ColumnContent" Grid.Row="0" Margin="5,0,0,0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -21,42 +21,49 @@
 
                 <StackPanel Grid.Row ="0">
                     <StackPanel Orientation="Horizontal">
-                        <TextBox x:Name="SearchBar" Width="200" Margin="10,10,0,10" VerticalAlignment="Bottom"/>
-                        <Border BorderThickness="2" CornerRadius="25" Width="32" Height="32" BorderBrush="White" Margin="5,0,0,0">
+                        <TextBox x:Name="SearchBar" Width="400" Margin="5,10,10,10" VerticalAlignment="Bottom" Text="Find a Friend" FontStyle="Italic"/>
+                        <!--<Border BorderThickness="2" CornerRadius="25" Width="32" Height="32" BorderBrush="White" Margin="5,0,0,0">
                             <Ellipse Tapped="AddFriendButtonTapped">
                                 <Ellipse.Fill>
                                     <ImageBrush ImageSource="ms-appx:///Assets/appbar.add.png"/>
                                 </Ellipse.Fill>
                             </Ellipse>
-                        </Border>
+                        </Border>-->
                     </StackPanel>
                 </StackPanel>
 
-                <StackPanel Grid.Row="1">
-                    <TextBlock Text="online" Style="{StaticResource SubheaderTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
-                    <ListBox Name="OnlineFriendsListUI" Background="Transparent">
+                <StackPanel Grid.Row="1" Margin="5,0,0,0">
+                    <TextBlock Text="online" Style="{StaticResource SubheaderTextStyle}" Margin="0,0,0,5" FontSize="18.667"></TextBlock>
+                    <Line StrokeThickness="2" X2="400" Margin="0, 0, 10, 10" Stroke="#DEFFFFFF"/>
+                    <ListBox Name="OnlineFriendsListUI" Background="Transparent" Margin="5,0,0,0">
+                        <!--<ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Alias}" Foreground="{StaticResource ApplicationForegroundThemeBrush}" DoubleTapped="OnlineBuddyDoubleTapped"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>-->
+                        <StackPanel Orientation="Horizontal">
+                            <Rectangle Width="10" Height="10" Fill="Green" Margin="0,0,10,0"></Rectangle>
+                            <TextBlock Text="Mobius" Foreground="{StaticResource ApplicationForegroundThemeBrush}" DoubleTapped="OnlineBuddyDoubleTapped"/>
+                        </StackPanel>
+                    </ListBox>
+
+                    <TextBlock Text="offline" Style="{StaticResource SubheaderTextStyle}" Margin="0,0,0,5" FontSize="18.667"></TextBlock>
+                    <Line StrokeThickness="2" X2="400" Margin="0, 0, 10, 10" Stroke="#DEFFFFFF"/>
+                    <ListBox Name="OfflineFriendsListUI" Background="Transparent" Margin="5,0,0,0">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding EmailAddress}" Foreground="{StaticResource ApplicationForegroundThemeBrush}" DoubleTapped="OnlineBuddyDoubleTapped"/>
+                                    <TextBlock Text="{Binding Alias}" FontStyle="Italic" Foreground="{StaticResource ApplicationForegroundThemeBrush}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
 
-                    <TextBlock Text="offline" Style="{StaticResource SubheaderTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
-                    <ListBox Name="OfflineFriendsListUI" Background="Transparent">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding EmailAddress}" Foreground="{StaticResource ApplicationForegroundThemeBrush}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-
-                    <TextBlock Text="recent" Style="{StaticResource SubheaderTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
-                    <TextBlock Text="Not Implemented Yet" Style="{StaticResource SubtitleTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
+                    <TextBlock Text="recent" Style="{StaticResource SubheaderTextStyle}" Margin="0,0,0,5" FontSize="18.667"></TextBlock>
+                    <Line StrokeThickness="2" X2="400" Margin="0, 0, 10, 10" Stroke="#DEFFFFFF"/>
+                    <TextBlock Text="Not Implemented Yet" Style="{StaticResource SubtitleTextStyle}" Margin="5, 0, 0, 10"></TextBlock>
                 </StackPanel>
 
                 <ListBox Name="FriendsSearchUI" Background="White" Grid.Row="1" Visibility="Collapsed">
@@ -69,11 +76,7 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
 
-
             </Grid>
-
-
         </Grid>
-
     </Grid>
 </Page>

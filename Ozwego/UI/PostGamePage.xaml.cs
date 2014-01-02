@@ -36,6 +36,7 @@ namespace Ozwego.UI
             this.InitializeComponent();
         }
 
+
         /// <summary>
         /// Populates the page with content passed during navigation.  Any saved state is also
         /// provided when recreating a page from a prior session.
@@ -50,6 +51,7 @@ namespace Ozwego.UI
             _navigationArgs = (PostGamePageNavigationArgs)navigationParameter;
             
         }
+
 
         /// <summary>
         /// Preserves state associated with this page in case the application is suspended or the
@@ -75,7 +77,7 @@ namespace Ozwego.UI
             switch (_navigationArgs.GameMode)
             {
                 case GameMode.Friendly:
-                    Frame.Navigate(typeof(Lobby));
+                    Frame.Navigate(typeof(MainPage)); //ToDo: Navigate to the Lobby pane of the Main Page
                     break;
 
                 case GameMode.Matchmaking:
@@ -84,7 +86,7 @@ namespace Ozwego.UI
                     if (serverProxy.messageSender != null)
                     {
                         await serverProxy.messageSender.SendMessage(PacketType.ClientStartingMatchmaking);
-                        Frame.Navigate(typeof(MatchmakingWaitPage));
+                        Frame.Navigate(typeof(MainPage)); //ToDo: Navigate to the Matchmaking pane of the Main Page
                     }
                     else
                     {
@@ -130,6 +132,7 @@ namespace Ozwego.UI
                 //ShowLevelUpAnimation(postGameRank);
             }
         }
+
 
         private async void ShowLevelUpAnimation(PlayerLevel newRank)
         {

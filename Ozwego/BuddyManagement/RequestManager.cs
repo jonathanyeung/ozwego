@@ -55,7 +55,7 @@ namespace Ozwego.BuddyManagement
             if (null != serverProxy.messageSender)
             {
                 await serverProxy.messageSender.SendMessage(
-                        PacketType.ClientAcceptFriendRequest,
+                        PacketType.c_AcceptFriendRequest,
                         friend);
             }
         }
@@ -70,7 +70,7 @@ namespace Ozwego.BuddyManagement
             if (null != serverProxy.messageSender)
             {
                 await serverProxy.messageSender.SendMessage(
-                        PacketType.ClientRejectFriendRequest,
+                        PacketType.c_RejectFriendRequest,
                         friend);
             }
         }

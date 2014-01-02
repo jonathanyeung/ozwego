@@ -35,7 +35,7 @@ namespace Ozwego.Server
         private void _InitializeTimer()
         {
             _timer.Interval = new TimeSpan(0, 0, 5);
-            _timer.Tick += async (s, e) => { await SendMessage(PacketType.ClientHeartBeat, null, null); };
+            _timer.Tick += async (s, e) => { await SendMessage(PacketType.c_HeartBeat, null, null); };
             _timer.Start();
         }
 
@@ -98,7 +98,7 @@ namespace Ozwego.Server
                 byte[] msgSizeBuffer;
                 dynamic baseBuffer = null;
 
-                if (PacketType.ClientHeartBeat == packetType)
+                if (PacketType.c_HeartBeat == packetType)
                 {
                     // Message Size is specified by the size of an int.
                     msgSizeBuffer = new byte[] {0, 0, 0, 0};

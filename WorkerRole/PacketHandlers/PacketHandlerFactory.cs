@@ -23,13 +23,13 @@ namespace WorkerRole
 
             switch (packet.PacketType)
             {
-                case PacketType.ClientLogIn:
-                case PacketType.ClientLogOut:
-                case PacketType.ClientJoinRoom:
-                case PacketType.ClientLeaveRoom:
-                case PacketType.ClientInitiateGame:
-                case PacketType.ClientChat:
-                case PacketType.ClientReadyForGameStart:
+                case PacketType.c_LogIn:
+                case PacketType.c_LogOut:
+                case PacketType.c_JoinRoom:
+                case PacketType.c_LeaveRoom:
+                case PacketType.c_InitiateGame:
+                case PacketType.c_Chat:
+                case PacketType.c_ReadyForGameStart:
                     packetHandler = new RoomPacketHandler(
                             packet.PacketType, 
                             packet.Sender, 
@@ -37,9 +37,9 @@ namespace WorkerRole
                             packet.Data);
                     break;
 
-                case PacketType.ClientDump:
-                case PacketType.ClientPeel:
-                case PacketType.ClientVictory:
+                case PacketType.c_Dump:
+                case PacketType.c_Peel:
+                case PacketType.c_Victory:
                     packetHandler = new GamePacketHandler(
                             packet.PacketType, 
                             packet.Sender, 
@@ -47,13 +47,13 @@ namespace WorkerRole
                             packet.Data);
                     break;
 
-                case PacketType.ClientAcceptFriendRequest:
-                case PacketType.ClientRejectFriendRequest:
-                case PacketType.ClientSendFriendRequest:
-                case PacketType.ClientRemoveFriend:
-                case PacketType.ClientFindBuddyFromGlobalList:
-                case PacketType.ClientQueryIfAliasAvailable:
-                case PacketType.ClientUploadGameData:
+                case PacketType.c_AcceptFriendRequest:
+                case PacketType.c_RejectFriendRequest:
+                case PacketType.c_SendFriendRequest:
+                case PacketType.c_RemoveFriend:
+                case PacketType.c_FindBuddyFromGlobalList:
+                case PacketType.c_QueryIfAliasAvailable:
+                case PacketType.c_UploadGameData:
                     packetHandler = new DataBasePacketHandler(
                             packet.PacketType,
                             packet.Sender,
@@ -61,8 +61,8 @@ namespace WorkerRole
                             packet.Data);
                     break;
 
-                case PacketType.ClientStartingMatchmaking:
-                case PacketType.ClientStoppingMatchmaking:
+                case PacketType.c_StartingMatchmaking:
+                case PacketType.c_StoppingMatchmaking:
                     packetHandler = new MatchmakingPacketHandler(
                             packet.PacketType,
                             packet.Sender,

@@ -91,7 +91,7 @@ namespace WorkerRole
 
             MessageSender.BroadcastMessage(
                 room.Members, 
-                PacketType.UserJoinedRoom,
+                PacketType.s_UserJoinedRoom,
                 memberToAdd.UserInfo,
                 memberToAdd);
 
@@ -110,7 +110,7 @@ namespace WorkerRole
 
             MessageSender.SendMessage(
                 memberToAdd,
-                PacketType.ServerRoomList,
+                PacketType.s_RoomList,
                 friendList);
 
 
@@ -120,7 +120,7 @@ namespace WorkerRole
 
             MessageSender.SendMessage(
                 memberToAdd,
-                PacketType.HostTransfer,
+                PacketType.s_HostTransfer,
                 room.Host.UserInfo);
         }
 
@@ -154,7 +154,7 @@ namespace WorkerRole
             {
                 MessageSender.BroadcastMessage(
                     room.Members,
-                    PacketType.UserLeftRoom,
+                    PacketType.s_UserLeftRoom,
                     memberToRemove.UserInfo,
                     memberToRemove);
             }

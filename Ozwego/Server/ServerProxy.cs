@@ -72,7 +72,7 @@ namespace Ozwego.Server
                 messageReceiver = MessageReceiver.GetInstance();
                 messageSender = MessageSender.GetInstance();
 
-                await messageSender.SendMessage(PacketType.ClientLogIn, Settings.userInstance);
+                await messageSender.SendMessage(PacketType.c_LogIn, Settings.userInstance);
 
 
                 //

@@ -143,6 +143,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\ConnectionStringConverter.cs" />
+    <Compile Include="Converters\DateTimeConverter.cs" />
     <Compile Include="PlayerStatistics\ExperienceCalculator.cs" />
     <Compile Include="PlayerStatistics\PlayerLevel.cs" />
     <Compile Include="BuddyManagement\FriendManager.cs" />
@@ -179,9 +180,6 @@
     <Compile Include="UI\ColumnView\FriendsList.xaml.cs">
       <DependentUpon>FriendsList.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\DesignSandbox.xaml.cs">
-      <DependentUpon>DesignSandbox.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UI\GameBoardPrototype.xaml.cs">
       <DependentUpon>GameBoardPrototype.xaml</DependentUpon>
     </Compile>
@@ -196,12 +194,7 @@
     <Compile Include="Server\MessageReceiver.cs" />
     <Compile Include="Server\MessageSender.cs" />
     <Compile Include="Server\ServerProxy.cs" />
-    <Compile Include="UI\Lobby.xaml.cs">
-      <DependentUpon>Lobby.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\MatchmakingWaitPage.xaml.cs">
-      <DependentUpon>MatchmakingWaitPage.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="UI\MainPage\MainPageNavigationArgs.cs" />
     <Compile Include="UI\OOBE\OOBEPage1.xaml.cs">
       <DependentUpon>OOBEPage1.xaml</DependentUpon>
     </Compile>
@@ -223,17 +216,14 @@
     <Compile Include="UI\OOBE\OOBEPage7.xaml.cs">
       <DependentUpon>OOBEPage7.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\PlayerPane.cs" />
+    <Compile Include="UI\MainPage\PlayerPane.cs" />
     <Compile Include="UI\ColumnView\RequestsList.xaml.cs">
       <DependentUpon>RequestsList.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\PostGamePage.xaml.cs">
-      <DependentUpon>PostGamePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\TileRack.cs" />
     <Compile Include="ViewModels\GameBoardViewModel.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
-    <Compile Include="UI\MainPage.xaml.cs">
+    <Compile Include="UI\MainPage\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -253,6 +243,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\Logo.png" />
+    <Content Include="Assets\ozwegobackground.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\OzwegoSplashScreen.png" />
     <Content Include="Assets\SmallLogo.png" />
     <Content Include="Assets\SplashScreen.png" />
@@ -288,27 +281,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\DesignSandbox.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="UI\GameBoardPrototype.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\MainPage.xaml">
+    <Page Include="UI\MainPage\MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UI\Lobby.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\ColumnView\RequestsList.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\MatchmakingWaitPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -339,10 +320,6 @@
     <Page Include="UI\OOBE\OOBEPage7.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UI\PostGamePage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>

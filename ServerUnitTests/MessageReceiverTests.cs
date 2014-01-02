@@ -43,7 +43,7 @@ namespace ServerUnitTests
 
             var receiver = MessageReceiver.GetInstance();
 
-            var messageBuffer = CreateMessage(PacketType.ClientLogIn, "InvalidString");
+            var messageBuffer = CreateMessage(PacketType.c_LogIn, "InvalidString");
             receiver.HandleMessage(ref client, messageBuffer);
         }
 
@@ -55,7 +55,7 @@ namespace ServerUnitTests
 
             var receiver = MessageReceiver.GetInstance();
 
-            var messageBuffer = CreateMessage(PacketType.ClientLogIn, @"sender=TestUser1&message=crapmessage");
+            var messageBuffer = CreateMessage(PacketType.c_LogIn, @"sender=TestUser1&message=crapmessage");
             receiver.HandleMessage(ref client, messageBuffer);
         }
 

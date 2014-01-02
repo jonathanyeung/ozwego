@@ -18,12 +18,12 @@ namespace WorkerRole.PacketHandlers
         {
             switch (PacketType)
             {
-                case PacketType.ClientStartingMatchmaking:
+                case PacketType.c_StartingMatchmaking:
                     var matchmaker = Matchmaker.GetInstance();
                     matchmaker.JoinMatchmakingQueue(client);
                     break;
 
-                case PacketType.ClientStoppingMatchmaking:
+                case PacketType.c_StoppingMatchmaking:
                     throw new NotImplementedException();
                     break;
 

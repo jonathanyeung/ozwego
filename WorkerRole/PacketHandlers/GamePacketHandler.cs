@@ -15,7 +15,7 @@ namespace WorkerRole.PacketHandlers
         {
             switch (PacketType)
             {
-                case PacketType.ClientInitiateGame:
+                case PacketType.c_InitiateGame:
 
                     //
                     // Only allow the room host to start the game.
@@ -23,20 +23,20 @@ namespace WorkerRole.PacketHandlers
 
                     if (client.Room.GetHostAddress() == client.UserInfo.EmailAddress)
                     {
-                        MessageSender.BroadcastMessage(client.Room.Members, PacketType.ServerBeginGameInitialization, null);
+                        MessageSender.BroadcastMessage(client.Room.Members, PacketType.s_BeginGameInitialization, null);
                     }
                     break;
 
-                case PacketType.ClientDump:
-                    MessageSender.BroadcastMessage(client.Room.Members, PacketType.ServerDump, client.UserInfo, client);
+                case PacketType.c_Dump:
+                    MessageSender.BroadcastMessage(client.Room.Members, PacketType.s_Dump, client.UserInfo, client);
                     break;
 
-                case PacketType.ClientPeel:
-                    MessageSender.BroadcastMessage(client.Room.Members, PacketType.ServerPeel, client.UserInfo, client);
+                case PacketType.c_Peel:
+                    MessageSender.BroadcastMessage(client.Room.Members, PacketType.s_Peel, client.UserInfo, client);
                     break;
 
-                case PacketType.ClientVictory:
-                    MessageSender.BroadcastMessage(client.Room.Members, PacketType.ServerGameOver, client.UserInfo, client);
+                case PacketType.c_Victory:
+                    MessageSender.BroadcastMessage(client.Room.Members, PacketType.s_GameOver, client.UserInfo, client);
                     break;
 
                 default:

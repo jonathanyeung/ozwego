@@ -120,6 +120,9 @@
         <!--<Grid.Background>
     		<ImageBrush ImageSource="ms-appx:/Assets/GameBackground.jpg" Stretch="UniformToFill"/>
     	</Grid.Background>-->
+        <Grid.Background>
+    		<ImageBrush ImageSource="ms-appx:/Assets/ozwegobackground.jpg" Stretch="UniformToFill"/>
+    	</Grid.Background>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="250"/>
             <ColumnDefinition Width="*"/>
@@ -154,6 +157,7 @@
             
             <Button Content="Animate Peel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="PeelButton_Click"/>
             <Button Content="Animate Dump" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="DumpButton_Click"/>
+            <Button Content="Debug End Game" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="DebugEndGame_Click"/>
             
         </StackPanel>
         

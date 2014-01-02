@@ -21,6 +21,7 @@ namespace ClientUnitTests
         private PacketV1 _stringPacketV1;
         private PacketV1 _IBinarySerializablePacketV1;
         private PacketBase _packetBase;
+        private UserStateChange _userStateChange;
 
         [TestInitialize()]
         public void Initialize()
@@ -50,7 +51,7 @@ namespace ClientUnitTests
 
             _stringPacketV1 = new PacketV1
                 {
-                    PacketType = PacketType.ClientQueryIfAliasAvailable,
+                    PacketType = PacketType.c_QueryIfAliasAvailable,
                     Data = "Mobius",
                     Recipients = null,
                     Sender = "NewPlayer@outlook.com"
@@ -58,7 +59,7 @@ namespace ClientUnitTests
 
             _IBinarySerializablePacketV1 = new PacketV1
             {
-                PacketType = PacketType.ClientUploadGameData,
+                PacketType = PacketType.c_UploadGameData,
                 Data = _gameData,
                 Recipients = null,
                 Sender = "NewPlayer@outlook.com"
@@ -146,6 +147,16 @@ namespace ClientUnitTests
 
         [TestMethod]
         public void PacketBase()
+        {
+            var obj = _packetBase;
+
+            var returnObj = SerializeAndDeserializeObject(obj, typeof(PacketBase)) as PacketBase;
+
+            //ToDo: Add Assert validation statements.
+        }
+
+        [TestMethod]
+        public void UserStateChange()
         {
             var obj = _packetBase;
 

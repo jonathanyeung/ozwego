@@ -17,6 +17,7 @@ using Ozwego.ViewModels;
 using Ozwego.Storage;
 using Ozwego.UI.OOBE;
 using Ozwego.Gameplay;
+using Ozwego.UI.MainPage;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -27,7 +28,7 @@ namespace Ozwego
     /// </summary>
     public sealed partial class MainPage : Ozwego.Common.LayoutAwarePage
     {
-        private BackgroundGrid _background;
+        //private BackgroundGrid _background;
         //private Friend ClientFriendInstance;
 
         public MainPage()
@@ -42,10 +43,10 @@ namespace Ozwego
             var gameBoardViewModel = GameBoardViewModel.GetInstance();
             MatchmakingPane.DataContext = gameBoardViewModel;
 
-            _background = new BackgroundGrid();
+            //_background = new BackgroundGrid();
         }
 
-
+        #region overrides
         /// <summary>
         /// Invoked when this page is about to be displayed in a Frame.
         /// </summary>
@@ -72,9 +73,9 @@ namespace Ozwego
             // Background grid initialization
             //
 
-            RootGrid.Children.Insert(0, _background.PolygonGrid);
+            //RootGrid.Children.Insert(0, _background.PolygonGrid);
 
-            _background.BeginSubtleAnimation();
+            //_background.BeginSubtleAnimation();
 
 
             // This frame is hidden, meaning it is never shown.  It is simply used to load
@@ -113,6 +114,42 @@ namespace Ozwego
             LoadColumnView(typeof(FriendsList));
         }
 
+
+        protected override void LoadState(object navigationParameter, Dictionary<string, object> pageState)
+        {
+            base.LoadState(navigationParameter, pageState);
+
+            try
+            {
+                var navigationArgs = (MainPageNavigationArgs)navigationParameter;
+
+                if (navigationArgs == null)
+                {
+                    return;
+                }
+
+                switch (navigationArgs.PageView)
+                {
+                    case MainPageView.Matchmaking:
+                        OnMatchmakingButtonTapped(this, null);
+                        break;
+
+                    case MainPageView.FriendChallenge:
+
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+            catch(InvalidCastException e)
+            {
+                // Swallow invalid cast exception if no navigation args were passed.
+            }
+        }
+
+        #endregion overrides
+
         #region Main Menu
 
         private void LogInButton_OnTapped(object sender, TappedRoutedEventArgs e)
@@ -127,22 +164,22 @@ namespace Ozwego
             serverProxy.Disconnect();
         }
 
-        private void OnSinglePlayerButtonTapped(object sender, TappedRoutedEventArgs e)
+
+        private void OnGameDebugButtonTapped(object sender, TappedRoutedEventArgs e)
         {
             GameBoardNavigationArgs args = new GameBoardNavigationArgs()
             {
                 GameConnectionType = GameConnectionType.Local,
                 BotCount = 0
-                //BotCount = 1
             };
 
             Frame.Navigate(typeof(GameBoardPrototype), args);
         }
 
-        private void OnMultiPlayerButtonTapped(object sender, TappedRoutedEventArgs e)
+
+        private void OnFriendChallengeButtonTapped(object sender, TappedRoutedEventArgs e)
         {
             MainToFriendChallenge.Begin();
-            //Frame.Navigate(typeof(Lobby));
         }
 
         private async void GameHistoryButton_Tapped(object sender, TappedRoutedEventArgs e)
@@ -210,7 +247,7 @@ namespace Ozwego
             // ToDo: Replace all of these null check calls of messageSender with checks to the connection status.
             if (serverProxy.messageSender != null)
             {
-                await serverProxy.messageSender.SendMessage(PacketType.ClientStartingMatchmaking);
+                await serverProxy.messageSender.SendMessage(PacketType.c_StartingMatchmaking);
             }
             else
             {
@@ -247,7 +284,7 @@ namespace Ozwego
             viewModel.MatchmakingWaitTime = 0;
             _matchmakingTimer = new DispatcherTimer();
             _matchmakingTimer.Interval = new TimeSpan(0, 0, 1);
-            _matchmakingTimer.Tick += OnTimerTick;
+            _matchmakingTimer.Tick += OnMatchmakingTimerTick;
             _matchmakingTimer.Start();
 
 
@@ -264,7 +301,7 @@ namespace Ozwego
 
             await Task.Delay(1000);
 
-            _background.BeginFlashAnimation();
+            //_background.BeginFlashAnimation();
         }
 
 
@@ -292,7 +329,7 @@ namespace Ozwego
         }
 
 
-        void OnTimerTick(object sender, object e)
+        private void OnMatchmakingTimerTick(object sender, object e)
         {
             var viewModel = GameBoardViewModel.GetInstance();
             viewModel.MatchmakingWaitTime++;
@@ -302,7 +339,7 @@ namespace Ozwego
         private void OnNavigatedFromMatchmakingPane()
         {
             _matchmakingTimer.Stop();
-            _matchmakingTimer.Tick -= OnTimerTick;
+            _matchmakingTimer.Tick -= OnMatchmakingTimerTick;
             MatchmakingMessageProcessor.GameFoundEvent -= OnGameFoundEvent;
             MatchmakingMessageProcessor.GameNotFoundEvent -= OnGameNotFoundEvent;
 
@@ -310,7 +347,7 @@ namespace Ozwego
             // Change the background animation style
             //
 
-            _background.BeginSubtleAnimation();
+            //_background.BeginSubtleAnimation();
         }
 
         #endregion
@@ -364,7 +401,7 @@ namespace Ozwego
             var serverProxy = ServerProxy.GetInstance();
             if (serverProxy.messageSender != null)
             {
-                await serverProxy.messageSender.SendMessage(PacketType.ClientInitiateGame);
+                await serverProxy.messageSender.SendMessage(PacketType.c_InitiateGame);
             }
 
             Frame.Navigate(typeof(GameBoardPrototype), args);
@@ -385,14 +422,16 @@ namespace Ozwego
                 mainPageViewModel.ChatMessages.Add("me: " + messageToSend);
 
                 roomManager.InitiateMessageSend(messageToSend);
+
+                ChatWindowScrollViewer.ScrollToVerticalOffset(ChatWindowScrollViewer.VerticalOffset + 100);
             }
         }
 
 
-        private void ChatWindow_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ChatWindow.SelectedIndex = -1;
-        }
+        //private void ChatWindow_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        //{
+        //    ChatWindow.SelectedIndex = -1;
+        //}
 
 
         private void LoadColumnView(Type columnViewType)
@@ -444,7 +483,6 @@ namespace Ozwego
 
 
         #endregion
-
 
         #region OOBE UI
 

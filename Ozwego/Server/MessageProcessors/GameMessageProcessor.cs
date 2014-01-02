@@ -14,11 +14,11 @@ namespace Ozwego.Server.MessageProcessors
 
             switch (packetType)
             {
-                case PacketType.ServerGameStart:
+                case PacketType.s_GameStart:
                     gameController.StartGame();
                     break;
 
-                case PacketType.ServerDump:
+                case PacketType.s_Dump:
                     friend = data as Friend;
 
                     if (null != friend)
@@ -28,13 +28,13 @@ namespace Ozwego.Server.MessageProcessors
                     else
                     {
 #if DEBUG
-                        throw new ArgumentNullException("Invalid data from server: PacketType.ServerDump");
+                        throw new ArgumentNullException("Invalid data from server: PacketType.s_Dump");
 #endif
                     }
                     
                     break;
 
-                case PacketType.ServerPeel:
+                case PacketType.s_Peel:
                     friend = data as Friend;
 
                     if (null != friend)
@@ -48,7 +48,7 @@ namespace Ozwego.Server.MessageProcessors
 
                     break;
 
-                case PacketType.ServerGameOver:
+                case PacketType.s_GameOver:
                     friend = data as Friend;
 
                     if (null != friend)

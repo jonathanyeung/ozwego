@@ -106,7 +106,7 @@ namespace WorkerRole
 
                 MessageSender.BroadcastMessage(
                     _members,
-                    PacketType.HostTransfer,
+                    PacketType.s_HostTransfer,
                     _host.UserInfo);
             }
         }
@@ -131,7 +131,7 @@ namespace WorkerRole
 
             if (_clientsReadyForGame.Count == _members.Count)
             {
-                MessageSender.BroadcastMessage(_members, PacketType.ServerGameStart, null);
+                MessageSender.BroadcastMessage(_members, PacketType.s_GameStart, null);
 
                 _clientsReadyForGame.Clear();
 

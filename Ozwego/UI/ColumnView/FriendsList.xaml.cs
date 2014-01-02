@@ -37,7 +37,7 @@ namespace Ozwego.UI
                 var serverProxy = ServerProxy.GetInstance();
                 if (null != serverProxy.messageSender)
                 {
-                    await serverProxy.messageSender.SendMessage(PacketType.ClientFindBuddyFromGlobalList, SearchBar.Text);
+                    await serverProxy.messageSender.SendMessage(PacketType.c_FindBuddyFromGlobalList, SearchBar.Text);
                 }
             }
             else
@@ -64,7 +64,7 @@ namespace Ozwego.UI
             {
                 //ToDo: Get this data as a Friend type and use that in the SendMessage.
                 throw new NotImplementedException();
-                await serverProxy.messageSender.SendMessage(PacketType.ClientSendFriendRequest, SearchBar.Text);
+                await serverProxy.messageSender.SendMessage(PacketType.c_SendFriendRequest, SearchBar.Text);
             }
         }
 

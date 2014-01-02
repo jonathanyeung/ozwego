@@ -244,12 +244,19 @@
         <Grid.Resources>
             <converters:ColorConverter x:Key="CvtColor"/>
             <converters:ConnectionStringConverter x:Key="CvtConnectionString"/>
+            <converters:DateTimeConverter x:Key="CvtDateTimeConverter"/>
         </Grid.Resources>
         <Grid.RenderTransform>
             <CompositeTransform/>
         </Grid.RenderTransform>
         
+        <!--Background Image-->
+        <Grid.Background>
+            <ImageBrush ImageSource="ms-appx:/Assets/ozwegobackground.jpg" Stretch="UniformToFill"/>
+        </Grid.Background>
 
+
+        <!--Main Menu-->
         <Grid x:Name="MainMenu" RenderTransformOrigin="0.5,0.5" d:IsHidden="True">
             <Grid.RenderTransform>
                 <CompositeTransform/>
@@ -273,11 +280,11 @@
 
             <!-- Debug Menu (Not intended for release versions) -->
             <StackPanel HorizontalAlignment="Left" Height="Auto" Grid.Column="0" VerticalAlignment="Top" Width="400" Margin="20, 0, 0, 0">
-                <TextBlock Text="debug menu" Style="{StaticResource SubheaderTextStyle}"></TextBlock>
+                <TextBlock Text="debug menu" Style="{StaticResource SubheaderTextStyle}" Margin="0, 0, 0, 10"></TextBlock>
                 <Button Name="LogInButton"  Content="Log In" HorizontalAlignment="Left"  Grid.Row="1" VerticalAlignment="Top" Width="250" Tapped="LogInButton_OnTapped"/>
                 <Button Name="LogOutButton" Content="Log Out" HorizontalAlignment="Left"  Grid.Row="1" VerticalAlignment="Top" Width="250" Tapped="LogOutButton_OnTapped"/>
                 <Button Name="GameHistoryButton" Content="Retrieve Game History" HorizontalAlignment="Left"  Grid.Row="1" VerticalAlignment="Top" Width="250" Tapped="GameHistoryButton_Tapped" />
-                <Button Width="250" Content="Game Debug" Tapped="OnSinglePlayerButtonTapped" Margin="0, 0, 0, 20"></Button>
+                <Button Width="250" Content="Game Debug" Tapped="OnGameDebugButtonTapped" Margin="0, 0, 0, 20"></Button>
             </StackPanel>
 
             <!-- Center Column : Main Content -->
@@ -285,17 +292,24 @@
                 <TextBlock Text="ozwego" HorizontalAlignment="Center" FontSize="96"></TextBlock>
                 <!-- ToDo: Replace this with an animating picture resource-->
                 <TextBlock Name="UserNameUI" Text="{Binding Alias}" HorizontalAlignment="Center" Style="{StaticResource PageSubheaderTextStyle}"></TextBlock>
-                <TextBlock Text="{Binding Ranking}" HorizontalAlignment="Center" Style="{StaticResource TitleTextStyle}"></TextBlock>
-                <TextBlock Text="{Binding CreationTime}" HorizontalAlignment="Center" Style="{StaticResource TitleTextStyle}"></TextBlock>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="Ranking:" Style="{StaticResource TitleTextStyle}" Margin="0,0,5,0"></TextBlock>
+                    <TextBlock Text="{Binding Ranking}" Style="{StaticResource TitleTextStyle}" Margin="0,0,5,0"></TextBlock>
+                    <TextBlock Text="|" Style="{StaticResource TitleTextStyle}" Margin="0,0,5,0"></TextBlock>
+                    <TextBlock Text="Playing Since" Style="{StaticResource TitleTextStyle}" Margin="0,0,5,0"></TextBlock> 
+                    <TextBlock Text="{Binding CreationTime,Converter={StaticResource CvtDateTimeConverter}}" Style="{StaticResource TitleTextStyle}"></TextBlock>
+                </StackPanel>
             </StackPanel>
+            
             <TextBlock Margin="0" TextWrapping="Wrap" Text="friend challenge" FontSize="48" 
                        RenderTransformOrigin="0.9,0.5" UseLayoutRounding="False" d:LayoutRounding="Auto"
                        Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center"
-                       Tapped="OnMultiPlayerButtonTapped">
+                       Tapped="OnFriendChallengeButtonTapped">
                 <TextBlock.RenderTransform>
                     <CompositeTransform Rotation="90" TranslateY="134"/>
                 </TextBlock.RenderTransform>
             </TextBlock>
+            
             <TextBlock Margin="0" TextWrapping="Wrap" Text="matchmaking" FontSize="48" 
                        RenderTransformOrigin="0.1,0.5" UseLayoutRounding="False" 
                        d:LayoutRounding="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"
@@ -331,7 +345,7 @@
             </TextBlock>
         </Grid>
 
-        <Grid x:Name="FriendChallengePane" RenderTransformOrigin="0.5,0.5" Visibility="Collapsed">
+        <Grid x:Name="FriendChallengePane" RenderTransformOrigin="0.5,0.5" Visibility="Visible"> <!-- ToDo: Change this back to visibility invisible-->
             <Grid.RenderTransform>
                 <CompositeTransform/>
             </Grid.RenderTransform>
@@ -383,39 +397,49 @@
             </Grid>
 
 
-
+            <Line Grid.Column="1" StrokeThickness="10" Y2="5000" Stroke="#DEFFFFFF"/>
             <!--Buddy List UI-->
-            <StackPanel Grid.Column="1" Margin="0,10,0,0" Background="Black">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock Name="FriendsTextBlock" Text="Friends" FontSize="26.667" Height="40" Width="200" 
-                               VerticalAlignment="Center" HorizontalAlignment="Center" 
-                               TextAlignment="Center" FontFamily="Segoe UI" Tapped="FriendsColumnView_OnTapped" Foreground="#DEFFFFFF"/>
-                    <TextBlock Name="RequestsTextBlock" Text="Requests" FontSize="26.667" Height="40" Width="200" 
-                               VerticalAlignment="Center" HorizontalAlignment="Center" 
-                               TextAlignment="Center" FontFamily="Segoe UI" Tapped="RequestsColumnView_OnTapped" Foreground="#DEFFFFFF"/>
-                </StackPanel>
+            <!--<Border BorderThickness="2" BorderBrush="White" Grid.Column="1" Margin="0,10,0,0">
+                <Border.Background>
+                    <SolidColorBrush Color="#FF1D1D1D" Opacity=".5"></SolidColorBrush>
+                </Border.Background>-->
+                <StackPanel Grid.Column="1" Margin="0,10,0,0">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock Name="FriendsTextBlock" Text="Friends" FontSize="26.667" Height="40" Width="200" 
+                                   VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                   TextAlignment="Center" FontFamily="Segoe UI" Tapped="FriendsColumnView_OnTapped" Foreground="#DEFFFFFF"/>
+                        <TextBlock Name="RequestsTextBlock" Text="Requests" FontSize="26.667" Height="40" Width="200" 
+                                   VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                   TextAlignment="Center" FontFamily="Segoe UI" Tapped="RequestsColumnView_OnTapped" Foreground="#DEFFFFFF"/>
+                    </StackPanel>
 
-                <UserControl x:Name="ColumnContentSection"></UserControl>
-            </StackPanel>
+                    <UserControl x:Name="ColumnContentSection"></UserControl>
+                </StackPanel>
+            <!--</Border>-->
 
             <!--Chat Window-->
-            <StackPanel  Grid.Row="1" Grid.Column="1" VerticalAlignment="Bottom" Margin="0,0,0,0">
-                <ListBox Name="ChatWindow" Height="200" BorderThickness="3" BorderBrush="Azure" Margin="10,0" Background="Transparent" SelectionChanged="ChatWindow_OnSelectionChanged">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding}" Style="{StaticResource BodyTextStyle}"></TextBlock>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+            <Grid Grid.Row="1" Grid.Column="1" VerticalAlignment="Bottom" Margin="0,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                <StackPanel Orientation="Horizontal">
-                    <TextBox Name="MessageChatBox" Margin="5" Width="Auto" IsSpellCheckEnabled="True" 
+                <Border BorderThickness="2" BorderBrush="White" Margin="10,5,5,5" >
+                    <ScrollViewer Grid.Row="0" Height="200" Name="ChatWindowScrollViewer" HorizontalScrollMode="Disabled" ZoomMode="Disabled" VerticalScrollMode="Auto">
+                        <ItemsControl Name="ChatWindow" BorderThickness="3" BorderBrush="Azure" Margin="5,5,5,5" Background="Transparent">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" Style="{StaticResource BodyTextStyle}"></TextBlock>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+
+                <TextBox Grid.Row="1" Name="MessageChatBox" Margin="10,0,5,5" Width="Auto" IsSpellCheckEnabled="True" 
                              IsTextPredictionEnabled="True" Background="Transparent" 
-                             Foreground="White" KeyDown="MessageChatBox_OnKeyDown" MinWidth="380"></TextBox>
-                    <!--<Button Name="SendButton" Click="SendButton_OnClick" HorizontalAlignment="Left">Send</Button>-->
-                </StackPanel>
-            </StackPanel>
-
+                             Foreground="White" KeyDown="MessageChatBox_OnKeyDown" MinWidth="380"/>
+            </Grid>
         </Grid>
 
         <!--<Grid x:Name="PopUp" HorizontalAlignment="Center" VerticalAlignment="Center">-->

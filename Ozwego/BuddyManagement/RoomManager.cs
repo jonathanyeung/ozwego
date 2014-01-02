@@ -92,7 +92,7 @@ namespace Ozwego.BuddyManagement
         {
             var serverProxy = ServerProxy.GetInstance();
             await serverProxy.messageSender.SendMessage(
-                    PacketType.ClientJoinRoom,
+                    PacketType.c_JoinRoom,
                     buddyToJoin);
         }
 
@@ -101,7 +101,7 @@ namespace Ozwego.BuddyManagement
         //{
         //    var serverProxy = ServerProxy.GetInstance();
         //    await serverProxy.messageSender.SendMessage(
-        //            PacketType.ClientJoinRoom,
+        //            PacketType.c_JoinRoom,
         //            accountAddress);
         //}
 
@@ -115,7 +115,7 @@ namespace Ozwego.BuddyManagement
             var serverProxy = ServerProxy.GetInstance();
             if (null != serverProxy.messageSender)
             {
-                await serverProxy.messageSender.SendMessage(PacketType.ClientLeaveRoom);
+                await serverProxy.messageSender.SendMessage(PacketType.c_LeaveRoom);
             }
 
 
@@ -155,7 +155,7 @@ namespace Ozwego.BuddyManagement
 
             if (serverProxy.messageSender != null)
             {
-                await serverProxy.messageSender.SendMessage(PacketType.ClientChat, chat);
+                await serverProxy.messageSender.SendMessage(PacketType.c_Chat, chat);
             }
         }
 

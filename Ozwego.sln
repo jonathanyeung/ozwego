@@ -1,9 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ozwego", "Ozwego\Ozwego.csproj", "{297942E6-DAA5-416F-9FA7-04AE44D1757B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D45649BF-C411-478C-BF71-07F5C41142E7} = {D45649BF-C411-478C-BF71-07F5C41142E7}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientUnitTests", "ClientUnitTests\ClientUnitTests.csproj", "{7D643975-502F-45CE-BF9B-4385120B4BFB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D45649BF-C411-478C-BF71-07F5C41142E7} = {D45649BF-C411-478C-BF71-07F5C41142E7}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{92EFE0D8-F464-4836-9D54-AAF358991FD2}"
 	ProjectSection(SolutionItems) = preProject
